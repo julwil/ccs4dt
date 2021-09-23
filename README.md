@@ -19,4 +19,4 @@ Necessary attributes for the syntethic data (requirements based on original data
 | confidenceData            |   | TODO: Clarify purpose and logic behind this field | '[130,1,131,1,132,1,133,1,134,47172,135,1,136,1,137,1,138,0]' |
 | filialeId            | Identifier for measurement location  |  | 'schlieren' |
 | readerName            | Identifier for readerDevice  |  | 'left', 'central', 'A001' |
-| readerDeviceType            | Category of reader device  |  | 'WiFi', 'Camera', 'LIDAR' |
+| readerDeviceType            | Category of reader device  | Not in original livealytics dataset | 'WiFi', 'Camera', 'LIDAR' |
