@@ -1,0 +1,5 @@
+flask
+tinydb
+python-dotenv
+pytest
+influxdb-client
