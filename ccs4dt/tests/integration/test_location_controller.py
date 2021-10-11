@@ -12,19 +12,19 @@ def client():
 
 
 def test_get_all(client):
-    response = client.get('/spaces')
+    response = client.get('/locations')
     assert response.status_code == HTTPStatus.OK
 
 
 def test_get_by_id(client):
     post_response = test_post(client)
     id = post_response.get_json()["id"]
-    get_response = client.get(f'/spaces/{id}')
+    get_response = client.get(f'/locations/{id}')
     assert get_response.status_code == HTTPStatus.OK
 
 
 def test_post(client):
-    response = client.post('/spaces', json=get_space_dummy())
+    response = client.post('/locations', json=get_location_dummy())
     assert response.status_code == HTTPStatus.CREATED
     return response
 
@@ -32,18 +32,18 @@ def test_post(client):
 def test_put(client):
     post_response = test_post(client)
     id = post_response.get_json()["id"]
-    response = client.put(f'/spaces/{id}', json=get_space_dummy())
+    response = client.put(f'/locations/{id}', json=get_location_dummy())
     assert response.status_code == HTTPStatus.OK
 
 
 def test_delete(client):
     post_response = test_post(client)
     id = post_response.get_json()["id"]
-    response = client.delete(f'/spaces/{id}')
+    response = client.delete(f'/locations/{id}')
     assert response.status_code == HTTPStatus.NO_CONTENT
 
 
-def get_space_dummy():
+def get_location_dummy():
     return {
         "name": "BIN-2.A.10",
         "external_identifier": "room_1234",

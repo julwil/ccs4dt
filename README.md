@@ -28,7 +28,7 @@ documentation [here](https://app.swaggerhub.com/apis-docs/julwil/ccs4dt/1.0.0).
 
 Stores configuration and metadata:
 
-- Configuration for each space: How many sensors, where they are located, etc
+- Configuration for each location: How many sensors, where they are located, etc
 - Metadata on Input/Output Batches (scheduled, processing, finished, failed)
 
 ---
