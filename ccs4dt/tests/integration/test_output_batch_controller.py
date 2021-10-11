@@ -13,12 +13,6 @@ def client():
         yield client
 
 
-def test_get_all(client):
-    location_id = test_post_location(client).get_json()["id"]
-    response = client.get(f'/locations/{location_id}/output-batches')
-    assert response.status_code == HTTPStatus.OK
-
-
 def test_get_by_id(client):
     location_id = test_post_location(client).get_json()["id"]
     output_batch_id = test_post_input_batch(client).get_json()["output_batch_id"]
