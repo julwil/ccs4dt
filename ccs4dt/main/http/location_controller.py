@@ -29,17 +29,3 @@ def get_by_id(location_id):
 def post():
     location = location_service.create(request.get_json())
     return Response(json.dumps(location), status=HTTPStatus.CREATED, mimetype='application/json')
-
-
-@app.route('/locations/<location_id>', endpoint='locations_put', methods=['PUT'])
-def put(location_id):
-    location_id = int(location_id)
-    location = location_service.update(location_id, request.get_json())
-    return Response(json.dumps(location), status=HTTPStatus.OK, mimetype='application/json')
-
-
-@app.route('/locations/<location_id>', endpoint='locations_delete', methods=['DELETE'])
-def delete(location_id):
-    location_id = int(location_id)
-    location_service.delete(location_id)
-    return Response(None, status=HTTPStatus.NO_CONTENT, mimetype='application/json')

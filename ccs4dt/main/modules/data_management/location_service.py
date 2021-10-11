@@ -14,10 +14,3 @@ class LocationService:
 
     def get_all(self):
         return [self.get_by_id(location.doc_id) for location in self.__core_db.location_table.all()]
-
-    def update(self, location_id, data):
-        self.__core_db.location_table.update(data, doc_ids=[location_id])
-        return self.get_by_id(location_id)
-
-    def delete(self, location_id):
-        self.__core_db.location_table.remove(doc_ids=[location_id])

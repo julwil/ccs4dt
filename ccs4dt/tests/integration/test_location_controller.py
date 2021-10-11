@@ -29,20 +29,6 @@ def test_post(client):
     return response
 
 
-def test_put(client):
-    post_response = test_post(client)
-    id = post_response.get_json()["id"]
-    response = client.put(f'/locations/{id}', json=get_location_dummy())
-    assert response.status_code == HTTPStatus.OK
-
-
-def test_delete(client):
-    post_response = test_post(client)
-    id = post_response.get_json()["id"]
-    response = client.delete(f'/locations/{id}')
-    assert response.status_code == HTTPStatus.NO_CONTENT
-
-
 def get_location_dummy():
     return {
         "name": "BIN-2.A.10",
