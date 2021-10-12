@@ -1,22 +1,64 @@
 # ccs4dt
 
+Correlation Engine for Livealytics
 
+---
 
-### Synthetic data generation
+## Installation
 
-#### Requirements
-##### Attributes
-Necessary attributes for the syntethic data (requirements based on original data structure from livealytics):
+[Docker](https://docs.docker.com/get-docker/) and [Docker-compose](https://docs.docker.com/compose/install/) are
+required.
 
-| Attribute name     | Description     | Other comments | Example |
-|--------------------|-----------|------------|------------|
-| epc       | device identifier      | e.g. MAC-adress or randomly generated, unique identifier        |        |
-| lastSeenTime            | timestamp |TODO: clarify unit of measurement (is too long for UNIX timestamp) | ??? |
-| type            | type of entry (new device, update of position)  |        | 'entry','update' |
-| xCm            | x-Coordinate of position, relative to readerDevice position  | TODO: clarify unit of measurement | -605 |
-| yCm            | y-Coordinate of position, relative to readerDevice position  | TODO: clarify unit of measurement | 37 |
-| confidenceWeight            | confidence of measurement  | TODO: Clarify exact meaning of this| '1', '10577' |
-| confidenceData            |   | TODO: Clarify purpose and logic behind this field | '[130,1,131,1,132,1,133,1,134,47172,135,1,136,1,137,1,138,0]' |
-| filialeId            | Identifier for measurement location  |  | 'schlieren' |
-| readerName            | Identifier for readerDevice  |  | 'left', 'central', 'A001' |
-| readerDeviceType            | Category of reader device  | Not in original livealytics dataset | 'WiFi', 'Camera', 'LIDAR' |
+1. Clone repository at `git@github.com:mtornow/ccs4dt.git`
+2. Go into project root folder `cd ccs4dt/`
+3. Run `docker-compose up`
+
+---
+
+## Getting Started
+
+### REST API
+
+API is exposed at [http://localhost:5000](http://localhost:5000) Find API
+documentation [here](https://app.swaggerhub.com/apis-docs/julwil/ccs4dt/1.0.0).
+
+---
+
+### CoreDB
+
+Stores configuration and metadata:
+
+- Configuration for each location: How many sensors, where they are located, etc
+- Metadata on Input/Output Batches (scheduled, processing, finished, failed)
+
+---
+
+### InfluxDB
+
+Stores the actual time-series data provided by the InputBatch
+
+InfluxDB UI is exposed at [http://localhost:8086](http://localhost:8086)
+
+- username:  ccs4dt
+- password: ccs4dt1234
+
+---
+
+## Tests
+
+All tests are in the project's `/test` folder
+
+```
+ccs4dt
+│   ...
+└───tests
+│   └───integration
+│   └───unit
+│   ...
+```
+
+prefix all tests with `test_` and place them in `/tests/integration` or `/tests/unit` folder.
+
+Run all tests with `docker run api pytest` or `docker exec api pytest`
+
+---
