@@ -17,14 +17,15 @@ class InputBatchService:
         self.STATUS_FINISHED = 'finished'
         self.STATUS_FAILED = 'failed'
 
-    def create(self, batch):
+    def create(self, location_id, batch):
         input_batch_id = self.__core_db.input_batch_table.insert({
+            'location_id': location_id,
             'status': self.STATUS_SCHEDULED,
             'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         })
 
         input_batch = self.get_by_id(input_batch_id)
-        output_batch = self.__output_batch_service.create(input_batch_id)
+        output_batch = self.__output_batch_service.create(location_id, input_batch_id)
         self.update(input_batch_id, {'output_batch_id': output_batch['id'], **input_batch})
 
         ProcessBatchThread(self, args=batch).start()
@@ -65,3 +66,6 @@ class InputBatchService:
                 .field("z", measurement["z"]) \
                 .time(measurement["timestamp"])
             self.__influx_db.write_api.write("ccs4dt", "ccs4dt", point)
+
+    def get_all(self):
+        return [self.get_by_id(input_batch.doc_id) for input_batch in self.__core_db.input_batch_table.all()]
