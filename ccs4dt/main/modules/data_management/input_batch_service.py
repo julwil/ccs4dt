@@ -8,10 +8,11 @@ from ccs4dt.main.modules.data_management.process_batch_thread import ProcessBatc
 
 
 class InputBatchService:
-    def __init__(self, core_db, influx_db, output_batch_service):
+    def __init__(self, core_db, influx_db, output_batch_service, location_service):
         self.__core_db = core_db
         self.__influx_db = influx_db
         self.__output_batch_service = output_batch_service
+        self.__location_service = location_service
         self.STATUS_SCHEDULED = 'scheduled'
         self.STATUS_PROCESSING = 'processing'
         self.STATUS_FINISHED = 'finished'
@@ -28,7 +29,12 @@ class InputBatchService:
         output_batch = self.__output_batch_service.create(location_id, input_batch_id)
         self.update(input_batch_id, {'output_batch_id': output_batch['id'], **input_batch})
 
-        ProcessBatchThread(self, args=batch).start()
+        ProcessBatchThread(self, self.__location_service, kwargs={
+            'location_id': location_id,
+            'input_batch_id': input_batch_id,
+            'output_batch_id': output_batch['id'],
+            'batch': batch
+        }).start()
 
         return self.get_by_id(input_batch_id)
 
@@ -42,10 +48,14 @@ class InputBatchService:
         self.__core_db.input_batch_table.update(data, doc_ids=[input_batch_id])
         return self.get_by_id(input_batch_id)
 
-    def process(self):
-        for i in range(4):
-            logging.error(i)
-            time.sleep(1)
+
+    def update_status(self, input_batch_id, new_status):
+        if new_status not in [self.STATUS_SCHEDULED, self.STATUS_PROCESSING, self.STATUS_FINISHED, self.STATUS_FAILED]:
+            raise RuntimeError(f'unknown input batch status {new_status}')
+
+        input_batch = self.get_by_id(input_batch_id)
+        input_batch['status'] = new_status
+        self.update(input_batch_id, input_batch)
 
     def save_batch_to_influx(self, batch):
         """
