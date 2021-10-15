@@ -40,6 +40,7 @@ def get_location_dummy():
                 "x_origin": 0,
                 "y_origin": 10,
                 "z_origin": 3,
+                "orientation": 90,
                 "measurement_unit": "meter",
                 "payload_properties": [
                     "gender"

@@ -39,7 +39,7 @@ def get_input_batch_dummy():
             "x": 55,
             "y": 35,
             "z": 1,
-            "sensor_id": 1,
+            "sensor_identifier": "sensor_123",
             "sensor_type": "camera",
             "timestamp": 1633859021123456000,
             "payload": {
@@ -51,7 +51,7 @@ def get_input_batch_dummy():
             "x": 57,
             "y": 33,
             "z": 1,
-            "sensor_id": 1,
+            "sensor_identifier": "sensor_456",
             "sensor_type": "rfid",
             "timestamp": 1633859021123456000
         },
@@ -60,7 +60,7 @@ def get_input_batch_dummy():
             "x": 65,
             "y": 27,
             "z": 1,
-            "sensor_id": 2,
+            "sensor_identifier": "sensor_789",
             "sensor_type": "wifi",
             "timestamp": 1633859021123456000
         }
