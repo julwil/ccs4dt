@@ -1,7 +1,6 @@
-from http import HTTPStatus
-
 import pytest
 import time
+from http import HTTPStatus
 
 from ccs4dt import app
 from ccs4dt.tests.integration.test_location_controller import test_post as test_post_location

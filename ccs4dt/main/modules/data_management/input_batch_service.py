@@ -1,5 +1,3 @@
-import logging
-import time
 from datetime import datetime
 
 from influxdb_client import Point
@@ -42,7 +40,6 @@ class InputBatchService:
         connection.cursor().execute(query, (data['location_id'], data['status'], input_batch_id))
         connection.commit()
         return self.get_by_id(input_batch_id)
-
 
     def update_status(self, input_batch_id, new_status):
         if new_status not in [self.STATUS_SCHEDULED, self.STATUS_PROCESSING, self.STATUS_FINISHED, self.STATUS_FAILED]:

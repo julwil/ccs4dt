@@ -17,7 +17,7 @@ class CoreDB:
         return self.__db
 
     def __connect(self, db_path):
-        return sqlite3.connect(db_path, check_same_thread=False) # Enable concurrent reads/writes
+        return sqlite3.connect(db_path, check_same_thread=False)  # Enable concurrent reads/writes
 
     def __enable_foreign_keys(self):
         self.__db.executescript('PRAGMA foreign_keys=1;')
