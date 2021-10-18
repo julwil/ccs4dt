@@ -55,7 +55,7 @@ def get_input_batch_dummy():
             "x": -2.5,
             "y": 6,
             "z": 1,
-            "sensor_identifier": "sensor_",
+            "sensor_identifier": "sensor_2",
             "sensor_type": "rfid",
             "timestamp": int(time.time())
         }
