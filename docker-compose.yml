@@ -5,6 +5,11 @@ services:
     build:
       context: './'
       dockerfile: './docker/api/Dockerfile'
+      args:
+        UID: ${UID:-0}
+        GID: ${GID:-0}
+        USER: ${USER:-root}
+
     ports:
       - "5000:5000"
     volumes:
