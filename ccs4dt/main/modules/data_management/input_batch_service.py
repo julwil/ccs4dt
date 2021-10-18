@@ -6,10 +6,9 @@ from ccs4dt.main.modules.data_management.process_batch_thread import ProcessBatc
 
 
 class InputBatchService:
-    def __init__(self, core_db, influx_db, output_batch_service):
+    def __init__(self, core_db, influx_db):
         self.__core_db = core_db
         self.__influx_db = influx_db
-        self.__output_batch_service = output_batch_service
         self.STATUS_SCHEDULED = 'scheduled'
         self.STATUS_PROCESSING = 'processing'
         self.STATUS_FINISHED = 'finished'
