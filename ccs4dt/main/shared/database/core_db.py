@@ -7,23 +7,23 @@ from dotenv import load_dotenv
 class CoreDB:
     def __init__(self):
         load_dotenv()
-        db_path = os.environ.get('CORE_DB_PATH', 'storage/core_db/sqlite.db')
-        self.__db = self.__connect(db_path)
-        self.__enable_foreign_keys()
-        self.__create_schema()
-        self.__db.row_factory = sqlite3.Row
+        self.__db_path = os.environ.get('CORE_DB_PATH', 'storage/core_db/sqlite.db')
 
     def connection(self):
-        return self.__db
+        connection = self.__connect(self.__db_path)
+        self.__enable_foreign_keys(connection)
+        self.__create_schema(connection)
+        connection.row_factory = sqlite3.Row
+        return connection
 
     def __connect(self, db_path):
-        return sqlite3.connect(db_path, check_same_thread=False)  # Enable concurrent reads/writes
+        return sqlite3.connect(db_path)
 
-    def __enable_foreign_keys(self):
-        self.__db.executescript('PRAGMA foreign_keys=1;')
+    def __enable_foreign_keys(self, connection):
+        connection.executescript('PRAGMA foreign_keys=1;')
 
-    def __create_schema(self):
-        self.connection().cursor().executescript('''
+    def __create_schema(self, connection):
+        connection.cursor().executescript('''
 
             CREATE TABLE IF NOT EXISTS locations
             (
