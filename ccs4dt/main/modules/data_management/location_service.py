@@ -27,7 +27,6 @@ class LocationService:
         location = dict(connection.cursor().execute(location_query, (location_id,)).fetchone())
         sensors = [dict(sensor) for sensor in connection.cursor().execute(sensor_query, (location_id,)).fetchall()]
         location['sensors'] = sensors
-
         return location
 
     def get_all(self):
