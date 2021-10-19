@@ -1,10 +1,11 @@
-import logging
 from math import sin, cos, radians
+from ccs4dt.main.shared.enums.measurement_unit import MeasurementUnit
 
 class Converter:
     def __init__(self, batch):
-        self.__batch = batch
+        self.__batch_df = batch
         self.__sensors = {}
+        self.__location_orientation = 90
 
     def add_sensor(self, sensor_identifier, x_origin, y_origin, z_origin, orientation, measurement_unit):
         self.__sensors[sensor_identifier] = {
@@ -17,47 +18,50 @@ class Converter:
 
         return self
 
-    def convert(self):
+    def run(self):
         if not self.__sensors:
-            return self.__batch
+            return self.__batch_df
 
-        self.__batch = self.__batch.apply(self.__convert_units, axis=1)
-        self.__batch = self.__batch.apply(self.__convert_coordinates, axis=1)
-        return self.__batch
+        self.__batch_df = self.__batch_df.apply(self.__convert_units, axis=1)
+        self.__batch_df = self.__batch_df.apply(self.__convert_coordinates, axis=1)
+        return self.__batch_df
 
 
     def __convert_units(self, row):
         sensor = self.__sensors[row['sensor_identifier']]
         factor = 1
 
-        # Our internal unit
-        if sensor['measurement_unit'] == 'cm':
+        if sensor['measurement_unit'] == MeasurementUnit.CENTIMETER:
             return row
 
-        if sensor['measurement_unit'] == 'mm':
+        if sensor['measurement_unit'] == MeasurementUnit.MILLIMETER:
             factor = 0.1
 
-        if sensor['measurement_unit'] == 'm':
+        if sensor['measurement_unit'] == MeasurementUnit.METER:
             factor = 100
 
-        row['x'], row['y'], row['z'] = row['x'] * factor, row['y'] * factor, row['z'] * factor
+        for axis in ['x', 'y', 'z']:
+            row[axis] *= factor
+
         return row
 
 
     def __convert_coordinates(self, row):
         sensor = self.__sensors[row['sensor_identifier']]
-        angle = radians(90 - sensor['orientation'])
         x_old, y_old = row['x'], row['y']
 
-        logging.error(sensor['orientation'])
+        # First we handle the rotation transformation in euclidean space.
+        # The orientation of the sensor's and the location's coordinate system need to be the same.
+        # More info: https://en.wikipedia.org/wiki/Rotation_matrix.
+        rotation_angle = radians(self.__location_orientation - sensor['orientation'])
+        x_rotated = (cos(rotation_angle) * x_old + sin(rotation_angle) * y_old)
+        y_rotated = (-sin(rotation_angle) * x_old + cos(rotation_angle) * y_old)
 
-        # See Transformation in euclidean space for more info:
-        # https://en.wikipedia.org/wiki/Rotation_matrix
-        x_new = (cos(angle) * x_old + sin(angle) * y_old) + sensor['x_origin']
-        y_new = (-sin(angle) * x_old + cos(angle) * y_old) + sensor['y_origin']
+        # Second we handle the coordinate offset between the location's coordinate system
+        # and the sensor's coordinate system.
+        x_new, y_new = x_rotated + sensor['x_origin'], y_rotated + sensor['y_origin']
 
         row['x'], row['y'] = x_new, y_new
-
         return row
 
 

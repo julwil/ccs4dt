@@ -3,24 +3,23 @@ from datetime import datetime
 from influxdb_client import Point
 
 from ccs4dt.main.modules.data_management.process_batch_thread import ProcessBatchThread
-
+from ccs4dt.main.shared.enums.input_batch_status import InputBatchStatus
 
 class InputBatchService:
-    def __init__(self, core_db, influx_db):
+    def __init__(self, core_db, influx_db, location_service):
         self.__core_db = core_db
         self.__influx_db = influx_db
-        self.STATUS_SCHEDULED = 'scheduled'
-        self.STATUS_PROCESSING = 'processing'
-        self.STATUS_FINISHED = 'finished'
-        self.STATUS_FAILED = 'failed'
+        self.__location_service = location_service
 
     def create(self, location_id, batch):
         connection = self.__core_db.connection()
         query = '''INSERT INTO input_batches (location_id, status, created_at) VALUES(?,?,?)'''
-        input_batch_id = connection.cursor().execute(query, (location_id, self.STATUS_SCHEDULED, datetime.now())).lastrowid
+        input_batch_id = connection.cursor().execute(query, (location_id, InputBatchStatus.SCHEDULED, datetime.now())).lastrowid
         connection.commit()
 
         ProcessBatchThread(kwargs={
+            'input_batch_service': self,
+            'location_service': self.__location_service,
             'location_id': location_id,
             'input_batch_id': input_batch_id,
             'batch': batch
@@ -41,7 +40,7 @@ class InputBatchService:
         return self.get_by_id(input_batch_id)
 
     def update_status(self, input_batch_id, new_status):
-        if new_status not in [self.STATUS_SCHEDULED, self.STATUS_PROCESSING, self.STATUS_FINISHED, self.STATUS_FAILED]:
+        if new_status not in list(InputBatchStatus):
             raise RuntimeError(f'unknown input batch status {new_status}')
 
         input_batch = self.get_by_id(input_batch_id)
