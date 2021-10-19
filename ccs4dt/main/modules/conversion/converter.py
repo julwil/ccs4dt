@@ -48,18 +48,19 @@ class Converter:
 
     def __convert_coordinates(self, row):
         sensor = self.__sensors[row['sensor_identifier']]
-        x_old, y_old = row['x'], row['y']
+        x_old, y_old = row['x'], row['y'] # z is assumed to be constant for all sensors
 
         # First we handle the rotation transformation in euclidean space.
         # The orientation of the sensor's and the location's coordinate system need to be the same.
         # More info: https://en.wikipedia.org/wiki/Rotation_matrix.
         rotation_angle = radians(self.__location_orientation - sensor['orientation'])
-        x_rotated = (cos(rotation_angle) * x_old + sin(rotation_angle) * y_old)
-        y_rotated = (-sin(rotation_angle) * x_old + cos(rotation_angle) * y_old)
+        x_rotated = cos(rotation_angle) * x_old + sin(rotation_angle) * y_old
+        y_rotated = -sin(rotation_angle) * x_old + cos(rotation_angle) * y_old
 
         # Second we handle the coordinate offset between the location's coordinate system
         # and the sensor's coordinate system.
-        x_new, y_new = x_rotated + sensor['x_origin'], y_rotated + sensor['y_origin']
+        x_new = x_rotated + sensor['x_origin']
+        y_new = y_rotated + sensor['y_origin']
 
         row['x'], row['y'] = x_new, y_new
         return row
