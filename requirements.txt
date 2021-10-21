@@ -3,3 +3,6 @@ tinydb
 python-dotenv
 pytest
 influxdb-client
+matplotlib
+pytransform3d
+scipy
