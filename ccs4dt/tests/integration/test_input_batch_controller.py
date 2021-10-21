@@ -1,6 +1,6 @@
-from http import HTTPStatus
-
 import pytest
+import time
+from http import HTTPStatus
 
 from ccs4dt import app
 from ccs4dt.tests.integration.test_location_controller import test_post as test_post_location
@@ -14,54 +14,49 @@ def client():
 
 def test_get_all(client):
     location_id = test_post_location(client).get_json()["id"]
-    response = client.get(f'/locations/{location_id}/input-batches')
+    response = client.get(f'/locations/{location_id}/inputs')
     assert response.status_code == HTTPStatus.OK
 
 
 def test_get_by_id(client):
     location_id = test_post_location(client).get_json()["id"]
     input_batch_id = test_post(client).get_json()["id"]
-    response = client.get(f'/locations/{location_id}/input-batches/{input_batch_id}')
+    response = client.get(f'/locations/{location_id}/inputs/{input_batch_id}')
     assert response.status_code == HTTPStatus.OK
 
 
 def test_post(client):
     location_id = test_post_location(client).get_json()["id"]
-    response = client.post(f'/locations/{location_id}/input-batches', json=get_input_batch_dummy())
+    response = client.post(f'/locations/{location_id}/inputs', json=get_input_batch_dummy())
     assert response.status_code == HTTPStatus.ACCEPTED
     return response
+
+
+def test_get_outputs(client):
+    location_id = test_post_location(client).get_json()["id"]
+    input_batch_id = test_post(client).get_json()["id"]
+    response = client.get(f'/locations/{location_id}/inputs/{input_batch_id}/outputs')
+    assert response.status_code == HTTPStatus.OK
 
 
 def get_input_batch_dummy():
     return [
         {
-            "object_identifier": "a1d0c6e83f027327d8461063f4ac58a6",
-            "x": 55,
-            "y": 35,
+            "object_identifier": "my-object",
+            "x": 1,
+            "y": 0.5,
             "z": 1,
-            "sensor_id": 1,
-            "sensor_type": "camera",
-            "timestamp": 1633859021123456000,
-            "payload": {
-                "gender": "female"
-            }
-        },
-        {
-            "object_identifier": "a1d0c6e83f027327d8461063f4ac58a6",
-            "x": 57,
-            "y": 33,
-            "z": 1,
-            "sensor_id": 1,
+            "sensor_identifier": "sensor_1",
             "sensor_type": "rfid",
-            "timestamp": 1633859021123456000
+            "timestamp": int(time.time())
         },
         {
-            "object_identifier": "a1d0c6e83f027327d8461063f4ac58a6",
-            "x": 65,
-            "y": 27,
+            "object_identifier": "my-object",
+            "x": -2.5,
+            "y": 6,
             "z": 1,
-            "sensor_id": 2,
-            "sensor_type": "wifi",
-            "timestamp": 1633859021123456000
+            "sensor_identifier": "sensor_2",
+            "sensor_type": "rfid",
+            "timestamp": int(time.time())
         }
     ]
