@@ -3,14 +3,13 @@ import threading
 
 class ProcessBatchThread(threading.Thread):
 
-    def __init__(self, input_batch_service, group=None, target=None, name=None, args=None, kwargs=None, *, daemon=None):
-        self.__input_batch_service = input_batch_service
+    def __init__(self, group=None, target=None, name=None, args=None, kwargs=None, *, daemon=None):
         self.args = args
         self.kwargs = kwargs
         super().__init__(group=group, target=target, name=name, args=args, kwargs=kwargs, daemon=daemon)
 
     def run(self):
-        self.__input_batch_service.save_batch_to_influx(self.args)
+        pass
         # Coordinate Transformation
         # Clustering
         # Prediction

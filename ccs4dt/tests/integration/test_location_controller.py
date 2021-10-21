@@ -35,15 +35,22 @@ def get_location_dummy():
         "external_identifier": "room_1234",
         "sensors": [
             {
-                "identifier": "abc123",
+                "identifier": "sensor_1",
                 "type": "rfid",
-                "x_origin": 0,
-                "y_origin": 10,
-                "z_origin": 3,
-                "measurement_unit": "meter",
-                "payload_properties": [
-                    "gender"
-                ]
+                "x_origin": 1,
+                "y_origin": 1.5,
+                "z_origin": 1,
+                "orientation": 90,
+                "measurement_unit": "cm"
+            },
+            {
+                "identifier": "sensor_2",
+                "type": "rfid",
+                "x_origin": 8,
+                "y_origin": 4.5,
+                "z_origin": 1,
+                "orientation": 180,
+                "measurement_unit": "cm"
             }
         ]
     }
