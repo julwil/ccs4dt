@@ -40,7 +40,7 @@ def get_location_dummy():
                 "x_origin": 1,
                 "y_origin": 1.5,
                 "z_origin": 1,
-                "orientation": 90,
+                "y_rotation": 90,
                 "measurement_unit": "cm"
             },
             {
@@ -49,7 +49,7 @@ def get_location_dummy():
                 "x_origin": 8,
                 "y_origin": 4.5,
                 "z_origin": 1,
-                "orientation": 180,
+                "y_rotation": 180,
                 "measurement_unit": "cm"
             }
         ]

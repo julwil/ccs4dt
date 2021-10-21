@@ -5,14 +5,14 @@ class Converter:
     def __init__(self, batch):
         self.__batch_df = batch
         self.__sensors = {}
-        self.__location_orientation = 90
+        self.__location_y_rotation = 0
 
-    def add_sensor(self, sensor_identifier, x_origin, y_origin, z_origin, orientation, measurement_unit):
+    def add_sensor(self, sensor_identifier, x_origin, y_origin, z_origin, y_rotation, measurement_unit):
         self.__sensors[sensor_identifier] = {
             'x_origin': x_origin,
             'y_origin': y_origin,
             'z_origin': z_origin,
-            'orientation': orientation,
+            'y_rotation': y_rotation,
             'measurement_unit': measurement_unit
         }
 
@@ -53,7 +53,7 @@ class Converter:
         # First we handle the rotation transformation in euclidean space.
         # The orientation of the sensor's and the location's coordinate system need to be the same.
         # More info: https://en.wikipedia.org/wiki/Rotation_matrix.
-        rotation_angle = radians(self.__location_orientation - sensor['orientation'])
+        rotation_angle = radians(self.__location_y_rotation - sensor['y_rotation'])
         x_rotated = cos(rotation_angle) * x_old + sin(rotation_angle) * y_old
         y_rotated = -sin(rotation_angle) * x_old + cos(rotation_angle) * y_old
 
