@@ -5,9 +5,11 @@ from flask import request, Response
 
 from ccs4dt import app
 from ccs4dt.main.modules.data_management.input_batch_service import InputBatchService
+from ccs4dt.main.modules.data_management.location_service import LocationService
 from ccs4dt.main.shared.database import core_db, influx_db
 
-input_batch_service = InputBatchService(core_db, influx_db)
+location_service = LocationService(core_db)
+input_batch_service = InputBatchService(core_db, influx_db, location_service)
 
 
 # TODO: Implement CRUDs and some input validation

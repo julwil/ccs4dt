@@ -40,7 +40,9 @@ def get_location_dummy():
                 "x_origin": 1,
                 "y_origin": 1.5,
                 "z_origin": 1,
-                "orientation": 90,
+                "yaw": 90,
+                "pitch": 0,
+                "roll": 0,
                 "measurement_unit": "cm"
             },
             {
@@ -49,7 +51,9 @@ def get_location_dummy():
                 "x_origin": 8,
                 "y_origin": 4.5,
                 "z_origin": 1,
-                "orientation": 180,
+                "yaw": 180,
+                "pitch": 0,
+                "roll": 0,
                 "measurement_unit": "cm"
             }
         ]
