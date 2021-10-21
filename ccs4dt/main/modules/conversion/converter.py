@@ -117,7 +117,7 @@ class Converter:
         output_vector = np.matmul(final_rotation_matrix, input_vector)
 
         # Save transformed values to row.
-        row['x'] = output_vector[0]
-        row['y'] = output_vector[1]
-        row['z'] = output_vector[2]
+        for i, axis in enumerate(['x', 'y', 'z']):
+            row[axis] = output_vector[i]
+
         return row
