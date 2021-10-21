@@ -9,8 +9,8 @@ class LocationService:
 
         sensor_query = '''
                 INSERT INTO sensors 
-                (location_id, identifier, type, x_origin, y_origin, z_origin, y_rotation, measurement_unit)
-                VALUES (:location_id, :identifier, :type, :x_origin, :y_origin, :z_origin, :y_rotation, :measurement_unit)
+                (location_id, identifier, type, x_origin, y_origin, z_origin, yaw, pitch, roll, measurement_unit)
+                VALUES (:location_id, :identifier, :type, :x_origin, :y_origin, :z_origin, :yaw, :pitch, :roll, :measurement_unit)
             '''
 
         for sensor in data['sensors']:

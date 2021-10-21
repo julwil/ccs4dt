@@ -3,3 +3,4 @@ python-dotenv
 pytest
 influxdb-client
 pandas
+numpy

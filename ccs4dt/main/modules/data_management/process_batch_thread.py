@@ -40,7 +40,9 @@ class ProcessBatchThread(threading.Thread):
                 sensor['x_origin'],
                 sensor['y_origin'],
                 sensor['z_origin'],
-                sensor['y_rotation'],
+                sensor['yaw'],
+                sensor['pitch'],
+                sensor['roll'],
                 sensor['measurement_unit']
             )
 

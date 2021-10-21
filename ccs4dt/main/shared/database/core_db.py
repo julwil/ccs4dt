@@ -56,7 +56,9 @@ class CoreDB:
                 x_origin         REAL NOT NULL,
                 y_origin         REAL NOT NULL,
                 z_origin         REAL NOT NULL,
-                y_rotation       REAL NOT NULL,
+                yaw              REAL NOT NULL,
+                pitch            REAL NOT NULL,
+                roll             REAL NOT NULL,
                 measurement_unit TEXT    NOT NULL
             );
         ''')
