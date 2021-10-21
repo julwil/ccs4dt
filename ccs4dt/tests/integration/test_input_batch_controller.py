@@ -14,22 +14,29 @@ def client():
 
 def test_get_all(client):
     location_id = test_post_location(client).get_json()["id"]
-    response = client.get(f'/locations/{location_id}/input-batches')
+    response = client.get(f'/locations/{location_id}/inputs')
     assert response.status_code == HTTPStatus.OK
 
 
 def test_get_by_id(client):
     location_id = test_post_location(client).get_json()["id"]
     input_batch_id = test_post(client).get_json()["id"]
-    response = client.get(f'/locations/{location_id}/input-batches/{input_batch_id}')
+    response = client.get(f'/locations/{location_id}/inputs/{input_batch_id}')
     assert response.status_code == HTTPStatus.OK
 
 
 def test_post(client):
     location_id = test_post_location(client).get_json()["id"]
-    response = client.post(f'/locations/{location_id}/input-batches', json=get_input_batch_dummy())
+    response = client.post(f'/locations/{location_id}/inputs', json=get_input_batch_dummy())
     assert response.status_code == HTTPStatus.ACCEPTED
     return response
+
+
+def test_get_outputs(client):
+    location_id = test_post_location(client).get_json()["id"]
+    input_batch_id = test_post(client).get_json()["id"]
+    response = client.get(f'/locations/{location_id}/inputs/{input_batch_id}/outputs')
+    assert response.status_code == HTTPStatus.OK
 
 
 def get_input_batch_dummy():
@@ -48,7 +55,7 @@ def get_input_batch_dummy():
             "x": -2.5,
             "y": 6,
             "z": 1,
-            "sensor_identifier": "sensor_",
+            "sensor_identifier": "sensor_2",
             "sensor_type": "rfid",
             "timestamp": int(time.time())
         }
