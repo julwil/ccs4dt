@@ -7,7 +7,7 @@ from ccs4dt.main.shared.enums.input_batch_status import InputBatchStatus
 
 
 class ProcessBatchThread(threading.Thread):
-
+    """Handle the processing of an input data batch and store the result to influxDB."""
     def __init__(self, group=None, target=None, name=None, args=None, kwargs=None, *, daemon=None):
         self.__input_batch_service = kwargs['input_batch_service']
         self.__location_service = kwargs['location_service']
@@ -17,6 +17,7 @@ class ProcessBatchThread(threading.Thread):
         super().__init__(group=group, target=target, name=name, args=args, kwargs=kwargs, daemon=daemon)
 
     def run(self):
+        """Run the input batch processing"""
         try:
             self.__update_status(InputBatchStatus.PROCESSING)
 
@@ -31,6 +32,7 @@ class ProcessBatchThread(threading.Thread):
             raise e
 
     def __convert(self):
+        """Convert input data batch into a standardized and shared format"""
         location = self.__location_service.get_by_id(self.__location_id)
         converter = Converter(self.__batch_df)
 
