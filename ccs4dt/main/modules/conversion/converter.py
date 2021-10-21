@@ -56,7 +56,7 @@ class Converter:
 
     def __convert_coordinate_offset(self, row):
         """
-        Handle the coordinate offset between the location's coordinate system
+        Handle the coordinate offset between the location's coordinate system (frame of reference)
         and the sensor's coordinate system.
         :param row: pd.Series
         :return: pd.Series
@@ -70,7 +70,7 @@ class Converter:
 
     def __convert_axis_rotation(self, row):
         """
-        Handle axis rotation in 3D space. The sensor's and location's coordinate system
+        Handle axis rotation in 3D space. The sensor's and location's coordinate system (frame of reference)
         must have the same orientation. Thus, we need to perform an axis rotation if they are not aligned.
         Read more: https://en.wikipedia.org/wiki/Rotation_matrix --> General Rotations
         Graphical illustration: https://drive.google.com/file/d/1D9SjnO0xFJpuGy1T1oRNXpANSXOs9jRS/view
