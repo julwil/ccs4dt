@@ -5,7 +5,7 @@ from ccs4dt.main.shared.enums.measurement_unit import MeasurementUnit
 
 
 class Converter:
-    """Converter responsible for converting measurements from different sensors into a common format.
+    """Converter class is responsible for converting measurements from different sensors into a common format.
     Sensors collect measurements with respect to their coordinate system. The conversion ensures that measurements of
     different sensors are harmonized such that they can be compared and aggregated. The conversion includes:
     1. Measurement Unit transformation (e.g. cm, mm, m)
