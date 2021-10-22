@@ -18,7 +18,7 @@ import uuid
 
 class Person(object):
     """
-    Class descriptions bla bla Manual for writing these doc strings: https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html
+    Class Description bla bla Manual for writing these doc strings: https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html
 
     :param position_x: Description of parameter
     :type position_x: int
