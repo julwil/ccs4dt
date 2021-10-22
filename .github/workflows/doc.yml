@@ -23,8 +23,8 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Generate documentation
       run: |
+        sphinx-apidoc -o docs . ccs4dt/tests -f
         cd docs
-        sphinx-apidoc -o . .. ../ccs4dt/tests/ -f
         make html
         cp _build/html/* . -rf
         rm _build -rf
