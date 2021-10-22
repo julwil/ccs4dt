@@ -13,6 +13,7 @@ class CoreDB:
     def connection(self):
         """
         Returns a new database connection
+
         :rtype CoreDB
         """
         connection = self.__connect(self.__db_path)
