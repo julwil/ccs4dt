@@ -24,7 +24,7 @@ jobs:
     - name: Generate documentation
       run: |
         cd docs
-        sphinx-apidoc -o . .. ../ccs4dt/tests/
+        sphinx-apidoc -o . .. ../ccs4dt/tests/ -f
         make html
         cp _build/html/* . -rf
         rm _build -rf
