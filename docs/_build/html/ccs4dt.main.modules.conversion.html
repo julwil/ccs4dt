@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <meta name="generator" content="sphinx-4.2.0, furo 2021.10.09"/>
-        <title>ccs4dt.main.shared.database package - CCS4DT 1.0 documentation</title>
+        <title>ccs4dt.main.modules.conversion package - CCS4DT 1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=0254c309f5cadf746f1a613e7677379ac9c8cdcd" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=16fb25fabf47304eee183a5e9af80b1ba98259b1" />
@@ -179,37 +179,56 @@
           </label>
         </div>
         <article role="main">
-          <section id="ccs4dt-main-shared-database-package">
-<h1>ccs4dt.main.shared.database package<a class="headerlink" href="#ccs4dt-main-shared-database-package" title="Permalink to this headline">¶</a></h1>
+          <section id="ccs4dt-main-modules-conversion-package">
+<h1>ccs4dt.main.modules.conversion package<a class="headerlink" href="#ccs4dt-main-modules-conversion-package" title="Permalink to this headline">¶</a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </section>
-<section id="module-ccs4dt.main.shared.database.core_db">
-<span id="ccs4dt-main-shared-database-core-db-module"></span><h2>ccs4dt.main.shared.database.core_db module<a class="headerlink" href="#module-ccs4dt.main.shared.database.core_db" title="Permalink to this headline">¶</a></h2>
+<section id="module-ccs4dt.main.modules.conversion.converter">
+<span id="ccs4dt-main-modules-conversion-converter-module"></span><h2>ccs4dt.main.modules.conversion.converter module<a class="headerlink" href="#module-ccs4dt.main.modules.conversion.converter" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="ccs4dt.main.shared.database.core_db.CoreDB">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ccs4dt.main.shared.database.core_db.</span></span><span class="sig-name descname"><span class="pre">CoreDB</span></span><a class="headerlink" href="#ccs4dt.main.shared.database.core_db.CoreDB" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ccs4dt.main.modules.conversion.converter.Converter">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ccs4dt.main.modules.conversion.converter.</span></span><span class="sig-name descname"><span class="pre">Converter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.modules.conversion.converter.Converter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>CoreDB stores all location data and its associated sensor configuration</p>
+<p>Converter responsible for converting measurements from different sensors into a common format.
+Sensors collect measurements with respect to their coordinate system. The conversion ensures that measurements of
+different sensors are harmonized such that they can be compared and aggregated. The conversion includes:
+1. Measurement Unit transformation (e.g. cm, mm, m)
+2. Rotation transformation (rotate axis of sensors)
+3. Coordinate offset transformation (depending on the location where the sensor is deployed within a location)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>batch</strong> (<em>list</em>) – The input measurement batch</p>
+</dd>
+</dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="ccs4dt.main.shared.database.core_db.CoreDB.connection">
-<span class="sig-name descname"><span class="pre">connection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.shared.database.core_db.CoreDB.connection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a new database connection</p>
-<p>:rtype CoreDB</p>
+<dt class="sig sig-object py" id="ccs4dt.main.modules.conversion.converter.Converter.add_sensor">
+<span class="sig-name descname"><span class="pre">add_sensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensor_identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_origin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_origin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_origin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_unit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.modules.conversion.converter.Converter.add_sensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a sensor configuratio</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensor_identifier</strong> (<em>str</em>) – unique id of the sensor</p></li>
+<li><p><strong>x_origin</strong> (<em>float</em>) – x coordinate where the sensor is installed in the space</p></li>
+<li><p><strong>y_origin</strong> (<em>float</em>) – y coordinate where the sensor is installed in the space</p></li>
+<li><p><strong>z_origin</strong> (<em>float</em>) – z coordinate where the sensor is installed in the space</p></li>
+<li><p><strong>yaw</strong> (<em>float</em>) – angle (deg) counterclockwise rotation of the sensor xy-plane in relation to the location xy-plane</p></li>
+<li><p><strong>pitch</strong> (<em>float</em>) – angle (deg) counterclockwise rotation of the sensor yz-plane in relation to the location yz-plane</p></li>
+<li><p><strong>roll</strong> (<em>float</em>) – angle (deg) counterclockwise rotation of the sensor xz-plane in relation to the location xz-plane</p></li>
+<li><p><strong>measurement_unit</strong> (<em>str</em>) – the unit of the measurement (cm, mm, m, …)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ccs4dt.main.modules.conversion.converter.Converter.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.modules.conversion.converter.Converter.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the converter for the provided input batch and the configured sensors</p>
 </dd></dl>
 </dd></dl>
 </section>
-<section id="module-ccs4dt.main.shared.database.influx_db">
-<span id="ccs4dt-main-shared-database-influx-db-module"></span><h2>ccs4dt.main.shared.database.influx_db module<a class="headerlink" href="#module-ccs4dt.main.shared.database.influx_db" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="ccs4dt.main.shared.database.influx_db.InfluxDB">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ccs4dt.main.shared.database.influx_db.</span></span><span class="sig-name descname"><span class="pre">InfluxDB</span></span><a class="headerlink" href="#ccs4dt.main.shared.database.influx_db.InfluxDB" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>InfluxDB stores the input data batch</p>
-</dd></dl>
-</section>
-<section id="module-ccs4dt.main.shared.database">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ccs4dt.main.shared.database" title="Permalink to this headline">¶</a></h2>
+<section id="module-ccs4dt.main.modules.conversion">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ccs4dt.main.modules.conversion" title="Permalink to this headline">¶</a></h2>
 </section>
 </section>
 
@@ -228,7 +247,7 @@
               and
               <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
               <a href="https://github.com/pradyunsg/furo">Furo theme</a>. |
-            <a class="muted-link" href="_sources/ccs4dt.main.shared.database.rst.txt"
+            <a class="muted-link" href="_sources/ccs4dt.main.modules.conversion.rst.txt"
                rel="nofollow">
               Show Source
             </a>
@@ -248,11 +267,10 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">ccs4dt.main.shared.database package</a><ul>
+<li><a class="reference internal" href="#">ccs4dt.main.modules.conversion package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-ccs4dt.main.shared.database.core_db">ccs4dt.main.shared.database.core_db module</a></li>
-<li><a class="reference internal" href="#module-ccs4dt.main.shared.database.influx_db">ccs4dt.main.shared.database.influx_db module</a></li>
-<li><a class="reference internal" href="#module-ccs4dt.main.shared.database">Module contents</a></li>
+<li><a class="reference internal" href="#module-ccs4dt.main.modules.conversion.converter">ccs4dt.main.modules.conversion.converter module</a></li>
+<li><a class="reference internal" href="#module-ccs4dt.main.modules.conversion">Module contents</a></li>
 </ul>
 </li>
 </ul>
