@@ -23,7 +23,10 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Generate documentation
       run: |
-        bash scripts/docs/generate.sh
+        cd docs
+        sphinx-apidoc -o . .. ../ccs4dt/tests/
+        make html
+        cp _build/html/* . -rf
 
     - name: Commit documentation
       uses: EndBug/add-and-commit@v7
