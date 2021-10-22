@@ -21,7 +21,7 @@ class Converter:
 
     def add_sensor(self, sensor_identifier, x_origin, y_origin, z_origin, yaw, pitch, roll, measurement_unit):
         """
-        Add a sensor configuratio
+        Add a sensor configuration
 
         :param sensor_identifier: unique id of the sensor
         :type sensor_identifier: str
