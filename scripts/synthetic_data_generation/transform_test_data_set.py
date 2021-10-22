@@ -321,16 +321,16 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
 
 
 ########### EXECUTE data ingestion
-path = r'scripts\synteticDataGeneration\assets\sampledata\occupancy_presence_and_trajectories.csv'
+# path = r'scripts\synthetic_data_generation\assets\sampledata\occupancy_presence_and_trajectories.txt'
 
-imported_dataset = import_occupancy_presence_dataset(path, import_rows_count=5)
+# imported_dataset = import_occupancy_presence_dataset(path, import_rows_count=5)
 
 #print(imported_dataset)
 
-test_coord_sys = CoordinateSystem(3,1,0, 30,-15,45)
-test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
+# test_coord_sys = CoordinateSystem(3,1,0, 30,-15,45)
+# test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
 
-simulate_measure_data_from_true_positions(imported_dataset, test_sensor)
+# simulate_measure_data_from_true_positions(imported_dataset, test_sensor)
 
 
 ########### EXECUTE plotting examples (Showcase part)
@@ -344,7 +344,7 @@ def plot_examples(sensor, coord_sys, point_x, point_y, point_z, repeated_steps):
     #print(transform_cartesian_coordinate_system(1,5,-1, coord_sys))
     plot_point_in_two_coordinate_systems(point_x, point_y, point_z, coord_sys, plot_system_indicators = True)
 
-test_coord_sys_2 = CoordinateSystem(3,1,-3, 90,135,42)
-test_sensor_2 = Sensor('RFID', test_coord_sys, 30, 10, 500)
+# test_coord_sys_2 = CoordinateSystem(3,1,-3, 90,135,42)
+# test_sensor_2 = Sensor('RFID', test_coord_sys, 30, 10, 500)
 
 #plot_examples(test_sensor_2, test_coord_sys_2, 1, 5, -1, 3000)
