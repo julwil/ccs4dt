@@ -5,11 +5,16 @@ from dotenv import load_dotenv
 
 
 class CoreDB:
+    """CoreDB stores all location data and its associated sensor configuration"""
     def __init__(self):
         load_dotenv()
         self.__db_path = os.environ.get('CORE_DB_PATH', 'storage/core_db/sqlite.db')
 
     def connection(self):
+        """
+        Returns a new database connection
+        :rtype CoreDB
+        """
         connection = self.__connect(self.__db_path)
         self.__enable_foreign_keys(connection)
         self.__create_schema(connection)

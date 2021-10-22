@@ -5,11 +5,41 @@ from ccs4dt.main.shared.enums.measurement_unit import MeasurementUnit
 
 
 class Converter:
+    """Converter responsible for converting measurements from different sensors into a common format.
+    Sensors collect measurements with respect to their coordinate system. The conversion ensures that measurements of
+    different sensors are harmonized such that they can be compared and aggregated. The conversion includes:
+    1. Measurement Unit transformation (e.g. cm, mm, m)
+    2. Rotation transformation (rotate axis of sensors)
+    3. Coordinate offset transformation (depending on the location where the sensor is deployed within a location)
+
+    :param batch: The input measurement batch
+    :type batch: list
+    """
     def __init__(self, batch):
         self.__batch_df = batch
         self.__sensors = {}
 
     def add_sensor(self, sensor_identifier, x_origin, y_origin, z_origin, yaw, pitch, roll, measurement_unit):
+        """
+        Add a sensor configuratio
+
+        :param sensor_identifier: unique id of the sensor
+        :type sensor_identifier: str
+        :param x_origin: x coordinate where the sensor is installed in the space
+        :type x_origin: float
+        :param y_origin: y coordinate where the sensor is installed in the space
+        :type y_origin: float
+        :param z_origin: z coordinate where the sensor is installed in the space
+        :type z_origin: float
+        :param yaw: angle (deg) counterclockwise rotation of the sensor xy-plane in relation to the location xy-plane
+        :type yaw: float
+        :param pitch: angle (deg) counterclockwise rotation of the sensor yz-plane in relation to the location yz-plane
+        :type pitch: float
+        :param roll: angle (deg) counterclockwise rotation of the sensor xz-plane in relation to the location xz-plane
+        :type roll: float
+        :param measurement_unit: the unit of the measurement (cm, mm, m, ...)
+        :type measurement_unit: str
+        """
         self.__sensors[sensor_identifier] = {
             'x_origin': x_origin,
             'y_origin': y_origin,
@@ -23,6 +53,9 @@ class Converter:
         return self
 
     def run(self):
+        """
+        Run the converter for the provided input batch and the configured sensors
+        """
         if not self.__sensors:
             return self.__batch_df
 
