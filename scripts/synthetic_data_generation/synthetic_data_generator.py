@@ -17,7 +17,12 @@
 import uuid
 
 class Person(object):
+    """
+    Class descriptions bla bla
 
+    :param position_x: Description of parameter
+    :type position_x: int
+    """
     def __init__(self, position_x, position_y, speed_x, speed_y, identifier = str(uuid.uuid4())):
         self.speed_x = speed_x
         self.speed_y = speed_y
