@@ -10,7 +10,12 @@ from scipy.spatial.transform import Rotation
 
 
 class CoordinateSystem(object):
+    """
+    Class descriptions bla bla Manual for writing these doc strings: https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html
 
+    :param position_x: Description of parameter
+    :type position_x: int
+    """
     def __init__(self, origin_with_respect_to_ref_sys_x, origin_with_respect_to_ref_sys_y, origin_with_respect_to_ref_sys_z, rotation_with_respect_to_ref_sys_x, rotation_with_respect_to_ref_sys_y, rotation_with_respect_to_ref_sys_z):
         
         # Define translational parameters with repsect to global frame of reference
