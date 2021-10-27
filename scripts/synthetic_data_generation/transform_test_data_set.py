@@ -12,6 +12,27 @@ from scipy.spatial.transform import Rotation
 
 
 class CoordinateSystem(object):
+    """This class represents a coordinate system/orientation of an object in the real world. It is seen relative to a arbitrary 
+    frame of reference, which could be e.g. a location that is analyzed.
+
+
+    :param origin_with_respect_to_ref_sys_x: x-translation parameter of coordinate system in relation to frame of refrence
+    :type origin_with_respect_to_ref_sys_x: numeric
+    :param origin_with_respect_to_ref_sys_y: y-translation parameter of coordinate system in relation to frame of refrence
+    :type origin_with_respect_to_ref_sys_y: numeric
+    :param origin_with_respect_to_ref_sys_z: z-translation parameter of coordinate system in relation to frame of refrence
+    :type origin_with_respect_to_ref_sys_z: numeric
+    :param yaw_xy_with_respect_to_ref_sys: xy-rotational parameter (counterclockwise) of coordinate system in relation to frame of refrence, see https://bit.ly/3AZM5iP for graphical representation
+    :type yaw_xy_with_respect_to_ref_sys: numeric
+    :param pitch_yz_with_respect_to_ref_sys: yz-rotational parameter (counterclockwise) of coordinate system in relation to frame of refrence, see https://bit.ly/3AZM5iP for graphical representation
+    :type pitch_yz_with_respect_to_ref_sys: numeric
+    :param roll_xz_with_respect_to_ref_sys: xz-rotational parameter (counterclockwise) of coordinate system in relation to frame of refrence, see https://bit.ly/3AZM5iP for graphical representation
+    :type roll_xz_with_respect_to_ref_sys: numeric
+
+    :return: Returns string of coordinate system parameters on successfull creation
+    :rtype: string
+    """
+
     def __init__(self, origin_with_respect_to_ref_sys_x, origin_with_respect_to_ref_sys_y, origin_with_respect_to_ref_sys_z, yaw_xy_with_respect_to_ref_sys, pitch_yz_with_respect_to_ref_sys, roll_xz_with_respect_to_ref_sys):
         
         # Define translational parameters with repsect to global frame of reference
@@ -24,27 +45,64 @@ class CoordinateSystem(object):
         self.pitch_yz_with_respect_to_ref_sys =  pitch_yz_with_respect_to_ref_sys
         self.roll_xz_with_respect_to_ref_sys =  roll_xz_with_respect_to_ref_sys
 
+        return("Creation successfull for: \n" + self.__str__)
+
     def __str__(self):
+        """Gives parameters of the coordinate system.
+
+        :return: Returns string of coordinate system parameters
+        :rtype: string
+        """
         return ('Coordinate system orientation: \n translation (x,y,z): (' + str(self.origin_with_respect_to_ref_sys_x) + ", " + str(self.origin_with_respect_to_ref_sys_y) + ", " 
                 + str(self.origin_with_respect_to_ref_sys_z) + ') \n and rotation (xy,yz,xz): (' + str(self.yaw_xy_with_respect_to_ref_sys) + ", " + str(self.pitch_yz_with_respect_to_ref_sys) + ", " 
                 + str(self.roll_xz_with_respect_to_ref_sys) + ')' )
 
     def get_translation_x(self):
+        """Getter function for x-translation parameter of coordinate system in relation to frame of reference.       
+
+        :return: Returns x-translation parameter of coordinate system in relation to frame of reference
+        :rtype: numeric
+        """
         return(self.origin_with_respect_to_ref_sys_x)
 
     def get_translation_y(self):
+        """Getter function for y-translation parameter of coordinate system in relation to frame of reference.       
+
+        :return: Returns y-translation parameter of coordinate system in relation to frame of reference
+        :rtype: numeric
+        """
         return(self.origin_with_respect_to_ref_sys_y)
 
     def get_translation_z(self):
+        """Getter function for z-translation parameter of coordinate system in relation to frame of reference.       
+
+        :return: Returns z-translation parameter of coordinate system in relation to frame of reference
+        :rtype: numeric
+        """
         return(self.origin_with_respect_to_ref_sys_z)
 
     def get_yaw_xy(self):
+        """Getter function for yaw (xy-rotational) parameter of coordinate system in relation to frame of reference.       
+
+        :return: Returns yaw (xy-rotational) parameter of coordinate system in relation to frame of reference
+        :rtype: numeric
+        """
         return(self.yaw_xy_with_respect_to_ref_sys)
 
     def get_pitch_yz(self):
+        """Getter function for pitch (yz-rotational) parameter of coordinate system in relation to frame of reference.       
+
+        :return: Returns pitch (yz-rotational) parameter of coordinate system in relation to frame of reference
+        :rtype: numeric
+        """
         return(self.pitch_yz_with_respect_to_ref_sys)
 
     def get_roll_xz(self):
+        """Getter function for roll (xz-rotational) parameter of coordinate system in relation to frame of reference.       
+
+        :return: Returns roll (xz-rotational)) parameter of coordinate system in relation to frame of reference
+        :rtype: numeric
+        """
         return(self.roll_xz_with_respect_to_ref_sys)
 
 class Sensor(object):
