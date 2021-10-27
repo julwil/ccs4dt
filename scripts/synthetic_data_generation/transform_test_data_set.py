@@ -425,7 +425,7 @@ def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_
 
 # Import the true position dataset
 def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelevant_columns = True, transform_to_3D_data = True, starting_date = '01.06.2019', date_format = '%d.%m.%Y'):
-    """Imports the true position dataset and 
+    """Imports the true position dataset (TODO: only works with standard dataset, potentially extend to other dataset formats)
 
     :param filepath: filepath of trueposition dataset
     :type filepath: raw string literal
@@ -479,6 +479,16 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
 
 
 def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
+    """Simulates measurement of one sensor
+
+    :param true_position_dataframe: Dataframe that contains true positions
+    :type true_position_dataframe: dataframe
+    :param sensor: Sensor for which the measurements should be simulated
+    :type sensor: Sensor
+
+    :return: Returns the simulated measurement output of the sensor as dataframe
+    :rtype: dataframe
+    """
     
     # Generate empty data frame for measurements
     measurement_dataframe = pd.DataFrame()
@@ -524,8 +534,6 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     # for all rows where (timediff(row[n+1]-row[n]) < sensor.get_pollingrate():
     #   drop(row)
 
-
-    print(measurement_dataframe)
 
     return measurement_dataframe
 
