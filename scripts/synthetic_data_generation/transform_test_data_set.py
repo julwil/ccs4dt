@@ -519,6 +519,18 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe['y_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, test_coord_sys)[1]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
     measurement_dataframe['z_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, test_coord_sys)[2]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
 
+    ## TODO: Validiation / Testing of this part outstanding
+    def calculate_distance(sensor_abs_x, sensor_abs_y, sensor_abs_z, point_abs_x, point_abs_y, point_abs_z):
+
+        distance = ((sensor_abs_x-point_abs_x)**2 + (sensor_abs_y-point_abs_y)**2 + (sensor_abs_z-point_abs_z)**2)**(1/2)
+        
+        return abs(distance)
+
+    measurement_dataframe['distance'] = calculate_distance(sensor.get_sensor_position.to_list()[0],sensor.get_sensor_position.to_list()[1],sensor.get_sensor_position.to_list()[2] ,measurement_dataframe['x_measured_abs_pos'],measurement_dataframe['y_measured_abs_pos'],measurement_dataframe['z_measured_abs_pos'])
+
+    measurement_dataframe['drop_due_to_distance'] = [x for x in (measurement_dataframe['distance'] > sensor.get_sensor_precision())]
+
+
     # TODO: Add measurement boundary, polling rate and decaying stability (as function of measurement distance)
     # PSEUDOCODE HERE
     # calculate distance(xyz_measured, sensor_position)
@@ -559,7 +571,7 @@ function_wrapper_data_ingestion(r'scripts\synteticDataGeneration\assets\sampleda
 
 
 
-def function_wrapper_plotting_examples(plot_type):
+def function_wrapper_plotting_examples():
 
     def plot_examples(sensor, coord_sys, point_x, point_y, point_z, repeated_steps):
         #print(sensor)
@@ -577,3 +589,5 @@ def function_wrapper_plotting_examples(plot_type):
     plot_examples(test_sensor, test_coord_sys, 1, 5, -1, 3000)
 
     return None
+
+function_wrapper_plotting_examples()
