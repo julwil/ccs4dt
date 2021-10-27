@@ -458,17 +458,25 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     return measurement_dataframe
 
 
-########### EXECUTE data ingestion
-path = r'scripts\synteticDataGeneration\assets\sampledata\occupancy_presence_and_trajectories.csv'
+def function_wrapper_data_ingestion(path, import_rows, test_coord_parameters, test_sensor_parameters):
 
-imported_dataset = import_occupancy_presence_dataset(path, import_rows_count=5)
 
-#print(imported_dataset)
 
-test_coord_sys = CoordinateSystem(3,1,0, 30,-15,45)
-test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
+    imported_dataset = import_occupancy_presence_dataset(path, import_rows_count = import_rows)
 
-simulate_measure_data_from_true_positions(imported_dataset, test_sensor)
+    (x,y,z,yaw_xy,pitch_yz,roll_xz) = test_coord_parameters
+    test_coord_sys = CoordinateSystem(x,y,z,yaw_xy,pitch_yz,roll_xz)
+
+    (sensor_type, empty, precision, pollingrate, reach) =  test_sensor_parameters
+    test_sensor = Sensor(sensor_type, test_coord_sys, precision, pollingrate, reach)
+
+    simulate_measure_data_from_true_positions(imported_dataset, test_sensor)
+
+    return None
+
+function_wrapper_data_ingestion(r'scripts\synteticDataGeneration\assets\sampledata\occupancy_presence_and_trajectories.csv', 5, (3,1,0, 30,-15,45), ('RFID',None,30,10,500))
+
+
 
 
 ########### EXECUTE plotting examples (Showcase part)
