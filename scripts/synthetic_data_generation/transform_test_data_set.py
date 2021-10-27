@@ -444,14 +444,15 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     # # Drop all rows that are out of reach for sensor
     # for all rows where distance_to_sensor > sensor.get_reach():
     #   drop(row)
-    # # Drop all rows where sensor pollingrate is not quick enough:
-    # for all rows where (timediff(row[n+1]-row[n]) < sensor.get_pollingrate():
-    #   drop(row)
     # # Drop randomized rows as decaying function of distance to sensor, model function so that at sensor.get_reach()+1 the likelihood of measurement reaches 0
     # for all rows:
     #   calculate decay likelihood as function of distance
     #   if random(0,1) > decay likelihood:
     #       drop(row)
+    # # Drop all rows where sensor pollingrate is not quick enough:
+    # for all rows where (timediff(row[n+1]-row[n]) < sensor.get_pollingrate():
+    #   drop(row)
+
 
     print(measurement_dataframe)
 
@@ -479,18 +480,21 @@ function_wrapper_data_ingestion(r'scripts\synteticDataGeneration\assets\sampleda
 
 
 
-########### EXECUTE plotting examples (Showcase part)
-def plot_examples(sensor, coord_sys, point_x, point_y, point_z, repeated_steps):
-    #print(sensor)
-    #print(coord_sys)
+def function_wrapper_plotting_examples(plot_type):
 
-    #print(sensor.generate_random_point_in_sphere())
-    plot_randomized_sphere(sensor, repeated_steps)
+    def plot_examples(sensor, coord_sys, point_x, point_y, point_z, repeated_steps):
+        #print(sensor)
+        #print(coord_sys)
 
-    #print(transform_cartesian_coordinate_system(1,5,-1, coord_sys))
-    plot_point_in_two_coordinate_systems(point_x, point_y, point_z, coord_sys, plot_system_indicators = True)
+        #print(sensor.generate_random_point_in_sphere())
+        plot_randomized_sphere(sensor, repeated_steps)
 
-test_coord_sys_2 = CoordinateSystem(3,1,-3, 90,135,42)
-test_sensor_2 = Sensor('RFID', test_coord_sys, 30, 10, 500)
+        #print(transform_cartesian_coordinate_system(1,5,-1, coord_sys))
+        plot_point_in_two_coordinate_systems(point_x, point_y, point_z, coord_sys, plot_system_indicators = True)
 
-#plot_examples(test_sensor_2, test_coord_sys_2, 1, 5, -1, 3000)
+    test_coord_sys = CoordinateSystem(3,1,-3, 90,135,42)
+    test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
+
+    plot_examples(test_sensor, test_coord_sys, 1, 5, -1, 3000)
+
+    return None
