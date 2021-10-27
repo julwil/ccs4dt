@@ -7,3 +7,5 @@ pytransform3d
 scipy
 pandas
 numpy
+sphinx
+furo

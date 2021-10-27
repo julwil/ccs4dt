@@ -5,6 +5,7 @@ from influxdb_client import InfluxDBClient
 
 
 class InfluxDB:
+    """InfluxDB stores the input data batch"""
     def __init__(self):
         load_dotenv()
         url = os.environ.get('DOCKER_INFLUX_DB_URL', 'influxdb')

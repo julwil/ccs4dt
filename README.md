@@ -62,3 +62,11 @@ prefix all tests with `test_` and place them in `/tests/integration` or `/tests/
 Run all tests with `docker run api pytest` or `docker exec api pytest`
 
 ---
+
+## Documentation
+### REST API
+OpenAPI v3 specification can be found [here](https://app.swaggerhub.com/apis-docs/julwil/ccs4dt/1.0.0)
+### Backend
+1. Run `docker exec api /bin/bash scripts/docs/generate.sh` to generate documentation
+2. Open the generated HTML file at `docs/_build/html/index.html` in a browser
+---
