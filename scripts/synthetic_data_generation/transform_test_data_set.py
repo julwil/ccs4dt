@@ -9,9 +9,10 @@ from pytransform3d.transform_manager import TransformManager
 from scipy.spatial.transform import Rotation
 
 
-class CoordinateSystem(object):
 
-    def __init__(self, origin_with_respect_to_ref_sys_x, origin_with_respect_to_ref_sys_y, origin_with_respect_to_ref_sys_z, rotation_with_respect_to_ref_sys_x, rotation_with_respect_to_ref_sys_y, rotation_with_respect_to_ref_sys_z):
+
+class CoordinateSystem(object):
+    def __init__(self, origin_with_respect_to_ref_sys_x, origin_with_respect_to_ref_sys_y, origin_with_respect_to_ref_sys_z, yaw_xy_with_respect_to_ref_sys, pitch_yz_with_respect_to_ref_sys, roll_xz_with_respect_to_ref_sys):
         
         # Define translational parameters with repsect to global frame of reference
         self.origin_with_respect_to_ref_sys_x =  origin_with_respect_to_ref_sys_x
@@ -19,14 +20,14 @@ class CoordinateSystem(object):
         self.origin_with_respect_to_ref_sys_z =  origin_with_respect_to_ref_sys_z
 
         # Define rotational parameters with repsect to global frame of reference
-        self.rotation_with_respect_to_ref_sys_x =  rotation_with_respect_to_ref_sys_x
-        self.rotation_with_respect_to_ref_sys_y =  rotation_with_respect_to_ref_sys_y
-        self.rotation_with_respect_to_ref_sys_z =  rotation_with_respect_to_ref_sys_z
+        self.yaw_xy_with_respect_to_ref_sys =  yaw_xy_with_respect_to_ref_sys
+        self.pitch_yz_with_respect_to_ref_sys =  pitch_yz_with_respect_to_ref_sys
+        self.roll_xz_with_respect_to_ref_sys =  roll_xz_with_respect_to_ref_sys
 
     def __str__(self):
         return ('Coordinate system orientation: \n translation (x,y,z): (' + str(self.origin_with_respect_to_ref_sys_x) + ", " + str(self.origin_with_respect_to_ref_sys_y) + ", " 
-                + str(self.origin_with_respect_to_ref_sys_z) + ') \n and rotation (x,y,z): (' + str(self.rotation_with_respect_to_ref_sys_x) + ", " + str(self.rotation_with_respect_to_ref_sys_y) + ", " 
-                + str(self.rotation_with_respect_to_ref_sys_z) + ')' )
+                + str(self.origin_with_respect_to_ref_sys_z) + ') \n and rotation (xy,yz,xz): (' + str(self.yaw_xy_with_respect_to_ref_sys) + ", " + str(self.pitch_yz_with_respect_to_ref_sys) + ", " 
+                + str(self.roll_xz_with_respect_to_ref_sys) + ')' )
 
     def get_translation_x(self):
         return(self.origin_with_respect_to_ref_sys_x)
@@ -37,14 +38,14 @@ class CoordinateSystem(object):
     def get_translation_z(self):
         return(self.origin_with_respect_to_ref_sys_z)
 
-    def get_rotation_x(self):
-        return(self.rotation_with_respect_to_ref_sys_x)
+    def get_yaw_xy(self):
+        return(self.yaw_xy_with_respect_to_ref_sys)
 
-    def get_rotation_y(self):
-        return(self.rotation_with_respect_to_ref_sys_y)
+    def get_pitch_yz(self):
+        return(self.pitch_yz_with_respect_to_ref_sys)
 
-    def get_rotation_z(self):
-        return(self.rotation_with_respect_to_ref_sys_z)
+    def get_roll_xz(self):
+        return(self.roll_xz_with_respect_to_ref_sys)
 
 class Sensor(object):
 
@@ -58,9 +59,9 @@ class Sensor(object):
         self.absolute_pos_z = coordinate_system.get_translation_z()
 
         # Determined by the geopraphical orientation in which the y-axis of the readers coordinate systems increases. 0-359 degrees where East=0, North=90, West=180 South=270
-        self.orientation_x = coordinate_system.get_rotation_x()
-        self.orientation_y = coordinate_system.get_rotation_y()
-        self.orientation_z = coordinate_system.get_rotation_z()
+        self.orientation_x = coordinate_system.get_yaw_xy()
+        self.orientation_y = coordinate_system.get_pitch_yz()
+        self.orientation_z = coordinate_system.get_roll_xz()
 
 
         # Precision and unit of precision of the sensor
@@ -140,7 +141,7 @@ def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_
     point_coordinate_system_to_global_frame_of_reference = np.eye(4)
     
     ## Define rotational parameters to go from point coordinate system to global frame of reference (basically answer the question: "how is the coord system aliogned that is to be transformed")
-    R = Rotation.from_euler("XYZ",[coordinate_system.rotation_with_respect_to_ref_sys_x, coordinate_system.rotation_with_respect_to_ref_sys_y, coordinate_system.rotation_with_respect_to_ref_sys_z], degrees = True).as_matrix()
+    R = Rotation.from_euler("XYZ",[coordinate_system.yaw_xy_with_respect_to_ref_sys, coordinate_system.pitch_yz_with_respect_to_ref_sys, coordinate_system.roll_xz_with_respect_to_ref_sys], degrees = True).as_matrix()
 
     ## Apply rotational parameters to transformation matrix
     point_coordinate_system_to_global_frame_of_reference[:3,:3] = R
