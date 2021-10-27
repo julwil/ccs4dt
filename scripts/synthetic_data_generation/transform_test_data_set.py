@@ -48,7 +48,7 @@ class CoordinateSystem(object):
         return("Creation successfull for: \n" + self.__str__)
 
     def __str__(self):
-        """Gives parameters of the coordinate system.
+        """String representation of the coordinate system
 
         :return: Returns string of coordinate system parameters
         :rtype: string
@@ -58,7 +58,7 @@ class CoordinateSystem(object):
                 + str(self.roll_xz_with_respect_to_ref_sys) + ')' )
 
     def get_translation_x(self):
-        """Getter function for x-translation parameter of coordinate system in relation to frame of reference.       
+        """Getter function for x-translation parameter of coordinate system in relation to frame of reference    
 
         :return: Returns x-translation parameter of coordinate system in relation to frame of reference
         :rtype: numeric
@@ -66,7 +66,7 @@ class CoordinateSystem(object):
         return(self.origin_with_respect_to_ref_sys_x)
 
     def get_translation_y(self):
-        """Getter function for y-translation parameter of coordinate system in relation to frame of reference.       
+        """Getter function for y-translation parameter of coordinate system in relation to frame of reference   
 
         :return: Returns y-translation parameter of coordinate system in relation to frame of reference
         :rtype: numeric
@@ -74,7 +74,7 @@ class CoordinateSystem(object):
         return(self.origin_with_respect_to_ref_sys_y)
 
     def get_translation_z(self):
-        """Getter function for z-translation parameter of coordinate system in relation to frame of reference.       
+        """Getter function for z-translation parameter of coordinate system in relation to frame of reference    
 
         :return: Returns z-translation parameter of coordinate system in relation to frame of reference
         :rtype: numeric
@@ -82,7 +82,7 @@ class CoordinateSystem(object):
         return(self.origin_with_respect_to_ref_sys_z)
 
     def get_yaw_xy(self):
-        """Getter function for yaw (xy-rotational) parameter of coordinate system in relation to frame of reference.       
+        """Getter function for yaw (xy-rotational) parameter of coordinate system in relation to frame of reference     
 
         :return: Returns yaw (xy-rotational) parameter of coordinate system in relation to frame of reference
         :rtype: numeric
@@ -90,7 +90,7 @@ class CoordinateSystem(object):
         return(self.yaw_xy_with_respect_to_ref_sys)
 
     def get_pitch_yz(self):
-        """Getter function for pitch (yz-rotational) parameter of coordinate system in relation to frame of reference.       
+        """Getter function for pitch (yz-rotational) parameter of coordinate system in relation to frame of reference    
 
         :return: Returns pitch (yz-rotational) parameter of coordinate system in relation to frame of reference
         :rtype: numeric
@@ -98,7 +98,7 @@ class CoordinateSystem(object):
         return(self.pitch_yz_with_respect_to_ref_sys)
 
     def get_roll_xz(self):
-        """Getter function for roll (xz-rotational) parameter of coordinate system in relation to frame of reference.       
+        """Getter function for roll (xz-rotational) parameter of coordinate system in relation to frame of reference   
 
         :return: Returns roll (xz-rotational)) parameter of coordinate system in relation to frame of reference
         :rtype: numeric
@@ -106,8 +106,36 @@ class CoordinateSystem(object):
         return(self.roll_xz_with_respect_to_ref_sys)
 
 class Sensor(object):
+    """This class represents a synthetic sensor that emulates the measurement of datapoints based on the (virtual) sensor's parameters and the true position of the object to measure
+ 
 
-    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach ,sensor_pollingrate_measurement_unit = "seconds", sensor_precision_measurement_unit='centimeter', sensor_identifier = uuid.uuid4(), stability = 0):
+    :param sensor_type: Description of the sensor type, e.g. RFID, camera or NFC
+    :type sensor_type: string
+    :param coordinate_system: Coordinate system that describes the position and rotation of the sensor inside the frame of reference (e.g. of the location)
+    :type coordinate_system: CoordinateSystem
+    :param sensor_precision: Precision of the sensor, i.e. minimal spatial resolution of the sensor in the measurement unit defined in parameter "sensor_precision_measurement_unit"
+    :type sensor_precision: numeric
+    :param sensor_pollingrate: Pollingrate of the sensor, i.e. maximal temporal resolution of the sensor in the measurement unit defined in parameter "sensor_pollingrate_measurement_unit"
+    :type sensor_pollingrate: numeric
+    :param measurement_reach: Maximum measurement reach of the sensor, past this distance the sensor is not able to measure anything, measurement unit defined in parameter "measurement_reach_measurement_unit"
+    :type measurement_reach: numeric
+    :param sensor_precision_measurement_unit: Measurement unit of the sensor precision, allowed are all available SI prefixes for meters TODO: NOT YET CONSIDERED
+    :type sensor_precision_measurement_unit: String
+    :param sensor_pollingrate_measurement_unit: Measurement unit of the sensor polling rate, allowed are the SI unit "s" (including all prefixes) and the non-SI units "min" (minutes), "h"(hours) and "d"(days)  TODO: NOT YET CONSIDERED
+    :type sensor_pollingrate_measurement_unit: String
+    :param measurement_reach_measurement_unit: Measurement unit of the sensor polling rate allowed are all available SI prefixes for meters  TODO: NOT YET CONSIDERED
+    :type measurement_reach_measurement_unit: String
+    :param sensor_identifier: Unique identifier of the sensor, defaults to automatically generated uuid4
+    :type sensor_identifier: string
+    :param stability: Function of the stability function of the measurement of the sensor, i.e. how large the signal degradation is based on distance between object to be measured and the sensor, defaults to 0 TODO: NOT YET CONSIDERED
+    :type stability: function
+    
+
+    :return: Returns string of sensor parameters on successfull creation
+    :rtype: string
+    """
+
+    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_pollingrate_measurement_unit = "s", sensor_precision_measurement_unit='cm', measurement_reach_measurement_unit = "cm", sensor_identifier = uuid.uuid4(), stability = 0):
         # Type of the sensor
         self.sensor_type = sensor_type
 
@@ -126,9 +154,9 @@ class Sensor(object):
         self.sensor_precision = sensor_precision
         self.sensor_precision_measurement_unit = sensor_precision_measurement_unit
 
-        # Maximum measurement distance from the absolute position of the 
+        # Maximum measurement distance from the position of the sensor and unit
         self.measurement_reach = measurement_reach
-        self.sensor_pollingrate_measurement_unit = sensor_pollingrate_measurement_unit
+        self.measurement_reach_measurement_unit = measurement_reach_measurement_unit
 
         # Pollingrate, how frequent the sensor will be able to measure & unit
         self.sensor_pollingrate = sensor_pollingrate
@@ -140,7 +168,14 @@ class Sensor(object):
         # Stability (with what percentage the sensor randomly drops a measurement)
         self.stability = stability
 
+        return("Sensor successfully created! \n" + self.__str__)
+
     def __str__(self):
+        """String representation of the senor
+
+        :return: Returns string of coordinate system parameters
+        :rtype: string
+        """
         return (str('Sensor of type "'+ self.sensor_type + '" with id: ' + str(self.sensor_identifier) + 
                     '\nat absolute position: (' + str(self.absolute_pos_x) + ', ' + str(self.absolute_pos_y) + ', ' + str(self.absolute_pos_z) + ') ' + ' (x, y, z), with orientation (x,y,z) (' +
                       str(self.orientation_x) + '°, ' +  str(self.orientation_y) + '°, ' +  str(self.orientation_z) + '°), ' + 
@@ -149,28 +184,68 @@ class Sensor(object):
                     '\nand the sensor drops measurements with a probability of ' + str(self.stability) + '%' ))
 
     def get_sensor_position(self):
+        """Getter function for positional parameters (x,y,z) of sensors in the frame of reference      
+
+        :return: Returns x,y,z-coordinate of the sensor in the frame of reference
+        :rtype: numeric
+        """
         return (self.absolute_pos_x, self.absolute_pos_y, self.absolute_pos_z)
 
     def get_sensor_id(self):
+        """Getter function for the sensor id       
+
+        :return: Returns x,y,z-coordinate of the sensor in the frame of reference
+        :rtype: string
+        """
         return (self.sensor_identifier)
 
     def get_sensor_precision(self):
+        """Getter function for the sensor precision       
+
+        :return: Returns sensor precision
+        :rtype: numeric
+        """
         return (self.sensor_precision)
 
+    # TODO: Implement getter sensor precision measurement unit
+
     def get_sensor_type(self):
+        """Getter function for the sensor type       
+
+        :return: Returns sensor type
+        :rtype: string
+        """
         return (self.sensor_type)
 
+    # TODO: Implement getter sensor stability
+    # TODO: Implement getter sensor pollingrate
+    # TODO: Implement getter sensor pollingrate measurement unit
+
     def get_sensor_reach(self):
+        """Getter function for the sensor reach       
+
+        :return: Returns sensor reach
+        :rtype: numeric
+        """
         return (self.measurement_reach)
 
-    def transform_absolute_coordinates_into_relative_frame_of_sensor(self):
+    # TODO: Implement getter sensor reach measurement unit
 
-            ##TODO
-        return (None)
-
-    # TODO: (Maybe) optimize and switch from rejection sampling to a more advanced trigonometric function model
-    # Function simulates precision loss for measurement relative to true position reference frame (true position at (0,0,0))
+    # Function simulates precision loss for measurement relative to true position reference frame
     def generate_random_point_in_sphere(self, point_x, point_y, point_z):
+        """Simualtes measurement of a sensor. Given a random true position as x,y,z coordinates the function creates a random point around the true position given based on the precision of the sensor.
+        This is done via rejection sampling (https://en.wikipedia.org/wiki/Rejection_sampling) to generate a uniform distribution.
+
+        :param point_x: x-Coordinate of the true position of object for which a measurement should be simulated
+        :type point_x: numeric
+        :param point_y: y-Coordinate of the true position of object for which a measurement should be simulated
+        :type point_y: numeric
+        :param point_z: z-Coordinate of the true position of object for which a measurement should be simulated
+        :type point_z: numeric
+
+        :return: Returns positional parameters (x,y,z) for synthetically generated measurement point. Returned parameters are in coordinate system of sensor for which the measurement was simulated.
+        :rtype: 3-tuple (numeric,numeric,numeric)
+        """
         
         def randomize_positions(self):
             # Assume cube and randomize all three directions based on precision
@@ -181,15 +256,19 @@ class Sensor(object):
             return (randomized_x, randomized_y, randomized_z)
 
         # Initial simulation
+        # Random point generation
         (random_pos_x, random_pos_y, random_pos_z) = randomize_positions(self)
+        # Rejection criterium
         random_point_distance_to_sphere_origin = (random_pos_x*random_pos_x + random_pos_y*random_pos_y + random_pos_z*random_pos_z)**0.5
 
         # Rejection sampling
         while(random_point_distance_to_sphere_origin > self.sensor_precision):
+            # Random point generation
             (random_pos_x, random_pos_y, random_pos_z) = randomize_positions(self)
+            # Rejection criterium
             random_point_distance_to_sphere_origin = (random_pos_x*random_pos_x + random_pos_y*random_pos_y + random_pos_z*random_pos_z)**0.5
 
-        return (random_pos_x+point_x, random_pos_y+point_y, random_pos_z+point_z)
+        return (random_pos_x + point_x, random_pos_y + point_y, random_pos_z + point_z)
 
 # Transforms point coordinates in it's own coordinate system into frame of reference (f.o.r.) coordinate system
 def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_system, inverse_transformation = False, output_transformation_matrix = False):
