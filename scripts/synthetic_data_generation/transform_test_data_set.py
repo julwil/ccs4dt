@@ -431,12 +431,12 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     # Generate measurements (with random precision) in coordinate system of sensor
     measurement_dataframe['xyz_measured'] = ([(sensor.generate_random_point_in_sphere(x, y, z)) for x, y, z in zip(measurement_dataframe['x_original'], measurement_dataframe['y_original'], measurement_dataframe['z_original'])])
     # Unpack those measure coordinates
-    measurement_dataframe[['x_measured_rel_pos', 'y_measured_rel_pos','z_measured_rel_pos']] = pd.DataFrame(measurement_dataframe['xyz_measured'].tolist(), index=measurement_dataframe.index)
+    measurement_dataframe[['x_measured_abs_pos', 'y_measured_abs_pos','z_measured_abs_pos']] = pd.DataFrame(measurement_dataframe['xyz_measured'].tolist(), index=measurement_dataframe.index)
 
     # Transform measured coordinates into absolute coordinate system (frame of reference)
-    measurement_dataframe['x_measured_abs_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, test_coord_sys)[0]) for x, y, z in zip(measurement_dataframe['x_measured_rel_pos'], measurement_dataframe['y_measured_rel_pos'], measurement_dataframe['z_measured_rel_pos'])])
-    measurement_dataframe['y_measured_abs_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, test_coord_sys)[1]) for x, y, z in zip(measurement_dataframe['x_measured_rel_pos'], measurement_dataframe['y_measured_rel_pos'], measurement_dataframe['z_measured_rel_pos'])])
-    measurement_dataframe['z_measured_abs_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, test_coord_sys)[2]) for x, y, z in zip(measurement_dataframe['x_measured_rel_pos'], measurement_dataframe['y_measured_rel_pos'], measurement_dataframe['z_measured_rel_pos'])])
+    measurement_dataframe['x_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, test_coord_sys)[0]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
+    measurement_dataframe['y_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, test_coord_sys)[1]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
+    measurement_dataframe['z_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, test_coord_sys)[2]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
 
     # TODO: Add measurement boundary, polling rate and decaying stability (as function of measurement distance)
     # PSEUDOCODE HERE
