@@ -424,9 +424,9 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe['sensor_id'] = sensor.get_sensor_id()
 
     # Add original coords (can be dropped later, only for verification purposes)
-    measurement_dataframe['x_original'] = imported_dataset['x']
-    measurement_dataframe['y_original'] = imported_dataset['y']
-    measurement_dataframe['z_original'] = imported_dataset['z']
+    measurement_dataframe['x_original'] = true_position_dataframe['x']
+    measurement_dataframe['y_original'] = true_position_dataframe['y']
+    measurement_dataframe['z_original'] = true_position_dataframe['z']
  
     # Generate measurements (with random precision) in coordinate system of sensor
     measurement_dataframe['xyz_measured'] = ([(sensor.generate_random_point_in_sphere(x, y, z)) for x, y, z in zip(measurement_dataframe['x_original'], measurement_dataframe['y_original'], measurement_dataframe['z_original'])])
