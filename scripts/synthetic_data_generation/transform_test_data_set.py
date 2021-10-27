@@ -331,6 +331,18 @@ def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_
 
 # Plots randomized points and sphere based on sensor input and number of measurements
 def plot_randomized_sphere(sensor, randomization_steps):
+    """Plots (in 3D) x randomized measurements and sphere of precision based on sensor parameters around origin
+
+    :param sensor: Sensor for which the measurements should be simulated
+    :type sensor: Sensor
+    :param randomization_steps: Amount of measurements that should be simulated
+    :type randomization_steps: integer
+
+
+    :return: Returns nothing
+    :rtype: None
+    """
+
     fig = plt.figure(figsize = (10,10))
     ax = plt.axes(projection='3d')
 
@@ -365,8 +377,27 @@ def plot_randomized_sphere(sensor, randomization_steps):
 
     plt.show()
 
+    return None
+
 # Plot two coordinate systems (frame of reference and point coordinate system that contain the same point transformed)
 def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_sys, plot_system_indicators = True):
+    """Plot two coordinate systems (frame of reference and point coordinate system that contain the same point transformed).
+    Upper plot is in frame of reference, Lower plot in point coordinate system
+
+    :param point_x: x-coordinate of point in point coordinate system
+    :type point_x: numeric
+    :param point_y: y-coordinate of point in point coordinate system
+    :type point_y: numeric
+    :param point_z: z-coordinate of point in point coordinate system
+    :type point_z: numeric
+    :param point_coord_sys: Coordinate system of the point to be plotted
+    :type point_coord_sys: CoordinateSystem
+    :param plot_system_indicators: Speficies wheter or not system indicators (x,y,z and identity vector for coordinate systems incl. labels) should be plotted or not, default is True
+    :type plot_system_indicators: boolean
+
+    :return: Returns nothing
+    :rtype: None
+    """
 
     transformation_matrix, transformed_point = transform_cartesian_coordinate_system(point_x, point_y, point_z, point_coord_sys, output_transformation_matrix = True)
 
