@@ -425,7 +425,28 @@ def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_
 
 # Import the true position dataset
 def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelevant_columns = True, transform_to_3D_data = True, starting_date = '01.06.2019', date_format = '%d.%m.%Y'):
-    
+    """Imports the true position dataset and 
+
+    :param filepath: filepath of trueposition dataset
+    :type filepath: raw string literal
+    :param import_rows_count: Max. number of rows that should be imported from dataset
+    :type import_rows_count: integer
+    :param drop_irrelevant_columns: Specifies if (for this analysis) irrelevant columns should be dropped, default is True
+    :type drop_irrelevant_columns: boolean
+    :param transform_to_3D_data: Specifies if data should either consider the true position coordinate as 0 (if == False) or set the z-coordinate of the true positions as 'height' (if == True), default is True
+    :type transform_to_3D_data: boolean
+    :param starting_date: As dataset only provides date ids, they need to be transformed into actual dates. starting_date specifies actual date for day_id == 0. Uses date_format for date parsing, default is '01.06.2019'
+    :type starting_date: string
+    :param date_format: Specifies format of starting_date, default is '%d.%m.%Y'
+    :type date_format: string
+
+    :raises ValueError: ValueError risen if not expected columns are present
+
+    :return: Returns the imported file as dataframe 
+    :rtype: dataframe
+    """
+
+
     if drop_irrelevant_columns == True:
         relevant_columns = ['time', 'day_id', 'x', 'y', 'occupant_id', 'camera_id', 'height']
         import_file = pd.read_csv(filepath, nrows = import_rows_count, header = 0,  usecols = relevant_columns)
