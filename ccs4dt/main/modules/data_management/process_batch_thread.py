@@ -13,7 +13,7 @@ class ProcessBatchThread(threading.Thread):
         self.__location_service = kwargs['location_service']
         self.__location_id = kwargs['location_id']
         self.__input_batch_id = kwargs['input_batch_id']
-        self.__batch_df = pd.DataFrame(kwargs['batch'])
+        self.__input_batch_df = pd.DataFrame(kwargs['input_batch'])
         super().__init__(group=group, target=target, name=name, args=args, kwargs=kwargs, daemon=daemon)
 
     def run(self):
@@ -34,7 +34,7 @@ class ProcessBatchThread(threading.Thread):
     def __convert(self):
         """Convert input data batch into a standardized and shared format"""
         location = self.__location_service.get_by_id(self.__location_id)
-        converter = Converter(self.__batch_df)
+        converter = Converter(self.__input_batch_df)
 
         for sensor in location['sensors']:
             converter.add_sensor(
@@ -48,7 +48,7 @@ class ProcessBatchThread(threading.Thread):
                 sensor['measurement_unit']
             )
 
-        self.__batch_df = converter.run()
+        self.__input_batch_df = converter.run()
 
     def __cluster(self):
         pass
@@ -57,7 +57,8 @@ class ProcessBatchThread(threading.Thread):
         pass
 
     def __persist(self):
-        # influx_db.write_api.write("ccs4dt", "ccs4dt", ["h2o_feet,location=coyote_creek water_level=1".encode()])
+        output_batch = self.__input_batch_df.T.to_dict().values()
+        self.__input_batch_service.save_batch_to_influx(self.__input_batch_id, output_batch)
         pass
 
     def __update_status(self, new_status):

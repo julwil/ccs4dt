@@ -70,4 +70,6 @@ def get_output_by_id(location_id, batch_id):
     :type batch_id: str
     :rtype: flask.Response
     """
-    return Response(json.dumps({'id': batch_id}), status=HTTPStatus.OK, mimetype='application/json')
+    batch_id = int(batch_id)
+    output_batch = input_batch_service.get_output_by_id(batch_id)
+    return Response(json.dumps(output_batch), status=HTTPStatus.OK, mimetype='application/json')
