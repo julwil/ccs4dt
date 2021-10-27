@@ -272,7 +272,26 @@ class Sensor(object):
 
 # Transforms point coordinates in it's own coordinate system into frame of reference (f.o.r.) coordinate system
 def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_system, inverse_transformation = False, output_transformation_matrix = False):
-    
+    """Transforms positional coordinates of a point in a specific coordinate system into its frame of reference
+
+        :param point_x: x-Coordinate of the true position (as relative coordinate) of object for which the coordinates should be transformed into the frame of reference
+        :type point_x: numeric
+        :param point_y: y-Coordinate of the true position (as relative coordinate) of object for which a measurement should be transformed into the frame of reference
+        :type point_y: numeric
+        :param point_z: z-Coordinate of the true position (as relative coordinate) of object for which a measurement should be transformed into the frame of reference
+        :type point_z: numeric
+        :param coordinate_system: Coordinate system of the object (point_x,y,z) for which the coordinate transformation should be performed
+        :type coordinate_system: CoordinateSystem
+        :param inverse_transformation: Parameter that specifies wheter the coordinate transformation should be performed from "Point coordinate system" -> "Frame of reference" (if == False) or from "Frame of reference" -> "Point coordinate system" (if == True), default is False
+        :type inverse_transformation: boolean
+        :param output_transformation_matrix: Specifies if output should contain the output transformation matrix (== True) or not (== False), default is False
+        :type output_transformation_matrix: boolean
+
+        :return: Return dependent on output_transformation_matrix parameter. If set to false function outputs transformed coordinates of point. If set to true, function outputs the transformation matrix and the transformed points coordinates.
+        :rtype: point coordinate tuple (x,y,z) or transformation_matrix and point coordinate tuple (x,y,z)
+        """
+
+
     # Define transformation matrices (point -> f.o.r. & f.o.r. -> point)
     ## Init diagonal base matrix to fill with rotation and translation parameters
     point_coordinate_system_to_global_frame_of_reference = np.eye(4)
