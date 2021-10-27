@@ -236,11 +236,11 @@ class Sensor(object):
         """Simualtes measurement of a sensor. Given a random true position as x,y,z coordinates the function creates a random point around the true position given based on the precision of the sensor.
         This is done via rejection sampling (https://en.wikipedia.org/wiki/Rejection_sampling) to generate a uniform distribution.
 
-        :param point_x: x-Coordinate of the true position of object for which a measurement should be simulated
+        :param point_x: x-Coordinate of the true position (as relative coordinate) of object for which a measurement should be simulated
         :type point_x: numeric
-        :param point_y: y-Coordinate of the true position of object for which a measurement should be simulated
+        :param point_y: y-Coordinate of the true position (as relative coordinate) of object for which a measurement should be simulated
         :type point_y: numeric
-        :param point_z: z-Coordinate of the true position of object for which a measurement should be simulated
+        :param point_z: z-Coordinate of the true position (as relative coordinate) of object for which a measurement should be simulated
         :type point_z: numeric
 
         :return: Returns positional parameters (x,y,z) for synthetically generated measurement point. Returned parameters are in coordinate system of sensor for which the measurement was simulated.
