@@ -446,6 +446,8 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
     :rtype: dataframe
     """
 
+## TODO: Randomize occupant_id for different sensors (e.g. unique MACaddress)
+## TODO: Use pollingrate from livealytics dataset
 
     if drop_irrelevant_columns == True:
         relevant_columns = ['time', 'day_id', 'x', 'y', 'occupant_id', 'camera_id', 'height']
@@ -526,33 +528,33 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
         
         return abs(distance)
 
-    # Calculates distance between sensor and point and stores in dataframe
-    measurement_dataframe['distance'] = calculate_distance(sensor.get_sensor_position.to_list()[0],sensor.get_sensor_position.to_list()[1],sensor.get_sensor_position.to_list()[2] ,measurement_dataframe['x_measured_abs_pos'],measurement_dataframe['y_measured_abs_pos'],measurement_dataframe['z_measured_abs_pos'])
+    # # Calculates distance between sensor and point and stores in dataframe
+    # measurement_dataframe['distance'] = calculate_distance(sensor.get_sensor_position.to_list()[0],sensor.get_sensor_position.to_list()[1],sensor.get_sensor_position.to_list()[2] ,measurement_dataframe['x_measured_abs_pos'],measurement_dataframe['y_measured_abs_pos'],measurement_dataframe['z_measured_abs_pos'])
 
-    # Adds drop flag if distance to point is larger than sensore measurement range TODO: check if get_measurement_reach is implemented
-    measurement_dataframe['drop_due_to_distance'] = [x for x in (measurement_dataframe['distance'] > sensor.get_measurement_reach())]
+    # # Adds drop flag if distance to point is larger than sensore measurement range TODO: check if get_measurement_reach is implemented
+    # measurement_dataframe['drop_due_to_distance'] = [x for x in (measurement_dataframe['distance'] > sensor.get_measurement_reach())]
 
-    # Adds time difference between column and last column TODO: How should this work for a shift different of 1?
-    measurement_dataframe['timediff'] = measurement_dataframe['time'] - measurement_dataframe.shift(-1)['time']
+    # # Adds time difference between column and last column TODO: How should this work for a shift different of 1?
+    # measurement_dataframe['timediff'] = measurement_dataframe['time'] - measurement_dataframe.shift(-1)['time']
 
 
 
-    # TODO: Add measurement boundary, polling rate and decaying stability (as function of measurement distance)
-    # PSEUDOCODE HERE
-    # calculate distance(xyz_measured, sensor_position)
-    # # Drop all rows that are out of reach for sensor
-    # for all rows where distance_to_sensor > sensor.get_reach():
-    #   drop(row)
+    # # TODO: Add measurement boundary, polling rate and decaying stability (as function of measurement distance)
+    # # PSEUDOCODE HERE
+    # # calculate distance(xyz_measured, sensor_position)
+    # # # Drop all rows that are out of reach for sensor
+    # # for all rows where distance_to_sensor > sensor.get_reach():
+    # #   drop(row)
 
-    # # Drop all rows where sensor pollingrate is not quick enough:
-    # for all rows where (timediff(row[n+1]-row[n]) < sensor.get_pollingrate():
-    #   drop(row)
+    # # # Drop all rows where sensor pollingrate is not quick enough:
+    # # for all rows where (timediff(row[n+1]-row[n]) < sensor.get_pollingrate():
+    # #   drop(row)
 
-    # # Drop randomized rows as decaying function of distance to sensor, model function so that at sensor.get_reach()+1 the likelihood of measurement reaches 0
-    # for all rows:
-    #   calculate decay likelihood as function of distance
-    #   if random(0,1) > decay likelihood:
-    #       drop(row)
+    # # # Drop randomized rows as decaying function of distance to sensor, model function so that at sensor.get_reach()+1 the likelihood of measurement reaches 0
+    # # for all rows:
+    # #   calculate decay likelihood as function of distance
+    # #   if random(0,1) > decay likelihood:
+    # #       drop(row)
 
 
     return measurement_dataframe
@@ -599,3 +601,30 @@ def function_wrapper_plotting_examples():
     return None
 
 function_wrapper_plotting_examples()
+
+
+# TODO -> Take ms als standardeinheit
+
+## TODO Placholder convert function
+#  def __convert_units(self, row):
+#         """
+#         Handle conversion of measurement units.
+#         :param row: pd.Series
+#         :return: pd.Series
+#         """
+#         sensor = self.__sensors[row['sensor_identifier']]
+#         factor = 1
+
+#         if sensor['measurement_unit'] == MeasurementUnit.CENTIMETER:
+#             return row
+
+#         if sensor['measurement_unit'] == MeasurementUnit.MILLIMETER:
+#             factor = 0.1
+
+#         if sensor['measurement_unit'] == MeasurementUnit.METER:
+#             factor = 100
+
+#         for axis in ['x', 'y', 'z']:
+#             row[axis] *= factor
+
+#         return row
