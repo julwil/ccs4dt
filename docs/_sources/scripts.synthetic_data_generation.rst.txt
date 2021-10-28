@@ -4,14 +4,6 @@ scripts.synthetic\_data\_generation package
 Submodules
 ----------
 
-scripts.synthetic\_data\_generation.synthetic\_data\_generator module
----------------------------------------------------------------------
-
-.. automodule:: scripts.synthetic_data_generation.synthetic_data_generator
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 scripts.synthetic\_data\_generation.transform\_test\_data\_set module
 ---------------------------------------------------------------------
 
