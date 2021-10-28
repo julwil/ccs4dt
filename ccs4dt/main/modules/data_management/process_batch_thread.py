@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 from ccs4dt.main.modules.conversion.converter import Converter
-from ccs4dt.main.modules.clustering.clusterer import Clusterer
+from ccs4dt.main.modules.object_matching.object_matcher import ObjectMatcher
 from ccs4dt.main.shared.enums.input_batch_status import InputBatchStatus
 
 
@@ -41,7 +41,7 @@ class ProcessBatchThread(threading.Thread):
             self.__update_status(InputBatchStatus.PROCESSING)
 
             self.__convert()
-            self.__cluster() # TODO rename
+            self.__object_matching()
             self.__predict()
             self.__persist()
 
@@ -69,9 +69,9 @@ class ProcessBatchThread(threading.Thread):
 
         self.__input_batch_df = converter.run()
 
-    def __cluster(self):
-        clusterer = Clusterer(self.__input_batch_df)
-        self.__input_batch_df = clusterer.run()
+    def __object_matching(self):
+        object_matcher = ObjectMatcher(self.__input_batch_df)
+        self.__input_batch_df = object_matcher.run()
 
     def __predict(self):
         pass

@@ -2,13 +2,13 @@ import numpy as np
 import uuid
 
 
-class Clusterer:
+class ObjectMatcher:
     """
-    Clustering of different object_identifiers that refer to the same physical object and assign a new shared uuid.
+    Matching of different object_identifiers that refer to the same physical object and assign a new shared uuid.
 
     Each sensor refers differently to the objects it records. E.g. camera sensor uses uuids to identify objects
     whereas bluetooth sensor uses MAC address. In reality the different object_identifiers map to the same physical
-    object. Clusterer groups object_identifiers that most probably belong to the same physical object and re-indexes
+    object. ObjectMatching groups object_identifiers that most probably belong to the same physical object and re-indexes
     object_identifiers of members of the same cluster with a new shared uuid. This makes further processing easier.
 
     :param input_batch_df: Input batch dataframe
@@ -20,7 +20,7 @@ class Clusterer:
 
     def run(self):
         """
-        Run clustering and re-index object_identifiers
+        Run object_matching and re-index object_identifiers
 
         :returns: The re-indexed input_batch_df
         :rtype: pd.DataFrame
