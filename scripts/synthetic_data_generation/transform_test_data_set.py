@@ -574,7 +574,7 @@ def function_wrapper_data_ingestion(path, import_rows, test_coord_parameters, te
 
     return None
 
-function_wrapper_data_ingestion(r'scripts\synteticDataGeneration\assets\sampledata\occupancy_presence_and_trajectories.csv', 5, (3,1,0, 30,-15,45), ('RFID',None,30,10,500))
+# function_wrapper_data_ingestion(r'scripts\synteticDataGeneration\assets\sampledata\occupancy_presence_and_trajectories.csv', 5, (3,1,0, 30,-15,45), ('RFID',None,30,10,500))
 
 
 
@@ -598,4 +598,4 @@ def function_wrapper_plotting_examples():
 
     return None
 
-function_wrapper_plotting_examples()
+# function_wrapper_plotting_examples()
