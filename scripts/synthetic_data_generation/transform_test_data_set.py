@@ -526,9 +526,15 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
         
         return abs(distance)
 
+    # Calculates distance between sensor and point and stores in dataframe
     measurement_dataframe['distance'] = calculate_distance(sensor.get_sensor_position.to_list()[0],sensor.get_sensor_position.to_list()[1],sensor.get_sensor_position.to_list()[2] ,measurement_dataframe['x_measured_abs_pos'],measurement_dataframe['y_measured_abs_pos'],measurement_dataframe['z_measured_abs_pos'])
 
-    measurement_dataframe['drop_due_to_distance'] = [x for x in (measurement_dataframe['distance'] > sensor.get_sensor_precision())]
+    # Adds drop flag if distance to point is larger than sensore measurement range TODO: check if get_measurement_reach is implemented
+    measurement_dataframe['drop_due_to_distance'] = [x for x in (measurement_dataframe['distance'] > sensor.get_measurement_reach())]
+
+    # Adds time difference between column and last column TODO: How should this work for a shift different of 1?
+    measurement_dataframe['timediff'] = measurement_dataframe['time'] - measurement_dataframe.shift(-1)['time']
+
 
 
     # TODO: Add measurement boundary, polling rate and decaying stability (as function of measurement distance)
@@ -537,14 +543,16 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     # # Drop all rows that are out of reach for sensor
     # for all rows where distance_to_sensor > sensor.get_reach():
     #   drop(row)
+
+    # # Drop all rows where sensor pollingrate is not quick enough:
+    # for all rows where (timediff(row[n+1]-row[n]) < sensor.get_pollingrate():
+    #   drop(row)
+
     # # Drop randomized rows as decaying function of distance to sensor, model function so that at sensor.get_reach()+1 the likelihood of measurement reaches 0
     # for all rows:
     #   calculate decay likelihood as function of distance
     #   if random(0,1) > decay likelihood:
     #       drop(row)
-    # # Drop all rows where sensor pollingrate is not quick enough:
-    # for all rows where (timediff(row[n+1]-row[n]) < sensor.get_pollingrate():
-    #   drop(row)
 
 
     return measurement_dataframe
