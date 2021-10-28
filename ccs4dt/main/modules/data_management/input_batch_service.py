@@ -140,9 +140,8 @@ class InputBatchService:
         """
         write_precision = WritePrecision.MS  # For now hardcoded to milliseconds
         for measurement in output_batch:
-            object_identifier = uuid.UUID(hashlib.md5(measurement["object_identifier"].encode()).hexdigest())
             point = Point("object_positions") \
-                .tag("object_identifier", object_identifier) \
+                .tag("object_identifier", measurement['object_identifier']) \
                 .tag("input_batch_id", input_batch_id) \
                 .field("x", measurement["x"]) \
                 .field("y", measurement["y"]) \
