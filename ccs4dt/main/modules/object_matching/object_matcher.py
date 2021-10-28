@@ -42,7 +42,7 @@ class ObjectMatcher:
         :rtype: list
         """
 
-        filtered_df = self.__filter_complete_data(df)
+        filtered_df = self.__filter_incomplete_object_identifiers(df)
 
         if filtered_df.empty:
             raise RuntimeException('Not enough data to perform id matching.')
@@ -82,9 +82,20 @@ class ObjectMatcher:
             clusters.append(cluster)
         return clusters
 
-    def __filter_complete_data(self, df):
+    def __filter_incomplete_object_identifiers(self, df):
+        """
+        Filter df such that it only contains time windows with complete data. This means that for a given time window,
+        e.g. 1s, all object_identifiers are present.
+        :param df: input dataframe
+        :type df: pd.DataFrame
+        :rtype: pd.DataFrame
+        """
         object_identifiers = df.index.levels[1].unique()
-        return df.groupby(level=0).filter(lambda x: object_identifiers.isin(x.index.get_level_values(1)).all())
+
+        def should_include(x):
+            return object_identifiers.isin(x.index.get_level_values('object_identifier')).all()
+
+        return df.groupby('timestamp').filter(lambda x: should_include(x))
 
     def __split_df_by_sensor_identifier(self, df):
         """

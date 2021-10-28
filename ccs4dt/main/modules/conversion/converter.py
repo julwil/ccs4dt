@@ -15,6 +15,7 @@ class Converter:
     :param batch: The input measurement batch
     :type batch: pandas.DataFrame
     """
+
     def __init__(self, batch):
         self.__batch_df = batch
         self.__sensors = {}
