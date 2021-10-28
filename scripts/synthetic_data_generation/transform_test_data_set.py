@@ -15,7 +15,6 @@ class CoordinateSystem(object):
     """This class represents a coordinate system/orientation of an object in the real world. It is seen relative to a arbitrary 
     frame of reference, which could be e.g. a location that is analyzed.
 
-
     :param origin_with_respect_to_ref_sys_x: x-translation parameter of coordinate system in relation to frame of refrence
     :type origin_with_respect_to_ref_sys_x: numeric
     :param origin_with_respect_to_ref_sys_y: y-translation parameter of coordinate system in relation to frame of refrence
@@ -34,7 +33,7 @@ class CoordinateSystem(object):
     """
 
     def __init__(self, origin_with_respect_to_ref_sys_x, origin_with_respect_to_ref_sys_y, origin_with_respect_to_ref_sys_z, yaw_xy_with_respect_to_ref_sys, pitch_yz_with_respect_to_ref_sys, roll_xz_with_respect_to_ref_sys):
-        
+
         # Define translational parameters with repsect to global frame of reference
         self.origin_with_respect_to_ref_sys_x =  origin_with_respect_to_ref_sys_x
         self.origin_with_respect_to_ref_sys_y =  origin_with_respect_to_ref_sys_y
@@ -53,8 +52,8 @@ class CoordinateSystem(object):
         :return: Returns string of coordinate system parameters
         :rtype: string
         """
-        return ('Coordinate system orientation: \n translation (x,y,z): (' + str(self.origin_with_respect_to_ref_sys_x) + ", " + str(self.origin_with_respect_to_ref_sys_y) + ", " 
-                + str(self.origin_with_respect_to_ref_sys_z) + ') \n and rotation (xy,yz,xz): (' + str(self.yaw_xy_with_respect_to_ref_sys) + ", " + str(self.pitch_yz_with_respect_to_ref_sys) + ", " 
+        return ('Coordinate system orientation: \n translation (x,y,z): (' + str(self.origin_with_respect_to_ref_sys_x) + ", " + str(self.origin_with_respect_to_ref_sys_y) + ", "
+                + str(self.origin_with_respect_to_ref_sys_z) + ') \n and rotation (xy,yz,xz): (' + str(self.yaw_xy_with_respect_to_ref_sys) + ", " + str(self.pitch_yz_with_respect_to_ref_sys) + ", "
                 + str(self.roll_xz_with_respect_to_ref_sys) + ')' )
 
     def get_translation_x(self):
@@ -161,7 +160,7 @@ class Sensor(object):
         # Pollingrate, how frequent the sensor will be able to measure & unit
         self.sensor_pollingrate = sensor_pollingrate
         self.sensor_pollingrate_measurement_unit = sensor_pollingrate_measurement_unit
-        
+
         # Must be unique, identifier of the sensor
         self.sensor_identifier = sensor_identifier
 
@@ -176,11 +175,11 @@ class Sensor(object):
         :return: Returns string of coordinate system parameters
         :rtype: string
         """
-        return (str('Sensor of type "'+ self.sensor_type + '" with id: ' + str(self.sensor_identifier) + 
+        return (str('Sensor of type "'+ self.sensor_type + '" with id: ' + str(self.sensor_identifier) +
                     '\nat absolute position: (' + str(self.absolute_pos_x) + ', ' + str(self.absolute_pos_y) + ', ' + str(self.absolute_pos_z) + ') ' + ' (x, y, z), with orientation (x,y,z) (' +
-                      str(self.orientation_x) + '°, ' +  str(self.orientation_y) + '°, ' +  str(self.orientation_z) + '°), ' + 
-                    '\nand precision: ' + str(self.sensor_precision) + ' ' + str(self.sensor_precision_measurement_unit) + ', ' + 
-                    '\nand pollingrate: ' + str(self.sensor_pollingrate) + ' ' + str(self.sensor_pollingrate_measurement_unit) + 
+                      str(self.orientation_x) + '°, ' +  str(self.orientation_y) + '°, ' +  str(self.orientation_z) + '°), ' +
+                    '\nand precision: ' + str(self.sensor_precision) + ' ' + str(self.sensor_precision_measurement_unit) + ', ' +
+                    '\nand pollingrate: ' + str(self.sensor_pollingrate) + ' ' + str(self.sensor_pollingrate_measurement_unit) +
                     '\nand the sensor drops measurements with a probability of ' + str(self.stability) + '%' ))
 
     def get_sensor_position(self):
@@ -246,12 +245,12 @@ class Sensor(object):
         :return: Returns positional parameters (x,y,z) for synthetically generated measurement point. Returned parameters are in coordinate system of sensor for which the measurement was simulated.
         :rtype: 3-tuple (numeric,numeric,numeric)
         """
-        
+
         def randomize_positions(self):
             # Assume cube and randomize all three directions based on precision
-            randomized_x = rand.randint(-self.sensor_precision, self.sensor_precision) 
-            randomized_y = rand.randint(-self.sensor_precision, self.sensor_precision) 
-            randomized_z = rand.randint(-self.sensor_precision, self.sensor_precision) 
+            randomized_x = rand.randint(-self.sensor_precision, self.sensor_precision)
+            randomized_y = rand.randint(-self.sensor_precision, self.sensor_precision)
+            randomized_z = rand.randint(-self.sensor_precision, self.sensor_precision)
 
             return (randomized_x, randomized_y, randomized_z)
 
@@ -295,7 +294,7 @@ def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_
     # Define transformation matrices (point -> f.o.r. & f.o.r. -> point)
     ## Init diagonal base matrix to fill with rotation and translation parameters
     point_coordinate_system_to_global_frame_of_reference = np.eye(4)
-    
+
     ## Define rotational parameters to go from point coordinate system to global frame of reference (basically answer the question: "how is the coord system aliogned that is to be transformed")
     R = Rotation.from_euler("XYZ",[coordinate_system.yaw_xy_with_respect_to_ref_sys, coordinate_system.pitch_yz_with_respect_to_ref_sys, coordinate_system.roll_xz_with_respect_to_ref_sys], degrees = True).as_matrix()
 
@@ -454,7 +453,7 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
         # If data is only in 2D we add a 3D coordinate that is empty
         if transform_to_3D_data == True:
             import_file['z'] = 0
-        else: 
+        else:
             import_file['z'] = import_file['height']
 
         # Convert time column to datetime format
@@ -469,8 +468,8 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
         time_format = '%H:%M:%S.%f'
 
         #import_file['date_time'] = pd.to_datetime(import_file['date'].apply(str)+' '+import_file['time'])
-        
-      
+
+
         #import_file['date_time'] = pd.to_datetime(str(import_file['date']) + ' ' + import_file['time'])
     else:
         raise ValueError('Case not covered (include irrelevant columns)')
@@ -489,7 +488,7 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     :return: Returns the simulated measurement output of the sensor as dataframe
     :rtype: dataframe
     """
-    
+
     # Generate empty data frame for measurements
     measurement_dataframe = pd.DataFrame()
 
@@ -508,7 +507,7 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe['x_original'] = true_position_dataframe['x']
     measurement_dataframe['y_original'] = true_position_dataframe['y']
     measurement_dataframe['z_original'] = true_position_dataframe['z']
- 
+
     # Generate measurements (with random precision) in coordinate system of sensor
     measurement_dataframe['xyz_measured'] = ([(sensor.generate_random_point_in_sphere(x, y, z)) for x, y, z in zip(measurement_dataframe['x_original'], measurement_dataframe['y_original'], measurement_dataframe['z_original'])])
     # Unpack those measure coordinates
@@ -523,7 +522,7 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     def calculate_distance(sensor_abs_x, sensor_abs_y, sensor_abs_z, point_abs_x, point_abs_y, point_abs_z):
 
         distance = ((sensor_abs_x-point_abs_x)**2 + (sensor_abs_y-point_abs_y)**2 + (sensor_abs_z-point_abs_z)**2)**(1/2)
-        
+
         return abs(distance)
 
     # Calculates distance between sensor and point and stores in dataframe
