@@ -9,7 +9,7 @@ Only works on Windows 10 versions 2004 and higher
 
 2. Install Docker Desktop (https://www.docker.com/products/docker-desktop)
 
-3. Ensure that you are using Linux containers, the docker menu in your taskbar should look like this ![Docker menu](scripts\docs\assets\20211030_DockerSetupWindows_Documentation.png)
+3. Ensure that you are using Linux containers, the docker menu in your taskbar should look like this ![Docker menu](scripts/docs/assets/20211030_DockerSetupWindows_Documentation.png)
 
 4. Run commands to ensure docker is setup correctly:
 
