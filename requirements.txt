@@ -9,3 +9,5 @@ pandas
 numpy
 sphinx
 furo
+mpld3
+plotly
