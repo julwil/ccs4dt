@@ -346,16 +346,11 @@ def plot_randomized_sphere(sensor, randomization_steps):
     :param randomization_steps: Amount of measurements that should be simulated
     :type randomization_steps: integer
 
-
     :return: Returns nothing
     :rtype: None
     """
 
-    fig = plt.figure(figsize = (10,10))
-    ax = plt.axes(projection='3d')
-
-    ax.grid()
-
+    # Generate simulated measurement points
     i = 1
     x_array = []
     y_array = []
@@ -368,23 +363,71 @@ def plot_randomized_sphere(sensor, randomization_steps):
 
         i += 1
 
-    # draw points
-    ax.scatter(x_array, y_array, z_array)
+    # Add simulated measurement points to figure
+    trace_simulated_measurements = go.Scatter3d(
+        x = x_array,
+        y = y_array,
+        z = z_array,
+        mode='markers',
+        name='Simulated measure'
+    )
 
-    # draw origin
-    ax.scatter(0, 0, 0, s = 200)
+    # Add true position (origin) to figure
+    trace_true_position = go.Scatter3d(
+        x = [0],
+        y = [0],
+        z = [0],
+        marker=dict(
+            color='black',
+            size=20),
+        mode = 'markers',
+        name = 'True position'
+    )
 
-    # draw wireframe sphere
-    u, v = np.mgrid[0:2*np.pi:100j, 0:np.pi:100j]
-    # Scale sphere with (sensor.get_precision()) (half of diameter)
-    a = np.cos(u)*np.sin(v)*(sensor.get_sensor_precision())
-    b = np.sin(u)*np.sin(v)*(sensor.get_sensor_precision())
-    c = np.cos(v)*(sensor.get_sensor_precision())
+    def spheres(radius, sphere_color = '#1d212e', sphere_opacity = 0.2): 
+        """Creates trace for sphere as surface in plotly graph_object
 
-    ax.plot_wireframe(a, b, c, color="grey", alpha = 0.2)
+        :param radius: Radius of the sphere to be plotted
+        :type radius: numerical
+        :param sphere_color: Color of the sphere in plot, default is #1d212e
+        :type sphere_color: str
+        :param sphere_opacity: Opacity of the sphere in plot, default is 0.2
+        :type sphere_opacity: numerical
 
-    plt.show()
+        :return: Returns constructed trace that can directly be added to figure
+        :rtype: str
+        """
 
+        # Set up 100 points. First, do angles
+        theta = np.linspace(0,2*np.pi,100)
+        phi = np.linspace(0,np.pi,100)
+        
+        # Set up coordinates for points on the sphere
+        x0 = radius * np.outer(np.cos(theta),np.sin(phi))
+        y0 = radius * np.outer(np.sin(theta),np.sin(phi))
+        z0 = radius * np.outer(np.ones(100),np.cos(phi))
+        
+        # Set up trace
+        trace= go.Surface(x=x0, y=y0, z=z0, colorscale=[[0,sphere_color], [1,sphere_color]], opacity = sphere_opacity, name='Sphere simulation boundaries (as given by sensor precision)', showlegend = True)
+        trace.update(showscale=False)
+
+        return trace
+
+    # Generate simulation sphere trace
+    trace_simulation_sphere = spheres(sensor.get_sensor_precision())
+
+    # Add datapoints to figure
+    fig = go.Figure(data= trace_simulated_measurements)
+    fig.add_trace(trace_true_position)
+    fig.add_trace(trace_simulation_sphere)
+
+    # Add title to figure
+    fig.update_layout(title= ('Simulated ' + str(randomization_steps) + ' measures of the sensor (with precision: ' + str(sensor.get_sensor_precision()) + ') around true position'),
+    title_font_size = 40)
+
+    # Generate html file for plot
+    fig.write_html('scripts/synthetic_data_generation/assets/generated_graphs/plot_measure_simulations.html')
+    
     return None
 
 def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_sys, plot_system_indicators = True):
@@ -768,7 +811,7 @@ def plot_examples(sensor, coord_sys, point_x, point_y, point_z, repeated_steps):
 test_coord_sys = CoordinateSystem(6,-2,4, 30,60,42)
 test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
 
-plot_examples(test_sensor, test_coord_sys, 1, 1, 1, 10)
+plot_examples(test_sensor, test_coord_sys, 1, 1, 1, 100)
 
 # TODO -> Take ms als standardeinheit
 
