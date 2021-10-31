@@ -712,7 +712,6 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe['date'] = [x for x in true_position_dataframe['date']]
     measurement_dataframe['time'] = [x for x in true_position_dataframe['time']]
 
-
     # Add sensor id, sensor type and occupant id
     measurement_dataframe['occupant_id'] = true_position_dataframe['occupant_id']
     measurement_dataframe['sensor_type'] = sensor.get_sensor_type()
