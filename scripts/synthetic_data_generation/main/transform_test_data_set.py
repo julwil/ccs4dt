@@ -7,7 +7,11 @@ import numpy as np
 from pytransform3d.plot_utils import make_3d_axis
 from pytransform3d.transform_manager import TransformManager
 from scipy.spatial.transform import Rotation
+import os
 
+
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 
 
@@ -43,8 +47,6 @@ class CoordinateSystem(object):
         self.yaw_xy_with_respect_to_ref_sys =  yaw_xy_with_respect_to_ref_sys
         self.pitch_yz_with_respect_to_ref_sys =  pitch_yz_with_respect_to_ref_sys
         self.roll_xz_with_respect_to_ref_sys =  roll_xz_with_respect_to_ref_sys
-
-        return("Creation successfull for: \n" + self.__str__)
 
     def __str__(self):
         """String representation of the coordinate system
@@ -148,6 +150,8 @@ class Sensor(object):
         self.orientation_y = coordinate_system.get_pitch_yz()
         self.orientation_z = coordinate_system.get_roll_xz()
 
+        # Coordinate system
+        self.coordinate_system = coordinate_system
 
         # Precision and unit of precision of the sensor
         self.sensor_precision = sensor_precision
@@ -166,8 +170,6 @@ class Sensor(object):
 
         # Stability (with what percentage the sensor randomly drops a measurement)
         self.stability = stability
-
-        return("Sensor successfully created! \n" + self.__str__)
 
     def __str__(self):
         """String representation of the senor
@@ -227,6 +229,14 @@ class Sensor(object):
         :rtype: numeric
         """
         return (self.measurement_reach)
+    
+    def get_sensor_coordinate_system(self):
+        """Getter function for the sensor coordinate system       
+
+        :return: Returns sensor coordinate system
+        :rtype: CoordinateSystem
+        """
+        return(self.coordinate_system)
 
     # TODO: Implement getter sensor reach measurement unit
 
@@ -269,9 +279,9 @@ class Sensor(object):
 
         return (random_pos_x + point_x, random_pos_y + point_y, random_pos_z + point_z)
 
-# Transforms point coordinates in it's own coordinate system into frame of reference (f.o.r.) coordinate system
+
 def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_system, inverse_transformation = False, output_transformation_matrix = False):
-    """Transforms positional coordinates of a point in a specific coordinate system into its frame of reference
+    """Transforms positional coordinates of a point in a specific coordinate system into its frame of reference (f.o.r)
 
         :param point_x: x-Coordinate of the true position (as relative coordinate) of object for which the coordinates should be transformed into the frame of reference
         :type point_x: numeric
@@ -328,9 +338,8 @@ def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_
     else:
         return transformed_x, transformed_y, transformed_z
 
-# Plots randomized points and sphere based on sensor input and number of measurements
 def plot_randomized_sphere(sensor, randomization_steps):
-    """Plots (in 3D) x randomized measurements and sphere of precision based on sensor parameters around origin
+    """Plots (in 3D) x randomized measurements and sphere of precision based on sensor parameters around origin, where x = randomization_steps
 
     :param sensor: Sensor for which the measurements should be simulated
     :type sensor: Sensor
@@ -378,9 +387,8 @@ def plot_randomized_sphere(sensor, randomization_steps):
 
     return None
 
-# Plot two coordinate systems (frame of reference and point coordinate system that contain the same point transformed)
 def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_sys, plot_system_indicators = True):
-    """Plot two coordinate systems (frame of reference and point coordinate system that contain the same point transformed).
+    """Plots two coordinate systems (frame of reference and point coordinate system that contain the same point transformed).
     Upper plot is in frame of reference, Lower plot in point coordinate system
 
     :param point_x: x-coordinate of point in point coordinate system
@@ -398,33 +406,200 @@ def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_
     :rtype: None
     """
 
-    transformation_matrix, transformed_point = transform_cartesian_coordinate_system(point_x, point_y, point_z, point_coord_sys, output_transformation_matrix = True)
+    # Define basic coordinate system vectors
+    origin = [0,0,0]
+    x_identity = [1,0,0]
+    y_identity = [0,1,0]
+    z_identity = [0,0,1]
 
-    tm = TransformManager()
-    tm.add_transform("f.o.r.", "P", transformation_matrix)
+    # Calculate frame of reference coordinate system vectors in point coordinate system
+    transformed_frame_of_reference_origin = list(transform_cartesian_coordinate_system(origin[0], origin[1], origin[2], point_coord_sys, inverse_transformation = True))
+    transformed_frame_of_reference_x_identity = list(transform_cartesian_coordinate_system(x_identity[0], x_identity[1], x_identity[2], point_coord_sys, inverse_transformation = True))
+    transformed_frame_of_reference_y_identity = list(transform_cartesian_coordinate_system(y_identity[0], y_identity[1], y_identity[2], point_coord_sys, inverse_transformation = True))
+    transformed_frame_of_reference_z_identity = list(transform_cartesian_coordinate_system(z_identity[0], z_identity[1], z_identity[2], point_coord_sys, inverse_transformation = True))
 
-    plt.figure(figsize=(15, 15))
+    trace_point_in_coordinate_system = go.Scatter3d(
+        x=[point_x],
+        y=[point_y],
+        z=[point_z],
+        mode='markers',
+        name='Point in relative coordinates'
+    )
 
-    ax = make_3d_axis(10, 211)
-    if plot_system_indicators == True:
-        ax = tm.plot_frames_in("f.o.r.", ax = ax, s = 3)
-    ax.plot(*transformed_point[:3],"yo")
-    ax.view_init(20, 20)
+    def vector_plot(tvects, vector_name_prefix , orig = [0, 0, 0]):
+        """Generates vectors using plotly, between supplied vector and endpoint (tvects and origin)
 
-    ax = make_3d_axis(10, 212)
-    if plot_system_indicators == True:
-        ax = tm.plot_frames_in("P", ax = ax, s = 3)
-    ax.plot(point_x, point_y, point_z,"yo")
-    ax.view_init(20, 20)
+        :param tvects: x-,y-,z-coordinate
+        :type tvects: list
+        :param vector_name_prefix: prefix of name as shown in plot legend
+        :type vector_name_prefix: string
+        :param orig: x-,y-,z-coordinate of origin
+        :type orig: list
+
+        :return: Returns transformed coordinate vectors for x-,y-,z-coordinate 
+        :rtype: Tuple (x,y,z)
+        """
+
+        coords = [[orig, np.sum([orig, v], axis = 0)] for v in tvects]
 
 
-    plt.show()
+        data = []
+        for i,c in enumerate(coords):
+            if i == 0:
+                vector_name_suffix = ': x-coordinate'
+            elif i == 1:
+                vector_name_suffix = ': y-coordinate'
+            elif i == 2:
+                vector_name_suffix = ': z-coordinate'
+            X1, Y1, Z1 = zip(c[0])
+            X2, Y2, Z2 = zip(c[1])
+            vector = go.Scatter3d(x = [X1[0], X2[0] - X1[0]],
+                                y = [Y1[0], Y2[0] - Y1[0]],
+                                z = [Z1[0], Z2[0] - Z1[0]],
+                                #line = dict(color="#ffe476"),
+                                marker = dict(size = [0,10],
+                                                color = ['DarkSlateGrey'],
+                                                line = dict(width=1,
+                                                        color='DarkSlateGrey')),
+                                name = str(vector_name_prefix)+str(vector_name_suffix))
+            data.append(vector)
+
+        return data[0], data[1], data[2]
+
+    
+    # Define vectors for point coordinate system
+    x_identity_vector_point_coordinate_system, y_identity_vector_point_coordinate_system,\
+     z_identity_vector_point_coordinate_system = (vector_plot([x_identity, y_identity, z_identity],'Point coordinate system'))
+
+    # Define vectors for frame of refrence in point coordinate system
+    x_identity_frameofreference_in_pointcoordinatesystem_vector, \
+        y_identity_frameofreference_in_pointcoordinatesystem_vector, \
+            z_identity_frameofreference_in_pointcoordinatesystem_vector = (vector_plot([transformed_frame_of_reference_x_identity, 
+            transformed_frame_of_reference_y_identity, transformed_frame_of_reference_z_identity], 'Frame of reference', orig = transformed_frame_of_reference_origin))
+
+    elements_to_plot_in_point_coordinate_system = [trace_point_in_coordinate_system, 
+    x_identity_vector_point_coordinate_system, y_identity_vector_point_coordinate_system, z_identity_vector_point_coordinate_system, 
+    x_identity_frameofreference_in_pointcoordinatesystem_vector, y_identity_frameofreference_in_pointcoordinatesystem_vector, z_identity_frameofreference_in_pointcoordinatesystem_vector]
+
+    # Calculate max absolute coordinate position to be able to scale graphic correctly in all directions (to avoid distortion)
+    all_coordinates = []
+    for i in elements_to_plot_in_point_coordinate_system:
+            all_coordinates.append(i.x[0])
+            all_coordinates.append(i.y[0])
+            all_coordinates.append(i.z[0])
+    # identify maximum absolute coordinate from all coordinates, round to nearest 10
+    max_coordinate = round(max([abs(ele) for ele in all_coordinates]),-1)
+
+    # Defines number of grid divisions based on scaling
+    if max_coordinate <= 10:
+        number_grid_lines = 10
+    elif max_coordinate <= 20:
+        number_grid_lines = 20
+    elif max_coordinate <= 50:
+        number_grid_lines = 50
+    else:
+        number_grid_lines = 100
+
+    fig = go.Figure(data= elements_to_plot_in_point_coordinate_system)
+
+    # Formatting of plot
+    fig.update_layout(scene = dict(
+                    xaxis_title='x coordinate',
+                    yaxis_title='y coordinate',
+                    zaxis_title='z coordinate'),
+                    title = 'Point coordinate system plot',
+                    title_font_size=50,
+                    colorway=['#e02a44','#8EDFFF', '#1974D2',  '#00308F', '#F89F05', '#E36005', '#D04711', '#7f7f7f', '#bcbd22', '#17becf'])
+
+    fig.update_layout(scene = dict(
+                    xaxis = dict(nticks=number_grid_lines, range=[-max_coordinate,max_coordinate],),
+                    yaxis = dict(nticks=number_grid_lines, range=[-max_coordinate,max_coordinate],),
+                    zaxis = dict(nticks=number_grid_lines, range=[-max_coordinate,max_coordinate],),))
+
+
+    # Generate html file for plot
+    fig.write_html('scripts/synthetic_data_generation/assets/generated_graphs/plot_point_in__coord_system.html')
+
+
+
+    # Start constructing figure for frame of reference plot
+    # Get transformed point in f.o.r.
+    transformed_point = transform_cartesian_coordinate_system(point_x, point_y, point_z, point_coord_sys)
+    # Construct point in frame of reference
+    trace_point_in_frame_of_reference = go.Scatter3d(
+        x=[transformed_point[:3][0]],
+        y=[transformed_point[:3][1]],
+        z=[transformed_point[:3][2]],
+        mode='markers',
+        name='Point in frame of reference'
+    )
+
+    # Calculate point coordinate system vectors in frame of reference
+    transformed_origin = list(transform_cartesian_coordinate_system(origin[0], origin[1], origin[2], point_coord_sys))
+    transformed_x_identity = list(transform_cartesian_coordinate_system(x_identity[0], x_identity[1], x_identity[2], point_coord_sys))
+    transformed_y_identity = list(transform_cartesian_coordinate_system(y_identity[0], y_identity[1], y_identity[2], point_coord_sys))
+    transformed_z_identity = list(transform_cartesian_coordinate_system(z_identity[0], z_identity[1], z_identity[2], point_coord_sys))
+
+    # Define vectors for frame of reference coordinate system plot
+    x_identity_vector_frame_of_reference, y_identity_vector_point_frame_of_reference,\
+     z_identity_vector_frame_of_reference = (vector_plot([x_identity, y_identity, z_identity],'Frame of reference'))
+
+    # Define vectors for point coordinate system in frame of reference plot
+    x_identity_pointcoordinatesystem_in_frameofreference_vector, \
+        y_identity_pointcoordinatesystem_in_frameofreference_vector, \
+            z_identity_pointcoordinatesystem_in_frameofreference_vector = (vector_plot([transformed_x_identity, 
+            transformed_y_identity, transformed_z_identity], 'Point Coordinate system', orig = transformed_origin))
+
+    # Define points and vectors to be plotted
+    elements_to_plot_in_frame_of_reference =[trace_point_in_frame_of_reference, 
+    x_identity_vector_frame_of_reference, y_identity_vector_point_frame_of_reference, z_identity_vector_frame_of_reference, 
+    x_identity_pointcoordinatesystem_in_frameofreference_vector, y_identity_pointcoordinatesystem_in_frameofreference_vector, z_identity_pointcoordinatesystem_in_frameofreference_vector]
+    
+    # Establish plot
+    fig = go.Figure(data= elements_to_plot_in_frame_of_reference)
+
+    # Calculate max absolute coordinate position to be able to scale graphic correctly in all directions (to avoid distortion)
+    all_coordinates = []
+    for i in elements_to_plot_in_frame_of_reference:
+            all_coordinates.append(i.x[0])
+            all_coordinates.append(i.y[0])
+            all_coordinates.append(i.z[0])
+    # identify maximum absolute coordinate from all coordinates, round to nearest 10
+    max_coordinate = round(max([abs(ele) for ele in all_coordinates]),-1)
+
+    # Defines number of grid divisions based on scaling
+    if max_coordinate <= 10:
+        number_grid_lines = 10
+    elif max_coordinate <= 20:
+        number_grid_lines = 20
+    elif max_coordinate <= 50:
+        number_grid_lines = 50
+    else:
+        number_grid_lines = 100
+
+    # Formatting of plot
+    fig.update_layout(scene = dict(
+                    xaxis = dict(nticks=number_grid_lines, range=[-max_coordinate,max_coordinate],),
+                    yaxis = dict(nticks=number_grid_lines, range=[-max_coordinate,max_coordinate],),
+                    zaxis = dict(nticks=number_grid_lines, range=[-max_coordinate,max_coordinate],),))
+
+    fig.update_layout(scene = dict(
+                    xaxis_title='x coordinate',
+                    yaxis_title='y coordinate',
+                    zaxis_title='z coordinate'),
+                    title = 'Frame of reference plot',
+                    title_font_size=50,
+                    colorway=['#e02a44', '#F89F05', '#E36005', '#D04711', '#8EDFFF', '#1974D2', '#00308F', '#7f7f7f', '#bcbd22', '#17becf'])
+
+    # Generate html file for plot
+    fig.write_html('scripts/synthetic_data_generation/assets/generated_graphs/plot_point_in_frame_of_reference.html')
+
 
     return None
 
-# Import the true position dataset
+# TODO: only works with standard dataset, potentially extend to other dataset formats
 def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelevant_columns = True, transform_to_3D_data = True, starting_date = '01.06.2019', date_format = '%d.%m.%Y'):
-    """Imports the true position dataset (TODO: only works with standard dataset, potentially extend to other dataset formats)
+    """Imports the true position dataset of the given format from source: https://www.kaggle.com/claytonmiller/occupancy-presencetrajectory-data-from-a-building/version/1
 
     :param filepath: filepath of trueposition dataset
     :type filepath: raw string literal
@@ -445,6 +620,8 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
     :rtype: dataframe
     """
 
+    ## TODO: Randomize occupant_id for different sensors (e.g. unique MACaddress)
+    ## TODO: Use pollingrate from livealytics dataset
 
     if drop_irrelevant_columns == True:
         relevant_columns = ['time', 'day_id', 'x', 'y', 'occupant_id', 'camera_id', 'height']
@@ -514,9 +691,9 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe[['x_measured_abs_pos', 'y_measured_abs_pos','z_measured_abs_pos']] = pd.DataFrame(measurement_dataframe['xyz_measured'].tolist(), index=measurement_dataframe.index)
 
     # Transform measured coordinates into absolute coordinate system (frame of reference)
-    measurement_dataframe['x_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, test_coord_sys)[0]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
-    measurement_dataframe['y_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, test_coord_sys)[1]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
-    measurement_dataframe['z_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, test_coord_sys)[2]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
+    measurement_dataframe['x_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, sensor.get_sensor_coordinate_system())[0]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
+    measurement_dataframe['y_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, sensor.get_sensor_coordinate_system())[1]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
+    measurement_dataframe['z_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, sensor.get_sensor_coordinate_system())[2]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
 
     ## TODO: Validiation / Testing of this part outstanding
     def calculate_distance(sensor_abs_x, sensor_abs_y, sensor_abs_z, point_abs_x, point_abs_y, point_abs_z):
@@ -525,33 +702,33 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
 
         return abs(distance)
 
-    # Calculates distance between sensor and point and stores in dataframe
-    measurement_dataframe['distance'] = calculate_distance(sensor.get_sensor_position.to_list()[0],sensor.get_sensor_position.to_list()[1],sensor.get_sensor_position.to_list()[2] ,measurement_dataframe['x_measured_abs_pos'],measurement_dataframe['y_measured_abs_pos'],measurement_dataframe['z_measured_abs_pos'])
+    # # Calculates distance between sensor and point and stores in dataframe
+    # measurement_dataframe['distance'] = calculate_distance(sensor.get_sensor_position.to_list()[0],sensor.get_sensor_position.to_list()[1],sensor.get_sensor_position.to_list()[2] ,measurement_dataframe['x_measured_abs_pos'],measurement_dataframe['y_measured_abs_pos'],measurement_dataframe['z_measured_abs_pos'])
 
-    # Adds drop flag if distance to point is larger than sensore measurement range TODO: check if get_measurement_reach is implemented
-    measurement_dataframe['drop_due_to_distance'] = [x for x in (measurement_dataframe['distance'] > sensor.get_measurement_reach())]
+    # # Adds drop flag if distance to point is larger than sensore measurement range TODO: check if get_measurement_reach is implemented
+    # measurement_dataframe['drop_due_to_distance'] = [x for x in (measurement_dataframe['distance'] > sensor.get_measurement_reach())]
 
-    # Adds time difference between column and last column TODO: How should this work for a shift different of 1?
-    measurement_dataframe['timediff'] = measurement_dataframe['time'] - measurement_dataframe.shift(-1)['time']
+    # # Adds time difference between column and last column TODO: How should this work for a shift different of 1?
+    # measurement_dataframe['timediff'] = measurement_dataframe['time'] - measurement_dataframe.shift(-1)['time']
 
 
 
-    # TODO: Add measurement boundary, polling rate and decaying stability (as function of measurement distance)
-    # PSEUDOCODE HERE
-    # calculate distance(xyz_measured, sensor_position)
-    # # Drop all rows that are out of reach for sensor
-    # for all rows where distance_to_sensor > sensor.get_reach():
-    #   drop(row)
+    # # TODO: Add measurement boundary, polling rate and decaying stability (as function of measurement distance)
+    # # PSEUDOCODE HERE
+    # # calculate distance(xyz_measured, sensor_position)
+    # # # Drop all rows that are out of reach for sensor
+    # # for all rows where distance_to_sensor > sensor.get_reach():
+    # #   drop(row)
 
-    # # Drop all rows where sensor pollingrate is not quick enough:
-    # for all rows where (timediff(row[n+1]-row[n]) < sensor.get_pollingrate():
-    #   drop(row)
+    # # # Drop all rows where sensor pollingrate is not quick enough:
+    # # for all rows where (timediff(row[n+1]-row[n]) < sensor.get_pollingrate():
+    # #   drop(row)
 
-    # # Drop randomized rows as decaying function of distance to sensor, model function so that at sensor.get_reach()+1 the likelihood of measurement reaches 0
-    # for all rows:
-    #   calculate decay likelihood as function of distance
-    #   if random(0,1) > decay likelihood:
-    #       drop(row)
+    # # # Drop randomized rows as decaying function of distance to sensor, model function so that at sensor.get_reach()+1 the likelihood of measurement reaches 0
+    # # for all rows:
+    # #   calculate decay likelihood as function of distance
+    # #   if random(0,1) > decay likelihood:
+    # #       drop(row)
 
 
     return measurement_dataframe
@@ -569,32 +746,56 @@ def function_wrapper_data_ingestion(path, import_rows, test_coord_parameters, te
     (sensor_type, empty, precision, pollingrate, reach) =  test_sensor_parameters
     test_sensor = Sensor(sensor_type, test_coord_sys, precision, pollingrate, reach)
 
-    simulate_measure_data_from_true_positions(imported_dataset, test_sensor)
+    simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, test_sensor)
 
-    return None
+    return simulation_data_dataframe
 
-# function_wrapper_data_ingestion(r'scripts\synteticDataGeneration\assets\sampledata\occupancy_presence_and_trajectories.csv', 5, (3,1,0, 30,-15,45), ('RFID',None,30,10,500))
-
-
+(function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 5, (3,1,0, 30,-15,45), ('RFID',None,30,10,500)))
 
 
-def function_wrapper_plotting_examples():
 
-    def plot_examples(sensor, coord_sys, point_x, point_y, point_z, repeated_steps):
-        #print(sensor)
-        #print(coord_sys)
 
-        #print(sensor.generate_random_point_in_sphere())
-        plot_randomized_sphere(sensor, repeated_steps)
+def plot_examples(sensor, coord_sys, point_x, point_y, point_z, repeated_steps):
+    #print(sensor)
+    #print(coord_sys)
 
-        #print(transform_cartesian_coordinate_system(1,5,-1, coord_sys))
-        plot_point_in_two_coordinate_systems(point_x, point_y, point_z, coord_sys, plot_system_indicators = True)
+    #print(sensor.generate_random_point_in_sphere())
+    plot_randomized_sphere(sensor, repeated_steps)
 
-    test_coord_sys = CoordinateSystem(3,1,-3, 90,135,42)
-    test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
+    #print(transform_cartesian_coordinate_system(1,5,-1, coord_sys))
+    plot_point_in_two_coordinate_systems(point_x, point_y, point_z, coord_sys, plot_system_indicators = True)
 
-    plot_examples(test_sensor, test_coord_sys, 1, 5, -1, 3000)
+test_coord_sys = CoordinateSystem(6,-2,4, 30,60,42)
+test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
 
-    return None
+plot_examples(test_sensor, test_coord_sys, 1, 1, 1, 10)
 
-# function_wrapper_plotting_examples()
+# TODO -> Take ms als standardeinheit
+
+## TODO Placholder convert function
+#  def __convert_units(self, row):
+#         """
+#         Handle conversion of measurement units.
+#         :param row: pd.Series
+#         :return: pd.Series
+#         """
+#         sensor = self.__sensors[row['sensor_identifier']]
+#         factor = 1
+
+#         if sensor['measurement_unit'] == MeasurementUnit.CENTIMETER:
+#             return row
+
+#         if sensor['measurement_unit'] == MeasurementUnit.MILLIMETER:
+#             factor = 0.1
+
+#         if sensor['measurement_unit'] == MeasurementUnit.METER:
+#             factor = 100
+
+#         for axis in ['x', 'y', 'z']:
+#             row[axis] *= factor
+
+#         return row
+
+# TODO: Transform output to JSON
+
+# TODO: Bash script to run & Bash script with parameter input

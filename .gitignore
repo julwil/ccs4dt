@@ -1,3 +1,5 @@
 ./.idea/*
 storage/*
 config/influx-configs
+.scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv
+scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv
