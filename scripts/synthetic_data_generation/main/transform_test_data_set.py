@@ -777,41 +777,33 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     return measurement_dataframe
 
 
-def function_wrapper_data_ingestion(path, import_rows, test_coord_parameters, test_sensor_parameters):
-
-
+def function_wrapper_data_ingestion(path, import_rows, measurement_sensor):
 
     imported_dataset = import_occupancy_presence_dataset(path, import_rows_count = import_rows)
 
-    (x,y,z,yaw_xy,pitch_yz,roll_xz) = test_coord_parameters
-    test_coord_sys = CoordinateSystem(x,y,z,yaw_xy,pitch_yz,roll_xz)
-
-    (sensor_type, empty, precision, pollingrate, reach) =  test_sensor_parameters
-    test_sensor = Sensor(sensor_type, test_coord_sys, precision, pollingrate, reach)
-
-    simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, test_sensor)
+    simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, measurement_sensor)
 
     return simulation_data_dataframe
 
-(function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 5, (3,1,0, 30,-15,45), ('RFID',None,30,10,500)))
 
+def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, repeated_steps):
 
+    example_coord_sys = example_sensor.get_sensor_coordinate_system()
 
+    plot_randomized_sphere(example_sensor, repeated_steps)
 
-def plot_examples(sensor, coord_sys, point_x, point_y, point_z, repeated_steps):
-    #print(sensor)
-    #print(coord_sys)
+    plot_point_in_two_coordinate_systems(point_x, point_y, point_z, example_coord_sys, plot_system_indicators = True)
 
-    #print(sensor.generate_random_point_in_sphere())
-    plot_randomized_sphere(sensor, repeated_steps)
+    return None
 
-    #print(transform_cartesian_coordinate_system(1,5,-1, coord_sys))
-    plot_point_in_two_coordinate_systems(point_x, point_y, point_z, coord_sys, plot_system_indicators = True)
-
-test_coord_sys = CoordinateSystem(6,-2,4, 30,60,42)
+test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
 
-plot_examples(test_sensor, test_coord_sys, 1, 1, 1, 100)
+print((function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 5, test_sensor)))
+
+function_wrapper_example_plots(test_sensor, 1, 1, 1, 100)
+
+
 
 # TODO -> Take ms als standardeinheit
 
@@ -839,6 +831,13 @@ plot_examples(test_sensor, test_coord_sys, 1, 1, 1, 100)
 
 #         return row
 
-# TODO: Transform output to JSON
+
 
 # TODO: Bash script to run & Bash script with parameter input
+
+
+
+# TODO: Transform output to JSON
+def convert_measurement_dataframe_to_api_conform_payload():
+
+    return None
