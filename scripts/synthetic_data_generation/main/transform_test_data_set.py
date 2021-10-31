@@ -4,14 +4,8 @@ import uuid
 import random as rand
 import matplotlib.pyplot as plt
 import numpy as np
-from pytransform3d.plot_utils import make_3d_axis
-from pytransform3d.transform_manager import TransformManager
-from scipy.spatial.transform import Rotation
 import os
-
-
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 
 
