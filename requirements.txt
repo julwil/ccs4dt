@@ -3,6 +3,7 @@ python-dotenv
 pytest
 influxdb-client
 matplotlib
+scipy
 pandas
 numpy
 sphinx
