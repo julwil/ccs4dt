@@ -13,8 +13,9 @@ class Converter:
     3. Coordinate offset transformation (depending on the location where the sensor is deployed within a location)
 
     :param batch: The input measurement batch
-    :type batch: list
+    :type batch: pandas.DataFrame
     """
+
     def __init__(self, batch):
         self.__batch_df = batch
         self.__sensors = {}

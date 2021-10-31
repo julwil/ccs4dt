@@ -1,20 +1,38 @@
+import numpy as np
+import pandas as pd
 import threading
 
-import pandas as pd
-
 from ccs4dt.main.modules.conversion.converter import Converter
+from ccs4dt.main.modules.object_matching.object_matcher import ObjectMatcher
 from ccs4dt.main.shared.enums.input_batch_status import InputBatchStatus
 
 
 class ProcessBatchThread(threading.Thread):
     """Handle the processing of an input data batch and store the result to influxDB."""
+
     def __init__(self, group=None, target=None, name=None, args=None, kwargs=None, *, daemon=None):
         self.__input_batch_service = kwargs['input_batch_service']
         self.__location_service = kwargs['location_service']
         self.__location_id = kwargs['location_id']
         self.__input_batch_id = kwargs['input_batch_id']
-        self.__input_batch_df = pd.DataFrame(kwargs['input_batch'])
+        self.__input_batch_df = self.__init_input_batch_df(kwargs['input_batch'])
         super().__init__(group=group, target=target, name=name, args=args, kwargs=kwargs, daemon=daemon)
+
+    def __init_input_batch_df(self, input_batch):
+        """
+        Create pd.DataFrame form input_batch
+
+        :param input_batch: Input batch as list
+        :type input_batch: list
+        :returns: Input Batch as pd.DataFrame
+        :rtype: pd.DataFrme
+        """
+        df = pd.DataFrame(input_batch)
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms').round('1s')
+        df.sort_values(by='timestamp', inplace=True)
+        df.reset_index(drop=True, inplace=True)
+        df.set_index(keys=['timestamp', 'object_identifier'], inplace=True)
+        return df
 
     def run(self):
         """Run the input batch processing"""
@@ -22,7 +40,7 @@ class ProcessBatchThread(threading.Thread):
             self.__update_status(InputBatchStatus.PROCESSING)
 
             self.__convert()
-            self.__cluster()
+            self.__object_matching()
             self.__predict()
             self.__persist()
 
@@ -50,16 +68,19 @@ class ProcessBatchThread(threading.Thread):
 
         self.__input_batch_df = converter.run()
 
-    def __cluster(self):
-        pass
+    def __object_matching(self):
+        object_matcher = ObjectMatcher(self.__input_batch_df)
+        self.__input_batch_df = object_matcher.run()
 
     def __predict(self):
         pass
 
     def __persist(self):
-        output_batch = self.__input_batch_df.T.to_dict().values()
+        self.__input_batch_df['timestamp'] = self.__input_batch_df.index.get_level_values(0)
+        self.__input_batch_df['timestamp'] = self.__input_batch_df['timestamp'].view(
+            np.int64) // 10 ** 6  # Convert back timestamp
+        output_batch = self.__input_batch_df.to_dict(orient='records')
         self.__input_batch_service.save_batch_to_influx(self.__input_batch_id, output_batch)
-        pass
 
     def __update_status(self, new_status):
         self.__input_batch_service.update_status(self.__input_batch_id, new_status)
