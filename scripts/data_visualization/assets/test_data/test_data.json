@@ -1,0 +1,30 @@
+{
+    "input_batch_id": 17,
+    "location_id": 20,
+    "positions": [
+        {
+            "object_identifier": "364f2e2a-e24c-428a-a8bd-d826277afc1d",
+            "confidence": 1.0,
+            "timestamp": 1636063682000,
+            "x": 8.22,
+            "y": 5.14,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "75f95342-779f-4cd0-9f6c-d550d5aacfb3",
+            "confidence": 1.0,
+            "timestamp": 1636063682000,
+            "x": 5.16,
+            "y": 5.7,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "be25d8f1-b1f7-4441-8702-97f52f782aef",
+            "confidence": 1.0,
+            "timestamp": 1636063682000,
+            "x": 5.13,
+            "y": 1.17,
+            "z": 0.0
+        }
+    ]
+}

@@ -706,7 +706,7 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe['date_time'] = [x for x in true_position_dataframe['date_time']]
 
     # Add sensor id, sensor type and occupant id
-    measurement_dataframe['occupant_id'] = true_position_dataframe['occupant_id']
+    measurement_dataframe['occupant_id'] = true_position_dataframe['occupant_id'].astype(str)
     measurement_dataframe['sensor_type'] = sensor.get_sensor_type()
     measurement_dataframe['sensor_id'] = sensor.get_sensor_id()
 
@@ -830,7 +830,7 @@ data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/sy
 # TODO: Transform output to JSON
 def convert_measurement_dataframe_to_api_conform_payload(dataframe):
 
-    dataframe = dataframe[['occupant_id','sensor_type','sensor_id','x_measured_rel_pos','y_measured_rel_pos','z_measured_rel_pos','date_time']]
+    dataframe = dataframe[['occupant_id','x_measured_rel_pos','y_measured_rel_pos','z_measured_rel_pos','sensor_type','sensor_id','date_time']]
 
     dataframe = dataframe.rename(columns = {'occupant_id':'object_identifier', 'x_measured_rel_pos':'x', 'y_measured_rel_pos':'y', 'z_measured_rel_pos':'z',
      'sensor_id':'sensor_identifier', 'sensor_type':'sensor_type', 'date_time':'timestamp'})
