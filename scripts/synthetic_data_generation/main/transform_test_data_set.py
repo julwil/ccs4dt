@@ -7,7 +7,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 import os
 import plotly.graph_objects as go
-
+import random
 
 
 class CoordinateSystem(object):
@@ -691,7 +691,6 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
 
     return import_file
 
-
 def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     """Simulates measurement of one sensor
 
@@ -835,3 +834,18 @@ function_wrapper_example_plots(test_sensor, 1, 1, 1, 100)
 def convert_measurement_dataframe_to_api_conform_payload():
 
     return None
+
+
+def generate_random_mac_address():
+    """Generation of a random MAC Address
+
+    :return: Returns a randomized 12-byte MAC Address divided by semicolons
+    :rtype: string
+    """
+
+    mac_address = []
+    for i in range(1,7):
+        mac_address_characters = "".join(random.sample("0123456789abcdef",2))
+        mac_address.append(mac_address_characters)
+    randomized_mac_adress = ":".join(mac_address)
+    return randomized_mac_adress
