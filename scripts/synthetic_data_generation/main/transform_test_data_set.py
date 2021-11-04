@@ -8,6 +8,7 @@ from scipy.spatial.transform import Rotation
 import os
 import plotly.graph_objects as go
 import random
+import json
 
 
 class CoordinateSystem(object):
@@ -658,9 +659,6 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
     :rtype: dataframe
     """
 
-    ## TODO: Randomize occupant_id for different sensors (e.g. unique MACaddress)
-    ## TODO: Use pollingrate from livealytics dataset
-
     if drop_irrelevant_columns == True:
         relevant_columns = ['time', 'day_id', 'x', 'y', 'occupant_id', 'camera_id', 'height']
         import_file = pd.read_csv(filepath, nrows = import_rows_count, header = 0,  usecols = relevant_columns)
@@ -671,21 +669,16 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
         else:
             import_file['z'] = import_file['height']
 
-        # Convert time column to datetime format
-        #import_file['time'] = pd.to_datetime(import_file['time'])
-
         # Take day id and transform into datetime
         import_file['date'] = datetime.datetime.strptime(starting_date, date_format) + pd.to_timedelta(np.ceil(import_file['day_id']), unit="D")
-
-
+ 
         # Take time and transform into datetime
-        date_time_format = '%d.%m.%Y %H:%M:%S.%f'
-        time_format = '%H:%M:%S.%f'
+        #date_time_format = '%d.%m.%Y %H:%M:%S.%f'
+        #time_format = '%H:%M:%S.%f'
 
-        #import_file['date_time'] = pd.to_datetime(import_file['date'].apply(str)+' '+import_file['time'])
+        # Combine date and time columns and convert to datetime format
+        import_file['date_time'] = pd.to_datetime((import_file['date'].astype(str)) + ' ' + (import_file['time']))
 
-
-        #import_file['date_time'] = pd.to_datetime(str(import_file['date']) + ' ' + import_file['time'])
     else:
         raise ValueError('Case not covered (include irrelevant columns)')
 
@@ -710,6 +703,7 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     # TODO: Should we combine these?
     measurement_dataframe['date'] = [x for x in true_position_dataframe['date']]
     measurement_dataframe['time'] = [x for x in true_position_dataframe['time']]
+    measurement_dataframe['date_time'] = [x for x in true_position_dataframe['date_time']]
 
     # Add sensor id, sensor type and occupant id
     measurement_dataframe['occupant_id'] = true_position_dataframe['occupant_id']
@@ -792,9 +786,9 @@ def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, re
 test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
 
-print((function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 5, test_sensor)))
+data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 5, test_sensor))
 
-function_wrapper_example_plots(test_sensor, 1, 1, 1, 100)
+#function_wrapper_example_plots(test_sensor, 1, 1, 1, 100)
 
 
 
@@ -825,18 +819,29 @@ function_wrapper_example_plots(test_sensor, 1, 1, 1, 100)
 #         return row
 
 
+## TODO: Randomize occupant_id for different sensors (e.g. unique MACaddress)
+## TODO: Use pollingrate from livealytics dataset
+
 
 # TODO: Bash script to run & Bash script with parameter input
 
 
 
 # TODO: Transform output to JSON
-def convert_measurement_dataframe_to_api_conform_payload():
+def convert_measurement_dataframe_to_api_conform_payload(dataframe):
 
-    return None
+    dataframe = dataframe[['occupant_id','sensor_type','sensor_id','x_measured_rel_pos','y_measured_rel_pos','z_measured_rel_pos','date_time']]
+
+    dataframe = dataframe.rename(columns = {'occupant_id':'object_identifier', 'x_measured_rel_pos':'x', 'y_measured_rel_pos':'y', 'z_measured_rel_pos':'z',
+     'sensor_id':'sensor_identifier', 'sensor_type':'sensor_type', 'date_time':'timestamp'})
+
+    json_data = dataframe.to_json(path_or_buf= 'scripts/synthetic_data_generation/assets/generated_files/measurement.json', default_handler=str, orient='records')
+
+    return(json_data)
 
 
 def generate_random_mac_address():
+
     """Generation of a random MAC Address
 
     :return: Returns a randomized 12-byte MAC Address divided by semicolons
@@ -849,3 +854,5 @@ def generate_random_mac_address():
         mac_address.append(mac_address_characters)
     randomized_mac_adress = ":".join(mac_address)
     return randomized_mac_adress
+
+convert_measurement_dataframe_to_api_conform_payload(data_ingested)
