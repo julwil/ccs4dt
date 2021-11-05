@@ -150,13 +150,13 @@ class InputBatchService:
                 .time(measurement["timestamp"], write_precision=write_precision)
             self.__influx_db.write_api.write("ccs4dt", "ccs4dt", point, write_precision=write_precision)
 
-    def get_all(self):
+    def get_all_by_location_id(self, location_id):
         """
-        Get all input batches
+        Get all input batches of the given location
 
         :rtype: list
         """
         connection = self.__core_db.connection()
-        query = '''SELECT id FROM input_batches WHERE TRUE'''
-        input_batch_ids = [dict(input_batch)['id'] for input_batch in connection.cursor().execute(query).fetchall()]
+        query = '''SELECT id FROM input_batches WHERE location_id=?'''
+        input_batch_ids = [dict(input_batch)['id'] for input_batch in connection.cursor().execute(query, (location_id,)).fetchall()]
         return [self.get_by_id(id) for id in input_batch_ids]
