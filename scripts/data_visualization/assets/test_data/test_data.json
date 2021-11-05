@@ -3,7 +3,7 @@
     "location_id": 20,
     "positions": [
         {
-            "object_identifier": "364f2e2a-e24c-428a-a8bd-d826277afc1d",
+            "object_identifier": "a",
             "confidence": 1.0,
             "timestamp": 1636063682000,
             "x": 8.22,
@@ -11,7 +11,7 @@
             "z": 0.0
         },
         {
-            "object_identifier": "75f95342-779f-4cd0-9f6c-d550d5aacfb3",
+            "object_identifier": "b",
             "confidence": 1.0,
             "timestamp": 1636063682000,
             "x": 5.16,
@@ -19,11 +19,59 @@
             "z": 0.0
         },
         {
-            "object_identifier": "be25d8f1-b1f7-4441-8702-97f52f782aef",
+            "object_identifier": "c",
             "confidence": 1.0,
             "timestamp": 1636063682000,
             "x": 5.13,
             "y": 1.17,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "a",
+            "confidence": 1.0,
+            "timestamp": 1636064682000,
+            "x": 10.22,
+            "y": 5.14,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "b",
+            "confidence": 1.0,
+            "timestamp": 1636064682000,
+            "x": 5.16,
+            "y": 3.7,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "c",
+            "confidence": 1.0,
+            "timestamp": 1636064682000,
+            "x": 6.13,
+            "y": 2.17,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "a",
+            "confidence": 1.0,
+            "timestamp": 1636068682000,
+            "x": 14.22,
+            "y": 5.14,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "b",
+            "confidence": 1.0,
+            "timestamp": 1636068682000,
+            "x": 5.16,
+            "y": 1.7,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "c",
+            "confidence": 1.0,
+            "timestamp": 1636068682000,
+            "x": 8.13,
+            "y": 4.17,
             "z": 0.0
         }
     ]
