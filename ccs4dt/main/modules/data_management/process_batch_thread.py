@@ -4,6 +4,7 @@ import threading
 
 from ccs4dt.main.modules.conversion.converter import Converter
 from ccs4dt.main.modules.object_matching.object_matcher import ObjectMatcher
+from ccs4dt.main.modules.smoothing.smoother import Smoother
 from ccs4dt.main.shared.enums.input_batch_status import InputBatchStatus
 
 
@@ -40,6 +41,7 @@ class ProcessBatchThread(threading.Thread):
             self.__update_status(InputBatchStatus.PROCESSING)
 
             self.__convert()
+            self.__smoothing()
             self.__object_matching()
             self.__predict()
             self.__persist()
@@ -67,6 +69,12 @@ class ProcessBatchThread(threading.Thread):
             )
 
         self.__input_batch_df = converter.run()
+
+
+    def __smoothing(self):
+        """Apply smoothing to raw sensor data to remove noise"""
+        smoother = Smoother(self.__input_batch_df)
+        self.__input_batch_df = smoother.run()
 
     def __object_matching(self):
         object_matcher = ObjectMatcher(self.__input_batch_df)

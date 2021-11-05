@@ -1,16 +1,13 @@
 scripts.synthetic\_data\_generation package
 ===========================================
 
-Submodules
-----------
+Subpackages
+-----------
 
-scripts.synthetic\_data\_generation.transform\_test\_data\_set module
----------------------------------------------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: scripts.synthetic_data_generation.transform_test_data_set
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   scripts.synthetic_data_generation.main
 
 Module contents
 ---------------
