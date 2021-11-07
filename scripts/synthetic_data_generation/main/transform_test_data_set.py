@@ -181,13 +181,28 @@ class Sensor(object):
         return (self.absolute_pos_x, self.absolute_pos_y, self.absolute_pos_z)
 
     def get_sensor_orientation(self):
-
         """Getter function for orientation parameters (yaw [xy], pitch [yz], roll [xz]) of sensors in the frame of reference      
 
         :return: Returns orientation parameters of the sensor in the frame of reference
         :rtype: tuple(numeric)
         """
         return (self.orientation_xy, self.absolute_pos_y, self.absolute_pos_z)
+
+    def get_sensor_spatial_measurement_unit(self):
+        """Getter function for spatial measurement unit of the sensor      
+
+        :return: Returns spatial measurent unit of the sensor
+        :rtype: string
+        """
+        return (self.sensor_spatial_measurement_unit)
+
+    def get_sensor_temporal_measurement_unit(self):
+        """Getter function for temporal measurement unit of the sensor      
+
+        :return: Returns temporal measurent unit of the sensor
+        :rtype: string
+        """
+        return (self.sensor_temporal_measurement_unit)
 
     def get_sensor_id(self):
         """Getter function for the sensor id       
