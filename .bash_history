@@ -35,3 +35,5 @@ python scripts/synthetic_data_generation/main/transform_test_data_set.py
 python scripts/synthetic_data_generation/main/transform_test_data_set.py
 git add .
 exit
+ls
+exit

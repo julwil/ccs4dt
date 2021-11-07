@@ -8,7 +8,7 @@ import plotly
 import requests
 import plotly.express as px
 
-
+# TODO: Write documentation
 def source_API_output(path):
 
     # Determine if path is api path or data file path
@@ -28,6 +28,7 @@ def source_API_output(path):
 
     return(input_batch_id, location_id, positions_df)
 
+# TODO: Remove, as function is now split into two functions below
 def deprec_visualize_3D_movement_data(API_endpoint_path, positions_df, input_batch_id, location_id):
 
     # TODO: potentially integrate location data to be able to scale plot correctly with location (x,y,z) boundaries
@@ -91,9 +92,8 @@ def deprec_visualize_3D_movement_data(API_endpoint_path, positions_df, input_bat
 
     return None
 
-
     
-
+# TODO: Write documentation
 def visualize_3D_movement_data(dataset):
 
     fig = px.scatter_3d(dataset, x = 'x', y = 'y', z = 'z', animation_frame='timestamp',
@@ -104,7 +104,7 @@ def visualize_3D_movement_data(dataset):
 
     fig.write_html('scripts/data_visualization/assets/generated_graphs/visualization_3D_movement_data.html')  
 
-
+# TODO: Write documentation
 def visualize_2D_movement_data(dataset):
 
     fig = px.scatter(dataset, x = 'x', y = 'y', animation_frame='timestamp',

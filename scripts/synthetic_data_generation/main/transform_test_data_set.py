@@ -8,7 +8,7 @@ from scipy.spatial.transform import Rotation
 import os
 import plotly.graph_objects as go
 import random
-import json
+import requests
 
 
 class CoordinateSystem(object):
@@ -274,7 +274,6 @@ class Sensor(object):
             random_point_distance_to_sphere_origin = (random_pos_x*random_pos_x + random_pos_y*random_pos_y + random_pos_z*random_pos_z)**0.5
 
         return (random_pos_x + point_x, random_pos_y + point_y, random_pos_z + point_z)
-
 
 def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_system, inverse_transformation = False, output_transformation_matrix = False):
     """Transforms positional coordinates of a point in a specific coordinate system into its frame of reference (f.o.r)
@@ -763,7 +762,7 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
 
     return measurement_dataframe
 
-
+# TODO: Write documentation
 def function_wrapper_data_ingestion(path, import_rows, measurement_sensor):
 
     imported_dataset = import_occupancy_presence_dataset(path, import_rows_count = import_rows)
@@ -772,7 +771,7 @@ def function_wrapper_data_ingestion(path, import_rows, measurement_sensor):
 
     return simulation_data_dataframe
 
-
+# TODO: Write documentation
 def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, repeated_steps):
 
     example_coord_sys = example_sensor.get_sensor_coordinate_system()
@@ -783,16 +782,147 @@ def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, re
 
     return None
 
+# TODO: Write documentation
+def convert_measurement_dataframe_to_api_conform_payload(dataframe, generate_file = False):
+
+    dataframe = dataframe[['occupant_id','x_measured_rel_pos','y_measured_rel_pos','z_measured_rel_pos','sensor_type','sensor_id','date_time']]
+
+    dataframe = dataframe.rename(columns = {'occupant_id':'object_identifier', 'x_measured_rel_pos':'x', 'y_measured_rel_pos':'y', 'z_measured_rel_pos':'z',
+     'sensor_id':'sensor_identifier', 'sensor_type':'sensor_type', 'date_time':'timestamp'})
+
+    if generate_file == True:
+        json_data = dataframe.to_json(path_or_buf= 'scripts/synthetic_data_generation/assets/generated_files/measurement.json', default_handler=str, orient='records')
+    elif generate_file == False:
+        json_data = dataframe.to_json(default_handler=str, orient='records')
+
+    return(json_data)
+
+# TODO: Write documentation
+def generate_random_mac_address():
+
+    """Generation of a random MAC Address
+
+    :return: Returns a randomized 12-byte MAC Address divided by semicolons
+    :rtype: string
+    """
+
+    mac_address = []
+    for i in range(1,7):
+        mac_address_characters = "".join(random.sample("0123456789abcdef",2))
+        mac_address.append(mac_address_characters)
+    randomized_mac_adress = ":".join(mac_address)
+    return randomized_mac_adress
+
+# TODO: Write documentation
+# TODO: Request not correct, validate with Julius
+def API_post_input_batch_call(API_endpoint_path, payload, location_id):
+
+    response = requests.post(API_endpoint_path + '/locations/'+ str(location_id) + '/inputs', json = payload)
+
+    return response
+
+# TODO: Write documentation
+def API_get_input_batch_by_id_call(API_endpoint_path, location_id, input_batch_id):
+    
+    response = requests.get(API_endpoint_path + '/locations/'+ str(location_id) + '/inputs/' + str(input_batch_id))
+
+    json_data = response.json() if response and response.status_code == 200 else None
+
+    return json_data
+
+# TODO: Write documentation
+def API_get_all_input_batches_call(API_endpoint_path, location_id):
+    
+    response = requests.get(API_endpoint_path + '/locations/'+ str(location_id) + '/inputs')
+
+    json_data = response.json() if response and response.status_code == 200 else None
+
+    return json_data
+
+# TODO: Write documentation
+def API_get_location_by_id_call(API_endpoint_path, location_id):
+    
+    response = requests.get(API_endpoint_path + '/locations/'+ str(location_id))
+    print(response)
+    json_data = response.json() if response and response.status_code == 200 else None
+
+    return json_data
+
+# TODO: Write documentation
+def API_get_all_locations_call(API_endpoint_path):
+    
+    response = requests.get(API_endpoint_path + '/locations')
+    print(response)
+    json_data = response.json() if response and response.status_code == 200 else None
+
+    return json_data
+
+# TODO: Write documentation
+def API_post_new_location_call(API_endpoint_path, payload):
+    
+    response = requests.post(API_endpoint_path + '/locations', json=payload)
+
+    response = response.json() if response and response.status_code == 200 else None
+
+    return response
+
+
 test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
 
 data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 5, test_sensor))
 
+API_payload = convert_measurement_dataframe_to_api_conform_payload(data_ingested)
+
+# TODO: Setup 
+
+endpoint_path = 'http://localhost:5000'
+
+test_payload = {
+  "name": "BIN-2.A.10",
+  "external_identifier": "bin_2_a_10",
+  "sensors": [
+    {
+      "identifier": "06e7926e-6785-49a4-ac44-462a1761c3b6",
+      "type": "camera",
+      "x_origin": 0,
+      "y_origin": 0,
+      "z_origin": 0,
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "measurement_unit": "cm"
+    },
+    {
+      "identifier": "rfid",
+      "type": "rfid",
+      "x_origin": 0,
+      "y_origin": 0,
+      "z_origin": 0,
+      "yaw": 0,
+      "pitch": 0,
+      "roll": 0,
+      "measurement_unit": "cm"
+    }
+  ]
+}
+
+print(API_post_input_batch_call(endpoint_path, API_payload, 23))
+
+#API_get_input_batch_by_id_call(endpoint_path,20,20)
+
+#API_post_new_location_call(endpoint_path,test_payload)
+
+#print(API_get_all_locations_call(endpoint_path))
+
+
+
 #function_wrapper_example_plots(test_sensor, 1, 1, 1, 100)
 
 
 
-# TODO -> Take ms als standardeinheit
+
+
 
 ## TODO Placholder convert function
 #  def __convert_units(self, row):
@@ -822,37 +952,9 @@ data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/sy
 ## TODO: Randomize occupant_id for different sensors (e.g. unique MACaddress)
 ## TODO: Use pollingrate from livealytics dataset
 
-
 # TODO: Bash script to run & Bash script with parameter input
 
 
 
-# TODO: Transform output to JSON
-def convert_measurement_dataframe_to_api_conform_payload(dataframe):
-
-    dataframe = dataframe[['occupant_id','x_measured_rel_pos','y_measured_rel_pos','z_measured_rel_pos','sensor_type','sensor_id','date_time']]
-
-    dataframe = dataframe.rename(columns = {'occupant_id':'object_identifier', 'x_measured_rel_pos':'x', 'y_measured_rel_pos':'y', 'z_measured_rel_pos':'z',
-     'sensor_id':'sensor_identifier', 'sensor_type':'sensor_type', 'date_time':'timestamp'})
-
-    json_data = dataframe.to_json(path_or_buf= 'scripts/synthetic_data_generation/assets/generated_files/measurement.json', default_handler=str, orient='records')
-
-    return(json_data)
 
 
-def generate_random_mac_address():
-
-    """Generation of a random MAC Address
-
-    :return: Returns a randomized 12-byte MAC Address divided by semicolons
-    :rtype: string
-    """
-
-    mac_address = []
-    for i in range(1,7):
-        mac_address_characters = "".join(random.sample("0123456789abcdef",2))
-        mac_address.append(mac_address_characters)
-    randomized_mac_adress = ":".join(mac_address)
-    return randomized_mac_adress
-
-convert_measurement_dataframe_to_api_conform_payload(data_ingested)
