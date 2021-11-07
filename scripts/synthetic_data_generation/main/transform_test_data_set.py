@@ -186,7 +186,7 @@ class Sensor(object):
     :type stability: function
     """
 
-    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_temporal_measurement_unit = "s", sensor_spatial_measurement_unit='cm', sensor_identifier = uuid.uuid4(), stability = 0):
+    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_temporal_measurement_unit = "s", sensor_spatial_measurement_unit='cm', sensor_identifier = "", stability = 0):
         # Type of the sensor
         self.sensor_type = sensor_type
 
@@ -217,7 +217,10 @@ class Sensor(object):
         self.sensor_pollingrate = sensor_pollingrate
 
         # Must be unique, identifier of the sensor
-        self.sensor_identifier = sensor_identifier
+        if sensor_identifier == "":
+            self.sensor_identifier = uuid.uuid4()
+        else:
+            self.sensor_identifier = str(sensor_identifier)
 
         # Stability (with what percentage the sensor randomly drops a measurement)
         self.stability = stability
@@ -940,40 +943,48 @@ def API_get_all_locations_call(API_endpoint_path):
 # TODO: Write documentation
 def API_post_new_location_call(API_endpoint_path, payload):
     
-    response = requests.post(API_endpoint_path + '/locations', json=payload)
+    response = requests.post(API_endpoint_path + '/locations', json = json.loads(payload))
 
     response = response.json() if response and response.status_code == 200 else None
 
     return response
 
 
-test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
-test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
-
-# TODO: Setup 
+# Test setup parameters 
 endpoint_path = 'http://localhost:5000'
-
 
 test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_coord_sys2 = CoordinateSystem(0,-1,1, 2,3,4)
-test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500, sensor_identifier='a')
-test_sensor3 = Sensor('camera', test_coord_sys, 1, 1, 500, sensor_identifier='b')
-test_sensor2 = Sensor('NFC', test_coord_sys2, 30, 10, 500, sensor_identifier='c')
+test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
+test_sensor3 = Sensor('camera', test_coord_sys, 1, 1, 500)
+test_sensor2 = Sensor('NFC', test_coord_sys2, 30, 10, 500)
+
+print(uuid.uuid4())
+print(uuid.uuid4())
+print(uuid.uuid4())
+
+print(test_sensor.get_sensor_id())
+print(test_sensor2.get_sensor_id())
+print(test_sensor3.get_sensor_id())
 
 test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
-test_payload = test_location.construct_json_payload()
+test_location_payload = test_location.construct_json_payload()
 
-data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 5, test_sensor))
+#API_get_all_locations_call(endpoint_path)
 
-API_payload = convert_measurement_dataframe_to_api_conform_payload(data_ingested)
+print(API_post_new_location_call(endpoint_path, test_location_payload))
 
-print(API_post_input_batch_call(endpoint_path, API_payload, 23))
+#data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 5, test_sensor))
+
+#API_payload = convert_measurement_dataframe_to_api_conform_payload(data_ingested)
+
+#print(API_post_input_batch_call(endpoint_path, API_payload, 23))
 
 #API_get_input_batch_by_id_call(endpoint_path,20,20)
 
-#API_post_new_location_call(endpoint_path,test_payload)
 
-#print(API_get_all_locations_call(endpoint_path))
+
+
 
 
 
