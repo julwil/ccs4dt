@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 import random
 import requests
 
+
 class CoordinateSystem(object):
     """This class represents a coordinate system/orientation of an object in the real world. It is seen relative to a arbitrary 
     frame of reference, which could be e.g. a location that is analyzed.
@@ -106,25 +107,23 @@ class Sensor(object):
     :type sensor_type: string
     :param coordinate_system: Coordinate system that describes the position and rotation of the sensor inside the frame of reference (e.g. of the location)
     :type coordinate_system: CoordinateSystem
-    :param sensor_precision: Precision of the sensor, i.e. minimal spatial resolution of the sensor in the measurement unit defined in parameter "sensor_precision_measurement_unit"
+    :param sensor_precision: Precision of the sensor, i.e. minimal spatial resolution of the sensor in the measurement unit defined in parameter "sensor_spatial_measurement_unit"
     :type sensor_precision: numeric
-    :param sensor_pollingrate: Pollingrate of the sensor, i.e. maximal temporal resolution of the sensor in the measurement unit defined in parameter "sensor_pollingrate_measurement_unit"
+    :param sensor_pollingrate: Pollingrate of the sensor, i.e. maximal temporal resolution of the sensor in the measurement unit defined in parameter "sensor_temporal_measurement_unit"
     :type sensor_pollingrate: numeric
-    :param measurement_reach: Maximum measurement reach of the sensor, past this distance the sensor is not able to measure anything, measurement unit defined in parameter "measurement_reach_measurement_unit"
+    :param measurement_reach: Maximum measurement reach of the sensor, past this distance the sensor is not able to measure anything, measurement unit defined in parameter "sensor_spatial_measurement_unit"
     :type measurement_reach: numeric
-    :param sensor_precision_measurement_unit: Measurement unit of the sensor precision, allowed are all available SI prefixes for meters TODO: NOT YET CONSIDERED
-    :type sensor_precision_measurement_unit: String
-    :param sensor_pollingrate_measurement_unit: Measurement unit of the sensor polling rate, allowed are the SI unit "s" (including all prefixes) and the non-SI units "min" (minutes), "h"(hours) and "d"(days)  TODO: NOT YET CONSIDERED
-    :type sensor_pollingrate_measurement_unit: String
-    :param measurement_reach_measurement_unit: Measurement unit of the sensor polling rate allowed are all available SI prefixes for meters  TODO: NOT YET CONSIDERED
-    :type measurement_reach_measurement_unit: String
+    :param sensor_spatial_measurement_unit: Measurement unit of the sensor in a temporal dimension, allowed are the SI unit "s" (including all prefixes) and the non-SI units "min" (minutes), "h"(hours) and "d"(days)  TODO: NOT YET CONSIDERED
+    :type sensor_spatial_measurement_unit: String
+    :param sensor_temporal_measurement_unit: Measurement unit of the sensor in a spatial dimension, allowed are all available SI prefixes for meters TODO: NOT YET CONSIDERED
+    :type sensor_temporal_measurement_unit: String
     :param sensor_identifier: Unique identifier of the sensor, defaults to automatically generated uuid4
     :type sensor_identifier: string
     :param stability: Function of the stability function of the measurement of the sensor, i.e. how large the signal degradation is based on distance between object to be measured and the sensor, defaults to 0 TODO: NOT YET CONSIDERED
     :type stability: function
     """
 
-    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_pollingrate_measurement_unit = "s", sensor_precision_measurement_unit='cm', measurement_reach_measurement_unit = "cm", sensor_identifier = uuid.uuid4(), stability = 0):
+    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_temporal_measurement_unit = "s", sensor_spatial_measurement_unit='cm', sensor_identifier = uuid.uuid4(), stability = 0):
         # Type of the sensor
         self.sensor_type = sensor_type
 
@@ -143,15 +142,15 @@ class Sensor(object):
 
         # Precision and unit of precision of the sensor
         self.sensor_precision = sensor_precision
-        self.sensor_precision_measurement_unit = sensor_precision_measurement_unit
+        self.sensor_precision_measurement_unit = sensor_spatial_measurement_unit
 
         # Maximum measurement distance from the position of the sensor and unit
         self.measurement_reach = measurement_reach
-        self.measurement_reach_measurement_unit = measurement_reach_measurement_unit
+        self.measurement_reach_measurement_unit = sensor_spatial_measurement_unit
 
         # Pollingrate, how frequent the sensor will be able to measure & unit
         self.sensor_pollingrate = sensor_pollingrate
-        self.sensor_pollingrate_measurement_unit = sensor_pollingrate_measurement_unit
+        self.sensor_pollingrate_measurement_unit = sensor_temporal_measurement_unit
 
         # Must be unique, identifier of the sensor
         self.sensor_identifier = sensor_identifier
