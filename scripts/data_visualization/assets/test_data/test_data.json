@@ -1,0 +1,78 @@
+{
+    "input_batch_id": 17,
+    "location_id": 20,
+    "positions": [
+        {
+            "object_identifier": "a",
+            "confidence": 1.0,
+            "timestamp": 1636063682000,
+            "x": 8.22,
+            "y": 5.14,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "b",
+            "confidence": 1.0,
+            "timestamp": 1636063682000,
+            "x": 5.16,
+            "y": 5.7,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "c",
+            "confidence": 1.0,
+            "timestamp": 1636063682000,
+            "x": 5.13,
+            "y": 1.17,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "a",
+            "confidence": 1.0,
+            "timestamp": 1636064682000,
+            "x": 10.22,
+            "y": 5.14,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "b",
+            "confidence": 1.0,
+            "timestamp": 1636064682000,
+            "x": 5.16,
+            "y": 3.7,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "c",
+            "confidence": 1.0,
+            "timestamp": 1636064682000,
+            "x": 6.13,
+            "y": 2.17,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "a",
+            "confidence": 1.0,
+            "timestamp": 1636068682000,
+            "x": 14.22,
+            "y": 5.14,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "b",
+            "confidence": 1.0,
+            "timestamp": 1636068682000,
+            "x": 5.16,
+            "y": 1.7,
+            "z": 0.0
+        },
+        {
+            "object_identifier": "c",
+            "confidence": 1.0,
+            "timestamp": 1636068682000,
+            "x": 8.13,
+            "y": 4.17,
+            "z": 0.0
+        }
+    ]
+}

@@ -4,14 +4,70 @@ import uuid
 import random as rand
 import matplotlib.pyplot as plt
 import numpy as np
-from pytransform3d.plot_utils import make_3d_axis
-from pytransform3d.transform_manager import TransformManager
 from scipy.spatial.transform import Rotation
 import os
-
-
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+import random
+import requests
+import json
+
+class Location(object):
+    """This class represents a real world measurement location.
+
+    :param name: Name of the location or venue
+    :type name: string
+    :param external_identifier: Code / ID of room in external system
+    :type external_identifier: string
+    :param sensors: Sensors placed inside the location for measurement purposes
+    :type sensors: Array of Sensor
+    """
+
+    def __init__(self, name, external_identifier, sensors):
+        
+        self.name = name
+        self.external_identifier =  external_identifier
+        self.sensors = sensors
+        
+
+    # TODO: define __str__
+
+    def get_location_name(self):
+
+        return(self.name)
+
+    def get_location_external_id(self):
+
+        return(self.external_identifier)
+ 
+    
+    def construct_json_payload(self):
+
+        sensors_dict = []
+
+        for sensor in self.sensors:
+            sensor_dict = {
+                'identifier': str(sensor.get_sensor_id()),
+                'type': str(sensor.get_sensor_type()),
+                'x_origin': sensor.get_sensor_position()[0],
+                'y_origin': sensor.get_sensor_position()[1],
+                'z_origin': sensor.get_sensor_position()[2],
+                'yaw': sensor.get_sensor_orientation()[0],
+                'pitch': sensor.get_sensor_orientation()[1],
+                'roll': sensor.get_sensor_orientation()[2],
+                'measurement_unit': sensor.get_sensor_spatial_measurement_unit()           
+            }
+
+            sensors_dict.append(sensor_dict)
+
+        location_json = {
+            'name': str(self.get_location_name()),
+            'external_identifier': str(self.get_location_external_id()),
+            'sensors': sensors_dict
+        }
+
+        json_payload = json.dumps(location_json, indent=4)
+
+        return json_payload
 
 
 
@@ -31,9 +87,6 @@ class CoordinateSystem(object):
     :type pitch_yz_with_respect_to_ref_sys: numeric
     :param roll_xz_with_respect_to_ref_sys: xz-rotational parameter (counterclockwise) of coordinate system in relation to frame of refrence, see https://bit.ly/3AZM5iP for graphical representation
     :type roll_xz_with_respect_to_ref_sys: numeric
-
-    :return: Returns string of coordinate system parameters on successfull creation
-    :rtype: string
     """
 
     def __init__(self, origin_with_respect_to_ref_sys_x, origin_with_respect_to_ref_sys_y, origin_with_respect_to_ref_sys_z, yaw_xy_with_respect_to_ref_sys, pitch_yz_with_respect_to_ref_sys, roll_xz_with_respect_to_ref_sys):
@@ -114,29 +167,23 @@ class Sensor(object):
     :type sensor_type: string
     :param coordinate_system: Coordinate system that describes the position and rotation of the sensor inside the frame of reference (e.g. of the location)
     :type coordinate_system: CoordinateSystem
-    :param sensor_precision: Precision of the sensor, i.e. minimal spatial resolution of the sensor in the measurement unit defined in parameter "sensor_precision_measurement_unit"
+    :param sensor_precision: Precision of the sensor, i.e. minimal spatial resolution of the sensor in the measurement unit defined in parameter "sensor_spatial_measurement_unit"
     :type sensor_precision: numeric
-    :param sensor_pollingrate: Pollingrate of the sensor, i.e. maximal temporal resolution of the sensor in the measurement unit defined in parameter "sensor_pollingrate_measurement_unit"
+    :param sensor_pollingrate: Pollingrate of the sensor, i.e. maximal temporal resolution of the sensor in the measurement unit defined in parameter "sensor_temporal_measurement_unit"
     :type sensor_pollingrate: numeric
-    :param measurement_reach: Maximum measurement reach of the sensor, past this distance the sensor is not able to measure anything, measurement unit defined in parameter "measurement_reach_measurement_unit"
+    :param measurement_reach: Maximum measurement reach of the sensor, past this distance the sensor is not able to measure anything, measurement unit defined in parameter "sensor_spatial_measurement_unit"
     :type measurement_reach: numeric
-    :param sensor_precision_measurement_unit: Measurement unit of the sensor precision, allowed are all available SI prefixes for meters TODO: NOT YET CONSIDERED
-    :type sensor_precision_measurement_unit: String
-    :param sensor_pollingrate_measurement_unit: Measurement unit of the sensor polling rate, allowed are the SI unit "s" (including all prefixes) and the non-SI units "min" (minutes), "h"(hours) and "d"(days)  TODO: NOT YET CONSIDERED
-    :type sensor_pollingrate_measurement_unit: String
-    :param measurement_reach_measurement_unit: Measurement unit of the sensor polling rate allowed are all available SI prefixes for meters  TODO: NOT YET CONSIDERED
-    :type measurement_reach_measurement_unit: String
+    :param sensor_spatial_measurement_unit: Measurement unit of the sensor in a temporal dimension, allowed are the SI unit "s" (including all prefixes) and the non-SI units "min" (minutes), "h"(hours) and "d"(days)  TODO: NOT YET CONSIDERED
+    :type sensor_spatial_measurement_unit: String
+    :param sensor_temporal_measurement_unit: Measurement unit of the sensor in a spatial dimension, allowed are all available SI prefixes for meters TODO: NOT YET CONSIDERED
+    :type sensor_temporal_measurement_unit: String
     :param sensor_identifier: Unique identifier of the sensor, defaults to automatically generated uuid4
     :type sensor_identifier: string
     :param stability: Function of the stability function of the measurement of the sensor, i.e. how large the signal degradation is based on distance between object to be measured and the sensor, defaults to 0 TODO: NOT YET CONSIDERED
     :type stability: function
-    
-
-    :return: Returns string of sensor parameters on successfull creation
-    :rtype: string
     """
 
-    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_pollingrate_measurement_unit = "s", sensor_precision_measurement_unit='cm', measurement_reach_measurement_unit = "cm", sensor_identifier = uuid.uuid4(), stability = 0):
+    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_temporal_measurement_unit = "s", sensor_spatial_measurement_unit='cm', sensor_identifier = "", stability = 0):
         # Type of the sensor
         self.sensor_type = sensor_type
 
@@ -146,27 +193,31 @@ class Sensor(object):
         self.absolute_pos_z = coordinate_system.get_translation_z()
 
         # Determined by the geopraphical orientation in which the y-axis of the readers coordinate systems increases. 0-359 degrees where East=0, North=90, West=180 South=270
-        self.orientation_x = coordinate_system.get_yaw_xy()
-        self.orientation_y = coordinate_system.get_pitch_yz()
-        self.orientation_z = coordinate_system.get_roll_xz()
+        self.orientation_xy = coordinate_system.get_yaw_xy()
+        self.orientation_yz = coordinate_system.get_pitch_yz()
+        self.orientation_xz = coordinate_system.get_roll_xz()
 
         # Coordinate system
         self.coordinate_system = coordinate_system
 
-        # Precision and unit of precision of the sensor
+        # Set measurement units
+        self.sensor_spatial_measurement_unit = str(sensor_spatial_measurement_unit)
+        self.sensor_temporal_measurement_unit = str(sensor_temporal_measurement_unit)
+
+        # Precision of the sensor
         self.sensor_precision = sensor_precision
-        self.sensor_precision_measurement_unit = sensor_precision_measurement_unit
 
-        # Maximum measurement distance from the position of the sensor and unit
+        # Maximum measurement distance from the position of the sensor
         self.measurement_reach = measurement_reach
-        self.measurement_reach_measurement_unit = measurement_reach_measurement_unit
 
-        # Pollingrate, how frequent the sensor will be able to measure & unit
+        # Pollingrate, how frequent the sensor will be able to measure
         self.sensor_pollingrate = sensor_pollingrate
-        self.sensor_pollingrate_measurement_unit = sensor_pollingrate_measurement_unit
 
         # Must be unique, identifier of the sensor
-        self.sensor_identifier = sensor_identifier
+        if sensor_identifier == "":
+            self.sensor_identifier = uuid.uuid4()
+        else:
+            self.sensor_identifier = str(sensor_identifier)
 
         # Stability (with what percentage the sensor randomly drops a measurement)
         self.stability = stability
@@ -178,8 +229,9 @@ class Sensor(object):
         :rtype: string
         """
         return (str('Sensor of type "'+ self.sensor_type + '" with id: ' + str(self.sensor_identifier) +
-                    '\nat absolute position: (' + str(self.absolute_pos_x) + ', ' + str(self.absolute_pos_y) + ', ' + str(self.absolute_pos_z) + ') ' + ' (x, y, z), with orientation (x,y,z) (' +
-                      str(self.orientation_x) + '°, ' +  str(self.orientation_y) + '°, ' +  str(self.orientation_z) + '°), ' +
+                    '\nat absolute position: (' + str(self.absolute_pos_x) + ', ' + str(self.absolute_pos_y) + ', ' + str(self.absolute_pos_z) + ') ' + 
+                    ' (x, y, z), with orientation (yaw [xy], pitch [yz], roll [xz]) (' +
+                      str(self.orientation_xy) + '°, ' +  str(self.orientation_yz) + '°, ' +  str(self.orientation_xz) + '°), ' +
                     '\nand precision: ' + str(self.sensor_precision) + ' ' + str(self.sensor_precision_measurement_unit) + ', ' +
                     '\nand pollingrate: ' + str(self.sensor_pollingrate) + ' ' + str(self.sensor_pollingrate_measurement_unit) +
                     '\nand the sensor drops measurements with a probability of ' + str(self.stability) + '%' ))
@@ -188,9 +240,33 @@ class Sensor(object):
         """Getter function for positional parameters (x,y,z) of sensors in the frame of reference      
 
         :return: Returns x,y,z-coordinate of the sensor in the frame of reference
-        :rtype: numeric
+        :rtype: tuple(numeric)
         """
         return (self.absolute_pos_x, self.absolute_pos_y, self.absolute_pos_z)
+
+    def get_sensor_orientation(self):
+        """Getter function for orientation parameters (yaw [xy], pitch [yz], roll [xz]) of sensors in the frame of reference      
+
+        :return: Returns orientation parameters of the sensor in the frame of reference
+        :rtype: tuple(numeric)
+        """
+        return (self.orientation_xy, self.absolute_pos_y, self.absolute_pos_z)
+
+    def get_sensor_spatial_measurement_unit(self):
+        """Getter function for spatial measurement unit of the sensor      
+
+        :return: Returns spatial measurent unit of the sensor
+        :rtype: string
+        """
+        return (self.sensor_spatial_measurement_unit)
+
+    def get_sensor_temporal_measurement_unit(self):
+        """Getter function for temporal measurement unit of the sensor      
+
+        :return: Returns temporal measurent unit of the sensor
+        :rtype: string
+        """
+        return (self.sensor_temporal_measurement_unit)
 
     def get_sensor_id(self):
         """Getter function for the sensor id       
@@ -220,7 +296,6 @@ class Sensor(object):
 
     # TODO: Implement getter sensor stability
     # TODO: Implement getter sensor pollingrate
-    # TODO: Implement getter sensor pollingrate measurement unit
 
     def get_sensor_reach(self):
         """Getter function for the sensor reach       
@@ -237,8 +312,6 @@ class Sensor(object):
         :rtype: CoordinateSystem
         """
         return(self.coordinate_system)
-
-    # TODO: Implement getter sensor reach measurement unit
 
     # Function simulates precision loss for measurement relative to true position reference frame
     def generate_random_point_in_sphere(self, point_x, point_y, point_z):
@@ -278,7 +351,6 @@ class Sensor(object):
             random_point_distance_to_sphere_origin = (random_pos_x*random_pos_x + random_pos_y*random_pos_y + random_pos_z*random_pos_z)**0.5
 
         return (random_pos_x + point_x, random_pos_y + point_y, random_pos_z + point_z)
-
 
 def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_system, inverse_transformation = False, output_transformation_matrix = False):
     """Transforms positional coordinates of a point in a specific coordinate system into its frame of reference (f.o.r)
@@ -346,16 +418,11 @@ def plot_randomized_sphere(sensor, randomization_steps):
     :param randomization_steps: Amount of measurements that should be simulated
     :type randomization_steps: integer
 
-
     :return: Returns nothing
     :rtype: None
     """
 
-    fig = plt.figure(figsize = (10,10))
-    ax = plt.axes(projection='3d')
-
-    ax.grid()
-
+    # Generate simulated measurement points
     i = 1
     x_array = []
     y_array = []
@@ -368,23 +435,71 @@ def plot_randomized_sphere(sensor, randomization_steps):
 
         i += 1
 
-    # draw points
-    ax.scatter(x_array, y_array, z_array)
+    # Add simulated measurement points to figure
+    trace_simulated_measurements = go.Scatter3d(
+        x = x_array,
+        y = y_array,
+        z = z_array,
+        mode='markers',
+        name='Simulated measure'
+    )
 
-    # draw origin
-    ax.scatter(0, 0, 0, s = 200)
+    # Add true position (origin) to figure
+    trace_true_position = go.Scatter3d(
+        x = [0],
+        y = [0],
+        z = [0],
+        marker=dict(
+            color='black',
+            size=20),
+        mode = 'markers',
+        name = 'True position'
+    )
 
-    # draw wireframe sphere
-    u, v = np.mgrid[0:2*np.pi:100j, 0:np.pi:100j]
-    # Scale sphere with (sensor.get_precision()) (half of diameter)
-    a = np.cos(u)*np.sin(v)*(sensor.get_sensor_precision())
-    b = np.sin(u)*np.sin(v)*(sensor.get_sensor_precision())
-    c = np.cos(v)*(sensor.get_sensor_precision())
+    def spheres(radius, sphere_color = '#1d212e', sphere_opacity = 0.2): 
+        """Creates trace for sphere as surface in plotly graph_object
 
-    ax.plot_wireframe(a, b, c, color="grey", alpha = 0.2)
+        :param radius: Radius of the sphere to be plotted
+        :type radius: numerical
+        :param sphere_color: Color of the sphere in plot, default is #1d212e
+        :type sphere_color: str
+        :param sphere_opacity: Opacity of the sphere in plot, default is 0.2
+        :type sphere_opacity: numerical
 
-    plt.show()
+        :return: Returns constructed trace that can directly be added to figure
+        :rtype: str
+        """
 
+        # Set up 100 points. First, do angles
+        theta = np.linspace(0,2*np.pi,100)
+        phi = np.linspace(0,np.pi,100)
+        
+        # Set up coordinates for points on the sphere
+        x0 = radius * np.outer(np.cos(theta),np.sin(phi))
+        y0 = radius * np.outer(np.sin(theta),np.sin(phi))
+        z0 = radius * np.outer(np.ones(100),np.cos(phi))
+        
+        # Set up trace
+        trace= go.Surface(x=x0, y=y0, z=z0, colorscale=[[0,sphere_color], [1,sphere_color]], opacity = sphere_opacity, name='Sphere simulation boundaries (as given by sensor precision)', showlegend = True)
+        trace.update(showscale=False)
+
+        return trace
+
+    # Generate simulation sphere trace
+    trace_simulation_sphere = spheres(sensor.get_sensor_precision())
+
+    # Add datapoints to figure
+    fig = go.Figure(data= trace_simulated_measurements)
+    fig.add_trace(trace_true_position)
+    fig.add_trace(trace_simulation_sphere)
+
+    # Add title to figure
+    fig.update_layout(title= ('Simulated ' + str(randomization_steps) + ' measures of the sensor (with precision: ' + str(sensor.get_sensor_precision()) + ') around true position'),
+    title_font_size = 40)
+
+    # Generate html file for plot
+    fig.write_html('scripts/synthetic_data_generation/assets/generated_graphs/plot_measure_simulations.html')
+    
     return None
 
 def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_sys, plot_system_indicators = True):
@@ -620,9 +735,6 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
     :rtype: dataframe
     """
 
-    ## TODO: Randomize occupant_id for different sensors (e.g. unique MACaddress)
-    ## TODO: Use pollingrate from livealytics dataset
-
     if drop_irrelevant_columns == True:
         relevant_columns = ['time', 'day_id', 'x', 'y', 'occupant_id', 'camera_id', 'height']
         import_file = pd.read_csv(filepath, nrows = import_rows_count, header = 0,  usecols = relevant_columns)
@@ -633,26 +745,20 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
         else:
             import_file['z'] = import_file['height']
 
-        # Convert time column to datetime format
-        #import_file['time'] = pd.to_datetime(import_file['time'])
-
         # Take day id and transform into datetime
         import_file['date'] = datetime.datetime.strptime(starting_date, date_format) + pd.to_timedelta(np.ceil(import_file['day_id']), unit="D")
-
-
+ 
         # Take time and transform into datetime
-        date_time_format = '%d.%m.%Y %H:%M:%S.%f'
-        time_format = '%H:%M:%S.%f'
+        #date_time_format = '%d.%m.%Y %H:%M:%S.%f'
+        #time_format = '%H:%M:%S.%f'
 
-        #import_file['date_time'] = pd.to_datetime(import_file['date'].apply(str)+' '+import_file['time'])
+        # Combine date and time columns and convert to datetime format
+        import_file['date_time'] = pd.to_datetime((import_file['date'].astype(str)) + ' ' + (import_file['time']))
 
-
-        #import_file['date_time'] = pd.to_datetime(str(import_file['date']) + ' ' + import_file['time'])
     else:
         raise ValueError('Case not covered (include irrelevant columns)')
 
     return import_file
-
 
 def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     """Simulates measurement of one sensor
@@ -673,10 +779,10 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     # TODO: Should we combine these?
     measurement_dataframe['date'] = [x for x in true_position_dataframe['date']]
     measurement_dataframe['time'] = [x for x in true_position_dataframe['time']]
-
+    measurement_dataframe['date_time'] = [x for x in true_position_dataframe['date_time']]
 
     # Add sensor id, sensor type and occupant id
-    measurement_dataframe['occupant_id'] = true_position_dataframe['occupant_id']
+    measurement_dataframe['occupant_id'] = true_position_dataframe['occupant_id'].astype(str)
     measurement_dataframe['sensor_type'] = sensor.get_sensor_type()
     measurement_dataframe['sensor_id'] = sensor.get_sensor_id()
 
@@ -733,44 +839,173 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
 
     return measurement_dataframe
 
-
-def function_wrapper_data_ingestion(path, import_rows, test_coord_parameters, test_sensor_parameters):
-
-
+# TODO: Write documentation
+def function_wrapper_data_ingestion(path, import_rows, measurement_sensor):
 
     imported_dataset = import_occupancy_presence_dataset(path, import_rows_count = import_rows)
 
-    (x,y,z,yaw_xy,pitch_yz,roll_xz) = test_coord_parameters
-    test_coord_sys = CoordinateSystem(x,y,z,yaw_xy,pitch_yz,roll_xz)
-
-    (sensor_type, empty, precision, pollingrate, reach) =  test_sensor_parameters
-    test_sensor = Sensor(sensor_type, test_coord_sys, precision, pollingrate, reach)
-
-    simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, test_sensor)
+    simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, measurement_sensor)
 
     return simulation_data_dataframe
 
-(function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 5, (3,1,0, 30,-15,45), ('RFID',None,30,10,500)))
+# TODO: Write documentation
+def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, repeated_steps):
+
+    example_coord_sys = example_sensor.get_sensor_coordinate_system()
+
+    plot_randomized_sphere(example_sensor, repeated_steps)
+
+    plot_point_in_two_coordinate_systems(point_x, point_y, point_z, example_coord_sys, plot_system_indicators = True)
+
+    return None
+
+# TODO: Write documentation
+def convert_measurement_dataframe_to_api_conform_payload(dataframe, generate_file = False):
+
+    dataframe = dataframe[['occupant_id','x_measured_rel_pos','y_measured_rel_pos','z_measured_rel_pos','sensor_type','sensor_id','date_time']]
+
+    dataframe = dataframe.rename(columns = {'occupant_id':'object_identifier', 'x_measured_rel_pos':'x', 'y_measured_rel_pos':'y', 'z_measured_rel_pos':'z',
+     'sensor_id':'sensor_identifier', 'sensor_type':'sensor_type', 'date_time':'timestamp'})
+
+    if generate_file == True:
+        json_data = dataframe.to_json(path_or_buf= 'scripts/synthetic_data_generation/assets/generated_files/measurement.json', default_handler=str, orient='records')
+    elif generate_file == False:
+        json_data = dataframe.to_json(default_handler=str, orient='records')
+
+    return(json_data)
+
+# TODO: Write documentation
+def generate_random_mac_address():
+
+    """Generation of a random MAC Address
+
+    :return: Returns a randomized 12-byte MAC Address divided by semicolons
+    :rtype: string
+    """
+
+    mac_address = []
+    for i in range(1,7):
+        mac_address_characters = "".join(random.sample("0123456789abcdef",2))
+        mac_address.append(mac_address_characters)
+    randomized_mac_adress = ":".join(mac_address)
+    return randomized_mac_adress
+
+# TODO: Write documentation
+# TODO: Request not correct, validate with Julius
+def API_post_input_batch_call(API_endpoint_path, payload, location_id):
+
+    response = requests.post(API_endpoint_path + '/locations/'+ str(location_id) + '/inputs', json = json.loads(payload))
+
+    # 202 Code with successful delivery
+    response = response.json() if response and response.status_code == 202 else None
+
+    return (response, response['id'], response['status'], response['location_id'])
+
+# TODO: Write documentation
+def API_get_input_batch_by_id_call(API_endpoint_path, location_id, input_batch_id):
+    
+    response = requests.get(API_endpoint_path + '/locations/'+ str(location_id) + '/inputs/' + str(input_batch_id))
+
+    json_data = response.json() if response and response.status_code == 200 else None
+
+    return json_data
+
+# TODO: Write documentation
+def API_get_all_input_batches_call(API_endpoint_path, location_id):
+    
+    response = requests.get(API_endpoint_path + '/locations/'+ str(location_id) + '/inputs')
+
+    json_data = response.json() if response and response.status_code == 200 else None
+
+    return json_data
+
+# TODO: Write documentation
+def API_get_location_by_id_call(API_endpoint_path, location_id):
+    
+    response = requests.get(API_endpoint_path + '/locations/'+ str(location_id))
+    json_data = response.json() if response and response.status_code == 200 else None
+
+    return json_data
+
+# TODO: Write documentation
+def API_get_all_locations_call(API_endpoint_path):
+    
+    response = requests.get(API_endpoint_path + '/locations')
+    json_data = response.json() if response and response.status_code == 200 else None
+
+    return json_data
+
+# TODO: Write documentation
+def API_post_new_location_call(API_endpoint_path, payload):
+    
+    response = requests.post(API_endpoint_path + '/locations', json = json.loads(payload))
+
+    # 201 Code with successful delivery
+    response = response.json() if response and response.status_code == 201 else None
+
+    return (response, response['id'], response['name'])
+
+# TODO: Write documentation
+def API_get_output_batch_call(API_endpoint_path, location_id, batch_id):
+
+    response = requests.get(API_endpoint_path + '/locations/' + str(location_id) + '/inputs/' + str(batch_id) + '/outputs')
+    json_data = response.json() if response and response.status_code == 200 else None
+
+    return json_data
+
+# Test setup parameters 
+endpoint_path = 'http://localhost:5000'
+
+test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
+test_coord_sys2 = CoordinateSystem(0,-1,1, 2,3,4)
+test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 100)
+test_sensor3 = Sensor('camera', test_coord_sys, 1, 1, 500)
+test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 10, 4000)
+
+test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
+test_location_payload = test_location.construct_json_payload()
+
+# API request: GET all locations
+#API_get_all_locations_call(endpoint_path)
+
+# API request: POST new location
+post_location_response, test_location_id, test_location_name = (API_post_new_location_call(endpoint_path, test_location_payload))
+
+# Ingest true position data
+data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 200, test_sensor))
+
+# Generate synthetic measurement data payload
+API_payload = convert_measurement_dataframe_to_api_conform_payload(data_ingested)
+
+# API request: POST new input batch
+post_input_batch_response, input_batch_id, input_batch_status, location_id_for_input_batch = API_post_input_batch_call(endpoint_path, API_payload, test_location_id)
+
+# API request: GET input batch status
+print('Get input batch by id')
+print(API_get_input_batch_by_id_call(endpoint_path, location_id_for_input_batch, input_batch_id))
+
+# API request: GET output batch based on generated id
+# Pause to let API process
+import time
+time.sleep(20)
+print('Get output batch by id')
+
+output_batch_response = (API_get_output_batch_call(endpoint_path, location_id_for_input_batch, input_batch_id))
+
+print(output_batch_response)
 
 
 
 
-def plot_examples(sensor, coord_sys, point_x, point_y, point_z, repeated_steps):
-    #print(sensor)
-    #print(coord_sys)
 
-    #print(sensor.generate_random_point_in_sphere())
-    plot_randomized_sphere(sensor, repeated_steps)
 
-    #print(transform_cartesian_coordinate_system(1,5,-1, coord_sys))
-    plot_point_in_two_coordinate_systems(point_x, point_y, point_z, coord_sys, plot_system_indicators = True)
 
-test_coord_sys = CoordinateSystem(6,-2,4, 30,60,42)
-test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
+#function_wrapper_example_plots(test_sensor, 1, 1, 1, 100)
 
-plot_examples(test_sensor, test_coord_sys, 1, 1, 1, 10)
 
-# TODO -> Take ms als standardeinheit
+
+
+
 
 ## TODO Placholder convert function
 #  def __convert_units(self, row):
@@ -796,6 +1031,13 @@ plot_examples(test_sensor, test_coord_sys, 1, 1, 1, 10)
 
 #         return row
 
-# TODO: Transform output to JSON
+
+## TODO: Randomize occupant_id for different sensors (e.g. unique MACaddress)
+## TODO: Use pollingrate from livealytics dataset
 
 # TODO: Bash script to run & Bash script with parameter input
+
+
+
+
+
