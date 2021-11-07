@@ -10,7 +10,6 @@ import plotly.graph_objects as go
 import random
 import requests
 
-
 class CoordinateSystem(object):
     """This class represents a coordinate system/orientation of an object in the real world. It is seen relative to a arbitrary 
     frame of reference, which could be e.g. a location that is analyzed.
@@ -27,9 +26,6 @@ class CoordinateSystem(object):
     :type pitch_yz_with_respect_to_ref_sys: numeric
     :param roll_xz_with_respect_to_ref_sys: xz-rotational parameter (counterclockwise) of coordinate system in relation to frame of refrence, see https://bit.ly/3AZM5iP for graphical representation
     :type roll_xz_with_respect_to_ref_sys: numeric
-
-    :return: Returns string of coordinate system parameters on successfull creation
-    :rtype: string
     """
 
     def __init__(self, origin_with_respect_to_ref_sys_x, origin_with_respect_to_ref_sys_y, origin_with_respect_to_ref_sys_z, yaw_xy_with_respect_to_ref_sys, pitch_yz_with_respect_to_ref_sys, roll_xz_with_respect_to_ref_sys):
@@ -126,10 +122,6 @@ class Sensor(object):
     :type sensor_identifier: string
     :param stability: Function of the stability function of the measurement of the sensor, i.e. how large the signal degradation is based on distance between object to be measured and the sensor, defaults to 0 TODO: NOT YET CONSIDERED
     :type stability: function
-    
-
-    :return: Returns string of sensor parameters on successfull creation
-    :rtype: string
     """
 
     def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_pollingrate_measurement_unit = "s", sensor_precision_measurement_unit='cm', measurement_reach_measurement_unit = "cm", sensor_identifier = uuid.uuid4(), stability = 0):
@@ -142,9 +134,9 @@ class Sensor(object):
         self.absolute_pos_z = coordinate_system.get_translation_z()
 
         # Determined by the geopraphical orientation in which the y-axis of the readers coordinate systems increases. 0-359 degrees where East=0, North=90, West=180 South=270
-        self.orientation_x = coordinate_system.get_yaw_xy()
-        self.orientation_y = coordinate_system.get_pitch_yz()
-        self.orientation_z = coordinate_system.get_roll_xz()
+        self.orientation_xy = coordinate_system.get_yaw_xy()
+        self.orientation_yz = coordinate_system.get_pitch_yz()
+        self.orientation_xz = coordinate_system.get_roll_xz()
 
         # Coordinate system
         self.coordinate_system = coordinate_system
@@ -174,8 +166,9 @@ class Sensor(object):
         :rtype: string
         """
         return (str('Sensor of type "'+ self.sensor_type + '" with id: ' + str(self.sensor_identifier) +
-                    '\nat absolute position: (' + str(self.absolute_pos_x) + ', ' + str(self.absolute_pos_y) + ', ' + str(self.absolute_pos_z) + ') ' + ' (x, y, z), with orientation (x,y,z) (' +
-                      str(self.orientation_x) + '°, ' +  str(self.orientation_y) + '°, ' +  str(self.orientation_z) + '°), ' +
+                    '\nat absolute position: (' + str(self.absolute_pos_x) + ', ' + str(self.absolute_pos_y) + ', ' + str(self.absolute_pos_z) + ') ' + 
+                    ' (x, y, z), with orientation (yaw [xy], pitch [yz], roll [xz]) (' +
+                      str(self.orientation_xy) + '°, ' +  str(self.orientation_yz) + '°, ' +  str(self.orientation_xz) + '°), ' +
                     '\nand precision: ' + str(self.sensor_precision) + ' ' + str(self.sensor_precision_measurement_unit) + ', ' +
                     '\nand pollingrate: ' + str(self.sensor_pollingrate) + ' ' + str(self.sensor_pollingrate_measurement_unit) +
                     '\nand the sensor drops measurements with a probability of ' + str(self.stability) + '%' ))
@@ -184,9 +177,18 @@ class Sensor(object):
         """Getter function for positional parameters (x,y,z) of sensors in the frame of reference      
 
         :return: Returns x,y,z-coordinate of the sensor in the frame of reference
-        :rtype: numeric
+        :rtype: tuple(numeric)
         """
         return (self.absolute_pos_x, self.absolute_pos_y, self.absolute_pos_z)
+
+    def get_sensor_orientation(self):
+
+        """Getter function for orientation parameters (yaw [xy], pitch [yz], roll [xz]) of sensors in the frame of reference      
+
+        :return: Returns orientation parameters of the sensor in the frame of reference
+        :rtype: tuple(numeric)
+        """
+        return (self.orientation_xy, self.absolute_pos_y, self.absolute_pos_z)
 
     def get_sensor_id(self):
         """Getter function for the sensor id       
