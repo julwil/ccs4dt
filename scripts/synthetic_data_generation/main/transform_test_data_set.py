@@ -9,6 +9,69 @@ import os
 import plotly.graph_objects as go
 import random
 import requests
+import json
+
+class Location(object):
+    """This class represents a real world measurement location.
+
+    :param name: Name of the location or venue
+    :type name: string
+    :param external_identifier: Code / ID of room in external system
+    :type external_identifier: string
+    :param sensors: Sensors placed inside the location for measurement purposes
+    :type sensors: Array of Sensor
+    """
+
+    def __init__(self, name, external_identifier, sensors):
+        
+        self.name = name
+        self.external_identifier =  external_identifier
+        self.sensors = sensors
+        
+
+    def __str__(self):
+       
+
+        print('a')
+
+    def get_location_name(self):
+
+        return(self.name)
+
+    def get_location_external_id(self):
+
+        return(self.external_identifier)
+ 
+    
+    def construct_json_payload(self):
+
+        sensors_dict = []
+
+        for sensor in self.sensors:
+            sensor_dict = {
+                'identifier': str(sensor.get_sensor_id()),
+                'type': str(sensor.get_sensor_type()),
+                'x_origin': sensor.get_sensor_position()[0],
+                'y_origin': sensor.get_sensor_position()[1],
+                'z_origin': sensor.get_sensor_position()[2],
+                'yaw': sensor.get_sensor_orientation()[0],
+                'pitch': sensor.get_sensor_orientation()[1],
+                'roll': sensor.get_sensor_orientation()[2],
+                'measurement_unit': sensor.get_sensor_spatial_measurement_unit()           
+            }
+
+            sensors_dict.append(sensor_dict)
+
+        location_json = {
+            'name': str(self.get_location_name()),
+            'external_identifier': str(self.get_location_external_id()),
+            'sensors': sensors_dict
+        }
+
+        json_payload = json.dumps(location_json, indent=4)
+
+        return json_payload
+
 
 
 class CoordinateSystem(object):
@@ -140,17 +203,18 @@ class Sensor(object):
         # Coordinate system
         self.coordinate_system = coordinate_system
 
-        # Precision and unit of precision of the sensor
+        # Set measurement units
+        self.sensor_spatial_measurement_unit = str(sensor_spatial_measurement_unit)
+        self.sensor_temporal_measurement_unit = str(sensor_temporal_measurement_unit)
+
+        # Precision of the sensor
         self.sensor_precision = sensor_precision
-        self.sensor_precision_measurement_unit = sensor_spatial_measurement_unit
 
-        # Maximum measurement distance from the position of the sensor and unit
+        # Maximum measurement distance from the position of the sensor
         self.measurement_reach = measurement_reach
-        self.measurement_reach_measurement_unit = sensor_spatial_measurement_unit
 
-        # Pollingrate, how frequent the sensor will be able to measure & unit
+        # Pollingrate, how frequent the sensor will be able to measure
         self.sensor_pollingrate = sensor_pollingrate
-        self.sensor_pollingrate_measurement_unit = sensor_temporal_measurement_unit
 
         # Must be unique, identifier of the sensor
         self.sensor_identifier = sensor_identifier
@@ -886,42 +950,22 @@ def API_post_new_location_call(API_endpoint_path, payload):
 test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
 
+# TODO: Setup 
+endpoint_path = 'http://localhost:5000'
+
+
+test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
+test_coord_sys2 = CoordinateSystem(0,-1,1, 2,3,4)
+test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500, sensor_identifier='a')
+test_sensor3 = Sensor('camera', test_coord_sys, 1, 1, 500, sensor_identifier='b')
+test_sensor2 = Sensor('NFC', test_coord_sys2, 30, 10, 500, sensor_identifier='c')
+
+test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
+test_payload = test_location.construct_json_payload()
+
 data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 5, test_sensor))
 
 API_payload = convert_measurement_dataframe_to_api_conform_payload(data_ingested)
-
-# TODO: Setup 
-
-endpoint_path = 'http://localhost:5000'
-
-test_payload = {
-  "name": "BIN-2.A.10",
-  "external_identifier": "bin_2_a_10",
-  "sensors": [
-    {
-      "identifier": "06e7926e-6785-49a4-ac44-462a1761c3b6",
-      "type": "camera",
-      "x_origin": 0,
-      "y_origin": 0,
-      "z_origin": 0,
-      "yaw": 0,
-      "pitch": 0,
-      "roll": 0,
-      "measurement_unit": "cm"
-    },
-    {
-      "identifier": "rfid",
-      "type": "rfid",
-      "x_origin": 0,
-      "y_origin": 0,
-      "z_origin": 0,
-      "yaw": 0,
-      "pitch": 0,
-      "roll": 0,
-      "measurement_unit": "cm"
-    }
-  ]
-}
 
 print(API_post_input_batch_call(endpoint_path, API_payload, 23))
 
