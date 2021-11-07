@@ -11,9 +11,6 @@ from ccs4dt.main.shared.database import core_db, influx_db
 location_service = LocationService(core_db)
 input_batch_service = InputBatchService(core_db, influx_db, location_service)
 
-
-# TODO: Implement CRUDs and some input validation
-
 @app.route('/locations/<location_id>/inputs', endpoint='input_batches_get_all', methods=['GET'])
 def get_all(location_id):
     """
@@ -24,7 +21,7 @@ def get_all(location_id):
     :rtype: flask.Response
     """
     location_id = int(location_id)
-    input_batches = input_batch_service.get_all()
+    input_batches = input_batch_service.get_all_by_location_id(location_id)
     return Response(json.dumps(input_batches), status=HTTPStatus.OK, mimetype='application/json')
 
 
