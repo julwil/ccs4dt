@@ -11,3 +11,4 @@ sphinx
 furo
 mpld3
 plotly
+pykalman
