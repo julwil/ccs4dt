@@ -29,10 +29,7 @@ class Location(object):
         self.sensors = sensors
         
 
-    def __str__(self):
-       
-
-        print('a')
+    # TODO: define __str__
 
     def get_location_name(self):
 
@@ -299,7 +296,6 @@ class Sensor(object):
 
     # TODO: Implement getter sensor stability
     # TODO: Implement getter sensor pollingrate
-    # TODO: Implement getter sensor pollingrate measurement unit
 
     def get_sensor_reach(self):
         """Getter function for the sensor reach       
@@ -316,8 +312,6 @@ class Sensor(object):
         :rtype: CoordinateSystem
         """
         return(self.coordinate_system)
-
-    # TODO: Implement getter sensor reach measurement unit
 
     # Function simulates precision loss for measurement relative to true position reference frame
     def generate_random_point_in_sphere(self, point_x, point_y, point_z):
@@ -900,9 +894,12 @@ def generate_random_mac_address():
 # TODO: Request not correct, validate with Julius
 def API_post_input_batch_call(API_endpoint_path, payload, location_id):
 
-    response = requests.post(API_endpoint_path + '/locations/'+ str(location_id) + '/inputs', json = payload)
+    response = requests.post(API_endpoint_path + '/locations/'+ str(location_id) + '/inputs', json = json.loads(payload))
 
-    return response
+    # 202 Code with successful delivery
+    response = response.json() if response and response.status_code == 202 else None
+
+    return (response, response['id'], response['status'], response['location_id'])
 
 # TODO: Write documentation
 def API_get_input_batch_by_id_call(API_endpoint_path, location_id, input_batch_id):
@@ -926,7 +923,6 @@ def API_get_all_input_batches_call(API_endpoint_path, location_id):
 def API_get_location_by_id_call(API_endpoint_path, location_id):
     
     response = requests.get(API_endpoint_path + '/locations/'+ str(location_id))
-    print(response)
     json_data = response.json() if response and response.status_code == 200 else None
 
     return json_data
@@ -935,7 +931,6 @@ def API_get_location_by_id_call(API_endpoint_path, location_id):
 def API_get_all_locations_call(API_endpoint_path):
     
     response = requests.get(API_endpoint_path + '/locations')
-    print(response)
     json_data = response.json() if response and response.status_code == 200 else None
 
     return json_data
@@ -945,42 +940,59 @@ def API_post_new_location_call(API_endpoint_path, payload):
     
     response = requests.post(API_endpoint_path + '/locations', json = json.loads(payload))
 
-    response = response.json() if response and response.status_code == 200 else None
+    # 201 Code with successful delivery
+    response = response.json() if response and response.status_code == 201 else None
 
-    return response
+    return (response, response['id'], response['name'])
 
+# TODO: Write documentation
+def API_get_output_batch_call(API_endpoint_path, location_id, batch_id):
+
+    response = requests.get(API_endpoint_path + '/locations/' + str(location_id) + '/inputs/' + str(batch_id) + '/outputs')
+    json_data = response.json() if response and response.status_code == 200 else None
+
+    return json_data
 
 # Test setup parameters 
 endpoint_path = 'http://localhost:5000'
 
 test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_coord_sys2 = CoordinateSystem(0,-1,1, 2,3,4)
-test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 500)
+test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 100)
 test_sensor3 = Sensor('camera', test_coord_sys, 1, 1, 500)
-test_sensor2 = Sensor('NFC', test_coord_sys2, 30, 10, 500)
-
-print(uuid.uuid4())
-print(uuid.uuid4())
-print(uuid.uuid4())
-
-print(test_sensor.get_sensor_id())
-print(test_sensor2.get_sensor_id())
-print(test_sensor3.get_sensor_id())
+test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 10, 4000)
 
 test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
 test_location_payload = test_location.construct_json_payload()
 
+# API request: GET all locations
 #API_get_all_locations_call(endpoint_path)
 
-print(API_post_new_location_call(endpoint_path, test_location_payload))
+# API request: POST new location
+post_location_response, test_location_id, test_location_name = (API_post_new_location_call(endpoint_path, test_location_payload))
 
-#data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 5, test_sensor))
+# Ingest true position data
+data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 200, test_sensor))
 
-#API_payload = convert_measurement_dataframe_to_api_conform_payload(data_ingested)
+# Generate synthetic measurement data payload
+API_payload = convert_measurement_dataframe_to_api_conform_payload(data_ingested)
 
-#print(API_post_input_batch_call(endpoint_path, API_payload, 23))
+# API request: POST new input batch
+post_input_batch_response, input_batch_id, input_batch_status, location_id_for_input_batch = API_post_input_batch_call(endpoint_path, API_payload, test_location_id)
 
-#API_get_input_batch_by_id_call(endpoint_path,20,20)
+# API request: GET input batch status
+print('Get input batch by id')
+print(API_get_input_batch_by_id_call(endpoint_path, location_id_for_input_batch, input_batch_id))
+
+# API request: GET output batch based on generated id
+# Pause to let API process
+import time
+time.sleep(20)
+print('Get output batch by id')
+
+output_batch_response = (API_get_output_batch_call(endpoint_path, location_id_for_input_batch, input_batch_id))
+
+print(output_batch_response)
 
 
 
