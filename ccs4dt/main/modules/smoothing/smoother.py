@@ -34,11 +34,9 @@ class Smoother:
         return df.rolling('3s', on=df.index.get_level_values('timestamp')).mean()
 
     def __kalman_filtering(self, df):
-        import logging
-        logging.error(df)
         measurements = np.ma.masked_invalid(df[['x', 'y', 'z']])
 
-        # [x, x_hat, y, y_hat, z, z_hat]
+        # [x, x_vel, y, y_vel, z, z_vel]
         initial_state_mean = [measurements[0, 0],
                               0,
                               measurements[0, 1],
@@ -72,6 +70,6 @@ class Smoother:
         df['x'] = x_smoothed
         df['y'] = y_smoothed
         df['z'] = z_smoothed
+        import logging
         logging.error(df)
-        logging.error('\n\n')
         return df
