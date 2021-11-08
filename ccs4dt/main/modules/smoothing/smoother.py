@@ -70,6 +70,4 @@ class Smoother:
         df['x'] = x_smoothed
         df['y'] = y_smoothed
         df['z'] = z_smoothed
-        import logging
-        logging.error(df)
         return df
