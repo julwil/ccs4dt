@@ -1,8 +1,7 @@
-import hashlib
-import uuid
 from datetime import datetime
 from influxdb_client import Point
 from influxdb_client.domain.write_precision import WritePrecision
+from collections import defaultdict
 
 from ccs4dt.main.modules.data_management.process_batch_thread import ProcessBatchThread
 from ccs4dt.main.shared.enums.input_batch_status import InputBatchStatus
@@ -106,23 +105,29 @@ class InputBatchService:
         :rtype: dict
         """
         input_batch = self.get_by_id(input_batch_id)
-        positions = []
-
         query = f'''
                 from(bucket: "ccs4dt")
                   |> range(start: 1970-01-01T00:00:00Z)
                   |> filter(fn: (r) => r["_measurement"] == "object_positions")
                   |> filter(fn: (r) => r["_field"] == "confidence" or r["_field"] == "x" or r["_field"] == "y" or r["_field"] == "z")
                   |> filter(fn: (r) => r["input_batch_id"] == "{input_batch_id}")
-                  |> group(columns: ["object_identifier"])
+                  |> group(columns: ["_time", "object_identifier"])
                 '''
+        positions = defaultdict(list)
         for table in self.__influx_db.query_api.query(org='ccs4dt', query=query):
             position = {}
+            object_identifier = ''
+            timestamp = 0
             for record in table.records:
-                position['object_identifier'] = record.values.get('object_identifier')
-                position[record.get_field()] = record.get_value()
-                position['timestamp'] = int(record.get_time().timestamp() * 1000)  # Milliseconds
-            positions.append(position)
+                object_identifier = record.values.get('object_identifier')
+                timestamp = int(record.get_time().timestamp() * 1000)  # Milliseconds
+                field, value = record.get_field(), record.get_value()
+                position[field] = value
+
+            position['timestamp'] = timestamp
+            position['confidence'] = 1.0
+            positions[object_identifier].append(position)
+
         return {
             'input_batch_id': input_batch['id'],
             'location_id': input_batch['location_id'],
