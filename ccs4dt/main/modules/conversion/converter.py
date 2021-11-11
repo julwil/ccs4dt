@@ -12,12 +12,12 @@ class Converter:
     2. Rotation transformation (rotate axis of sensors)
     3. Coordinate offset transformation (depending on the location where the sensor is deployed within a location)
 
-    :param batch: The input measurement batch
-    :type batch: pandas.DataFrame
+    :param input_batch_df: The input measurement batch
+    :type input_batch_df: pandas.DataFrame
     """
 
-    def __init__(self, batch):
-        self.__batch_df = batch
+    def __init__(self, input_batch_df):
+        self.__input_batch_df = input_batch_df
         self.__sensors = {}
 
     def add_sensor(self, sensor_identifier, x_origin, y_origin, z_origin, yaw, pitch, roll, measurement_unit):
@@ -58,12 +58,12 @@ class Converter:
         Run the converter for the provided input batch and the configured sensors
         """
         if not self.__sensors:
-            return self.__batch_df
+            return self.__input_batch_df
 
-        self.__batch_df = self.__batch_df.apply(self.__convert_units, axis=1)
-        self.__batch_df = self.__batch_df.apply(self.__convert_axis_rotation, axis=1)
-        self.__batch_df = self.__batch_df.apply(self.__convert_coordinate_offset, axis=1)
-        return self.__batch_df
+        self.__input_batch_df = self.__input_batch_df.apply(self.__convert_units, axis=1)
+        self.__input_batch_df = self.__input_batch_df.apply(self.__convert_axis_rotation, axis=1)
+        self.__input_batch_df = self.__input_batch_df.apply(self.__convert_coordinate_offset, axis=1)
+        return self.__input_batch_df
 
     def __convert_units(self, row):
         """
