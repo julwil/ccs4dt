@@ -6,6 +6,7 @@ from ccs4dt.main.modules.conversion.converter import Converter
 from ccs4dt.main.modules.upsampling.upsampler import Upsampler
 from ccs4dt.main.modules.object_matching.object_matcher import ObjectMatcher
 from ccs4dt.main.modules.smoothing.smoother import Smoother
+from ccs4dt.main.modules.prediction.predictor import Predictor
 from ccs4dt.main.shared.enums.input_batch_status import InputBatchStatus
 
 
@@ -72,7 +73,8 @@ class ProcessBatchThread(threading.Thread):
         self.__input_batch_df = object_matcher.run()
 
     def __predict(self):
-        pass
+        predictor = Predictor(self.__input_batch_df)
+        self.__input_batch_df = predictor.run()
 
     def __persist(self):
         self.__input_batch_df['timestamp'] = self.__input_batch_df.index.get_level_values('timestamp')
