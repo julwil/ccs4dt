@@ -17,7 +17,7 @@ class Predictor:
         :returns: Prediction of position
         :rtype: pd.DataFrame
         """
-        return df[['x', 'y', 'z']].mean(axis=0)
+        return df[['x', 'y', 'z']].mean(axis=0).round(2)
 
     def run(self):
         """
