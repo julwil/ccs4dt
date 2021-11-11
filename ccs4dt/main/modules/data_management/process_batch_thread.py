@@ -75,9 +75,10 @@ class ProcessBatchThread(threading.Thread):
         pass
 
     def __persist(self):
-        self.__input_batch_df['timestamp'] = self.__input_batch_df.index.get_level_values(0)
-        self.__input_batch_df['timestamp'] = self.__input_batch_df['timestamp'].view(
-            np.int64) // 10 ** 6  # Convert back timestamp
+        self.__input_batch_df['timestamp'] = self.__input_batch_df.index.get_level_values('timestamp')
+        self.__input_batch_df['object_identifier'] = self.__input_batch_df.index.get_level_values('object_identifier')
+        # Convert back timestamp in milliseconds
+        self.__input_batch_df['timestamp'] = self.__input_batch_df['timestamp'].view(np.int64) // 10 ** 6
         output_batch = self.__input_batch_df.to_dict(orient='records')
         self.__input_batch_service.save_batch_to_influx(self.__input_batch_id, output_batch)
 
