@@ -1,6 +1,6 @@
 class Predictor:
     """
-    Predict the position of an object based on the measurements collected by different sensors
+    Predict the position of a given object and timestamp based on the measurements of different sensors.
 
     :param input_batch_df: Input batch dataframe
     :type input_batch_df: pandas.DataFrame

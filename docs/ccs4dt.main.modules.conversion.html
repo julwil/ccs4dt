@@ -188,7 +188,7 @@
 <span id="ccs4dt-main-modules-conversion-converter-module"></span><h2>ccs4dt.main.modules.conversion.converter module<a class="headerlink" href="#module-ccs4dt.main.modules.conversion.converter" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="ccs4dt.main.modules.conversion.converter.Converter">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ccs4dt.main.modules.conversion.converter.</span></span><span class="sig-name descname"><span class="pre">Converter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.modules.conversion.converter.Converter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ccs4dt.main.modules.conversion.converter.</span></span><span class="sig-name descname"><span class="pre">Converter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_batch_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.modules.conversion.converter.Converter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Converter class is responsible for converting measurements from different sensors into a common format.
 Sensors collect measurements with respect to their coordinate system. The conversion ensures that measurements of
@@ -198,7 +198,7 @@ different sensors are harmonized such that they can be compared and aggregated. 
 3. Coordinate offset transformation (depending on the location where the sensor is deployed within a location)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>batch</strong> (<em>pandas.DataFrame</em>) – The input measurement batch</p>
+<dd class="field-odd"><p><strong>input_batch_df</strong> (<em>pandas.DataFrame</em>) – The input measurement batch</p>
 </dd>
 </dl>
 <dl class="py method">
