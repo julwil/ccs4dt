@@ -24,7 +24,7 @@ class Upsampler:
         # Remove duplicates from this group
         df = df.groupby(['timestamp', 'object_identifier', 'sensor_identifier'], as_index=False).first()
         df.set_index(keys=['timestamp'], inplace=True, drop=True)
-        df = df.groupby(['object_identifier', 'sensor_identifier'], as_index=False).apply(lambda x: self.__upsample(x))
+        df = df.groupby(['object_identifier', 'sensor_identifier'], as_index=False).apply(self.__upsample)
         df.set_index(keys=[df.index.get_level_values('timestamp'), 'object_identifier'], inplace=True)
         return df
 
