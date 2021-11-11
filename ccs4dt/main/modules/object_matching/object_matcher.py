@@ -26,12 +26,15 @@ class ObjectMatcher:
         :rtype: pd.DataFrame
         """
 
-        for cluster in self.__compute_clusters(self.__input_batch_df):
+        df = self.__input_batch_df
+        for cluster in self.__compute_clusters(df):
             cluster_uuid = str(uuid.uuid4())
             for object_identifier in cluster:
-                mask = self.__input_batch_df.index.get_level_values('object_identifier') == object_identifier
-                self.__input_batch_df.loc[mask, 'object_identifier'] = cluster_uuid
-        return self.__input_batch_df
+                mask = df.index.get_level_values('object_identifier') == object_identifier
+                df.loc[mask, 'object_identifier'] = cluster_uuid
+
+        df.set_index(keys=[df.index.get_level_values('timestamp'), 'object_identifier'], inplace=True, drop=True)
+        return df
 
     def __compute_clusters(self, df):
         """
