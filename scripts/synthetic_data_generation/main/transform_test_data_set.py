@@ -69,8 +69,6 @@ class Location(object):
 
         return json_payload
 
-
-
 class CoordinateSystem(object):
     """This class represents a coordinate system/orientation of an object in the real world. It is seen relative to a arbitrary 
     frame of reference, which could be e.g. a location that is analyzed.
@@ -179,11 +177,11 @@ class Sensor(object):
     :type sensor_temporal_measurement_unit: String
     :param sensor_identifier: Unique identifier of the sensor, defaults to automatically generated uuid4
     :type sensor_identifier: string
-    :param stability: Function of the stability function of the measurement of the sensor, i.e. how large the signal degradation is based on distance between object to be measured and the sensor, defaults to 0 TODO: NOT YET CONSIDERED
-    :type stability: function
+    :param stability_function_type: Defines type of the stability function of the measurement of the sensor, i.e. how large the signal degradation is based on distance between object to be measured and the sensor, defaults 'linear' TODO: NOT YET CONSIDERED
+    :type stability_function_type: string
     """
 
-    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_temporal_measurement_unit = "s", sensor_spatial_measurement_unit='cm', sensor_identifier = "", stability = 0):
+    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_temporal_measurement_unit = 'ms', sensor_spatial_measurement_unit='cm', sensor_identifier = '', stability_function_type = 'linear'):
         # Type of the sensor
         self.sensor_type = sensor_type
 
@@ -219,8 +217,16 @@ class Sensor(object):
         else:
             self.sensor_identifier = str(sensor_identifier)
 
-        # Stability (with what percentage the sensor randomly drops a measurement)
-        self.stability = stability
+        # Stability_function (with what percentage the sensor randomly drops a measurement)
+        if stability_function_type == 'linear':
+            def linear_degradation(self, distance_to_point):
+                
+                drop_likelihood = distance_to_point/(self.measurement_reach)
+
+                return(drop_likelihood)
+            self.stability_function = linear_degradation
+        else: 
+            raise ValueError('Input for stability_function is not valid')
 
     def __str__(self):
         """String representation of the senor
