@@ -753,10 +753,6 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
 
         # Take day id and transform into datetime
         import_file['date'] = datetime.datetime.strptime(starting_date, date_format) + pd.to_timedelta(np.ceil(import_file['day_id']), unit="D")
- 
-        # Take time and transform into datetime
-        #date_time_format = '%d.%m.%Y %H:%M:%S.%f'
-        #time_format = '%H:%M:%S.%f'
 
         # Combine date and time columns and convert to datetime format
         import_file['date_time'] = pd.to_datetime((import_file['date'].astype(str)) + ' ' + (import_file['time']))
