@@ -778,7 +778,6 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe = pd.DataFrame()
 
     # Add time and date column to measured data frame
-    # TODO: Should we combine these?
     measurement_dataframe['date'] = [x for x in true_position_dataframe['date']]
     measurement_dataframe['time'] = [x for x in true_position_dataframe['time']]
     measurement_dataframe['date_time'] = [x for x in true_position_dataframe['date_time']]
