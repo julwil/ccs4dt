@@ -853,10 +853,15 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     # Calculates distance between sensor and point and stores in dataframe
     measurement_dataframe['distance'] = sensor.calculate_distance_to_point(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])
 
-    print(measurement_dataframe)
-
     # Adds drop flag if distance to point is larger than sensore measurement range
     measurement_dataframe['drop_due_to_distance'] = [sensor.check_sensor_measurement_distance(x) for x in measurement_dataframe['distance']]
+
+    print(measurement_dataframe)
+
+    rows_to_drop_distance = measurement_dataframe[measurement_dataframe['drop_due_to_distance'] == True].index
+
+    # Delete these row indexes from dataFrame
+    measurement_dataframe = measurement_dataframe.drop(rows_to_drop_distance)
 
     print(measurement_dataframe)
 
