@@ -11,6 +11,8 @@ import random
 import requests
 import json
 
+
+
 class Location(object):
     """This class represents a real world measurement location.
 
@@ -68,6 +70,8 @@ class Location(object):
         json_payload = json.dumps(location_json, indent=4)
 
         return json_payload
+
+
 
 class CoordinateSystem(object):
     """This class represents a coordinate system/orientation of an object in the real world. It is seen relative to a arbitrary 
@@ -156,6 +160,8 @@ class CoordinateSystem(object):
         :rtype: numeric
         """
         return(self.roll_xz_with_respect_to_ref_sys)
+
+
 
 class Sensor(object):
     """This class represents a synthetic sensor that emulates the measurement of datapoints based on the (virtual) sensor's parameters and the true position of the object to measure
@@ -371,6 +377,14 @@ class Sensor(object):
             random_point_distance_to_sphere_origin = (random_pos_x*random_pos_x + random_pos_y*random_pos_y + random_pos_z*random_pos_z)**0.5
 
         return (random_pos_x + point_x, random_pos_y + point_y, random_pos_z + point_z)
+    
+    def calculate_distance_to_point(sensor_abs_x, sensor_abs_y, sensor_abs_z, point_abs_x, point_abs_y, point_abs_z):
+
+        distance = ((sensor_abs_x-point_abs_x)**2 + (sensor_abs_y-point_abs_y)**2 + (sensor_abs_z-point_abs_z)**2)**(1/2)
+
+        return abs(distance)
+
+
 
 def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_system, inverse_transformation = False, output_transformation_matrix = False):
     """Transforms positional coordinates of a point in a specific coordinate system into its frame of reference (f.o.r)
@@ -429,6 +443,8 @@ def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_
 
     else:
         return transformed_x, transformed_y, transformed_z
+
+
 
 def plot_randomized_sphere(sensor, randomization_steps):
     """Plots (in 3D) x randomized measurements and sphere of precision based on sensor parameters around origin, where x = randomization_steps
@@ -521,6 +537,8 @@ def plot_randomized_sphere(sensor, randomization_steps):
     fig.write_html('scripts/synthetic_data_generation/assets/generated_graphs/plot_measure_simulations.html')
     
     return None
+
+
 
 def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_sys, plot_system_indicators = True):
     """Plots two coordinate systems (frame of reference and point coordinate system that contain the same point transformed).
@@ -732,6 +750,8 @@ def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_
 
     return None
 
+
+
 # TODO: only works with standard dataset, potentially extend to other dataset formats
 def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelevant_columns = True, transform_to_3D_data = True, starting_date = '01.06.2019', date_format = '%d.%m.%Y'):
     """Imports the true position dataset of the given format from source: https://www.kaggle.com/claytonmiller/occupancy-presencetrajectory-data-from-a-building/version/1
@@ -776,6 +796,8 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
 
     return import_file
 
+
+
 def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     """Simulates measurement of one sensor
 
@@ -817,11 +839,9 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe['z_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, sensor.get_sensor_coordinate_system())[2]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
 
     ## TODO: Validiation / Testing of this part outstanding
-    def calculate_distance(sensor_abs_x, sensor_abs_y, sensor_abs_z, point_abs_x, point_abs_y, point_abs_z):
+ 
 
-        distance = ((sensor_abs_x-point_abs_x)**2 + (sensor_abs_y-point_abs_y)**2 + (sensor_abs_z-point_abs_z)**2)**(1/2)
 
-        return abs(distance)
 
     # # Calculates distance between sensor and point and stores in dataframe
     # measurement_dataframe['distance'] = calculate_distance(sensor.get_sensor_position.to_list()[0],sensor.get_sensor_position.to_list()[1],sensor.get_sensor_position.to_list()[2] ,measurement_dataframe['x_measured_abs_pos'],measurement_dataframe['y_measured_abs_pos'],measurement_dataframe['z_measured_abs_pos'])
@@ -854,6 +874,8 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
 
     return measurement_dataframe
 
+
+
 # TODO: Write documentation
 def function_wrapper_data_ingestion(path, import_rows, measurement_sensor):
 
@@ -862,6 +884,8 @@ def function_wrapper_data_ingestion(path, import_rows, measurement_sensor):
     simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, measurement_sensor)
 
     return simulation_data_dataframe
+
+
 
 # TODO: Write documentation
 def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, repeated_steps):
@@ -873,6 +897,8 @@ def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, re
     plot_point_in_two_coordinate_systems(point_x, point_y, point_z, example_coord_sys, plot_system_indicators = True)
 
     return None
+
+
 
 # TODO: Write documentation
 def convert_measurement_dataframe_to_api_conform_payload(dataframe, generate_file = False):
@@ -888,6 +914,8 @@ def convert_measurement_dataframe_to_api_conform_payload(dataframe, generate_fil
         json_data = dataframe.to_json(default_handler=str, orient='records')
 
     return(json_data)
+
+
 
 # TODO: Write documentation
 def generate_random_mac_address():
@@ -905,6 +933,8 @@ def generate_random_mac_address():
     randomized_mac_adress = ":".join(mac_address)
     return randomized_mac_adress
 
+
+
 # TODO: Write documentation
 # TODO: Request not correct, validate with Julius
 def API_post_input_batch_call(API_endpoint_path, payload, location_id):
@@ -916,6 +946,8 @@ def API_post_input_batch_call(API_endpoint_path, payload, location_id):
 
     return (response, response['id'], response['status'], response['location_id'])
 
+
+
 # TODO: Write documentation
 def API_get_input_batch_by_id_call(API_endpoint_path, location_id, input_batch_id):
     
@@ -924,6 +956,8 @@ def API_get_input_batch_by_id_call(API_endpoint_path, location_id, input_batch_i
     json_data = response.json() if response and response.status_code == 200 else None
 
     return json_data
+
+
 
 # TODO: Write documentation
 def API_get_all_input_batches_call(API_endpoint_path, location_id):
@@ -934,6 +968,8 @@ def API_get_all_input_batches_call(API_endpoint_path, location_id):
 
     return json_data
 
+
+
 # TODO: Write documentation
 def API_get_location_by_id_call(API_endpoint_path, location_id):
     
@@ -942,6 +978,8 @@ def API_get_location_by_id_call(API_endpoint_path, location_id):
 
     return json_data
 
+
+
 # TODO: Write documentation
 def API_get_all_locations_call(API_endpoint_path):
     
@@ -949,6 +987,8 @@ def API_get_all_locations_call(API_endpoint_path):
     json_data = response.json() if response and response.status_code == 200 else None
 
     return json_data
+
+
 
 # TODO: Write documentation
 def API_post_new_location_call(API_endpoint_path, payload):
@@ -960,6 +1000,8 @@ def API_post_new_location_call(API_endpoint_path, payload):
 
     return (response, response['id'], response['name'])
 
+
+
 # TODO: Write documentation
 def API_get_output_batch_call(API_endpoint_path, location_id, batch_id):
 
@@ -967,6 +1009,8 @@ def API_get_output_batch_call(API_endpoint_path, location_id, batch_id):
     json_data = response.json() if response and response.status_code == 200 else None
 
     return json_data
+
+
 
 # Test setup parameters 
 endpoint_path = 'http://localhost:5000'
