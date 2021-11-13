@@ -228,6 +228,7 @@ class Sensor(object):
             def linear_degradation(self, distance_to_point):
                 
                 drop_likelihood = distance_to_point/(self.measurement_reach)
+                if drop_likelihood > 1: drop_likelihood = 1
 
                 return(drop_likelihood)       
             self.stability_function = linear_degradation
@@ -339,6 +340,16 @@ class Sensor(object):
         """
         return(self.coordinate_system)
 
+    def check_sensor_measurement_distance(self, distance_to_point):
+
+        random_chance = random.randint(0,100)
+        # print(random_chance) 
+        # print(distance_to_point)
+        # print(type(distance_to_point))
+        is_measured = True if random_chance > (self.stability_function(self, distance_to_point)*100) else False
+
+        return(is_measured)
+
     # Function simulates precision loss for measurement relative to true position reference frame
     def generate_random_point_in_sphere(self, point_x, point_y, point_z):
         """Simualtes measurement of a sensor. Given a random true position as x,y,z coordinates the function creates a random point around the true position given based on the precision of the sensor.
@@ -378,9 +389,9 @@ class Sensor(object):
 
         return (random_pos_x + point_x, random_pos_y + point_y, random_pos_z + point_z)
     
-    def calculate_distance_to_point(sensor_abs_x, sensor_abs_y, sensor_abs_z, point_abs_x, point_abs_y, point_abs_z):
+    def calculate_distance_to_point(self, point_abs_x, point_abs_y, point_abs_z):
 
-        distance = ((sensor_abs_x-point_abs_x)**2 + (sensor_abs_y-point_abs_y)**2 + (sensor_abs_z-point_abs_z)**2)**(1/2)
+        distance = ((self.get_sensor_position()[0]-point_abs_x)**2 + (self.get_sensor_position()[1]-point_abs_y)**2 + (self.get_sensor_position()[2]-point_abs_z)**2)**(1/2)
 
         return abs(distance)
 
@@ -839,15 +850,15 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe['z_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, sensor.get_sensor_coordinate_system())[2]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
 
     ## TODO: Validiation / Testing of this part outstanding
- 
+    # Calculates distance between sensor and point and stores in dataframe
+    measurement_dataframe['distance'] = sensor.calculate_distance_to_point(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])
 
+    print(measurement_dataframe)
 
+    # Adds drop flag if distance to point is larger than sensore measurement range
+    measurement_dataframe['drop_due_to_distance'] = [sensor.check_sensor_measurement_distance(x) for x in measurement_dataframe['distance']]
 
-    # # Calculates distance between sensor and point and stores in dataframe
-    # measurement_dataframe['distance'] = calculate_distance(sensor.get_sensor_position.to_list()[0],sensor.get_sensor_position.to_list()[1],sensor.get_sensor_position.to_list()[2] ,measurement_dataframe['x_measured_abs_pos'],measurement_dataframe['y_measured_abs_pos'],measurement_dataframe['z_measured_abs_pos'])
-
-    # # Adds drop flag if distance to point is larger than sensore measurement range TODO: check if get_measurement_reach is implemented
-    # measurement_dataframe['drop_due_to_distance'] = [x for x in (measurement_dataframe['distance'] > sensor.get_measurement_reach())]
+    print(measurement_dataframe)
 
     # # Adds time difference between column and last column TODO: How should this work for a shift different of 1?
     # measurement_dataframe['timediff'] = measurement_dataframe['time'] - measurement_dataframe.shift(-1)['time']
@@ -1017,41 +1028,41 @@ endpoint_path = 'http://localhost:5000'
 
 test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_coord_sys2 = CoordinateSystem(0,-1,1, 2,3,4)
-test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 100)
+test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 800)
 test_sensor3 = Sensor('camera', test_coord_sys, 1, 1, 500)
 test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 10, 4000)
 
-test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
-test_location_payload = test_location.construct_json_payload()
+# test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
+# test_location_payload = test_location.construct_json_payload()
 
 # API request: GET all locations
 #API_get_all_locations_call(endpoint_path)
 
 # API request: POST new location
-post_location_response, test_location_id, test_location_name = (API_post_new_location_call(endpoint_path, test_location_payload))
+#post_location_response, test_location_id, test_location_name = (API_post_new_location_call(endpoint_path, test_location_payload))
 
 # Ingest true position data
 data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 200, test_sensor))
 
 # Generate synthetic measurement data payload
-API_payload = convert_measurement_dataframe_to_api_conform_payload(data_ingested)
+#API_payload = convert_measurement_dataframe_to_api_conform_payload(data_ingested)
 
 # API request: POST new input batch
-post_input_batch_response, input_batch_id, input_batch_status, location_id_for_input_batch = API_post_input_batch_call(endpoint_path, API_payload, test_location_id)
+#post_input_batch_response, input_batch_id, input_batch_status, location_id_for_input_batch = API_post_input_batch_call(endpoint_path, API_payload, test_location_id)
 
 # API request: GET input batch status
-print('Get input batch by id')
-print(API_get_input_batch_by_id_call(endpoint_path, location_id_for_input_batch, input_batch_id))
+#print('Get input batch by id')
+#print(API_get_input_batch_by_id_call(endpoint_path, location_id_for_input_batch, input_batch_id))
 
 # API request: GET output batch based on generated id
 # Pause to let API process
-import time
-time.sleep(20)
-print('Get output batch by id')
+# import time
+# time.sleep(20)
+# print('Get output batch by id')
 
-output_batch_response = (API_get_output_batch_call(endpoint_path, location_id_for_input_batch, input_batch_id))
+# output_batch_response = (API_get_output_batch_call(endpoint_path, location_id_for_input_batch, input_batch_id))
 
-print(output_batch_response)
+# print(output_batch_response)
 
 
 
