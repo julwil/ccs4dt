@@ -177,7 +177,7 @@ class Sensor(object):
     :type sensor_temporal_measurement_unit: String
     :param sensor_identifier: Unique identifier of the sensor, defaults to automatically generated uuid4
     :type sensor_identifier: string
-    :param stability_function_type: Defines type of the stability function of the measurement of the sensor, i.e. how large the signal degradation is based on distance between object to be measured and the sensor, defaults 'linear' TODO: NOT YET CONSIDERED
+    :param stability_function_type: Defines type of the stability function of the measurement of the sensor, i.e. how large the signal degradation is based on distance between object to be measured and the sensor. Covered are 'linear' and 'static', default 'linear'
     :type stability_function_type: string
     """
 
@@ -223,8 +223,22 @@ class Sensor(object):
                 
                 drop_likelihood = distance_to_point/(self.measurement_reach)
 
-                return(drop_likelihood)
+                return(drop_likelihood)       
             self.stability_function = linear_degradation
+
+        elif stability_function_type == 'static':
+
+            def static_limit(self, distance_to_point):
+                
+                if distance_to_point > self.measurement_reach:
+                    drop_likelihood = 1
+                else:
+                    drop_likelihood = 0
+
+                return(drop_likelihood)
+
+            self.stability_function = static_limit
+        # TODO: implement exponential drop function
         else: 
             raise ValueError('Input for stability_function is not valid')
 
