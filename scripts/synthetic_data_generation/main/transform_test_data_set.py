@@ -322,7 +322,14 @@ class Sensor(object):
         return (self.sensor_type)
 
     # TODO: Implement getter sensor stability
-    # TODO: Implement getter sensor pollingrate
+
+    def get_sensor_pollingrate(self):
+        """Getter function for the sensor pollingrate       
+
+        :return: Returns sensor pollingrate in ms
+        :rtype: numerical
+        """
+        return (self.sensor_pollingrate)
 
     def get_sensor_reach(self):
         """Getter function for the sensor reach       
@@ -849,44 +856,34 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe['y_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, sensor.get_sensor_coordinate_system())[1]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
     measurement_dataframe['z_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, sensor.get_sensor_coordinate_system())[2]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
 
-    ## TODO: Validiation / Testing of this part outstanding
     # Calculates distance between sensor and point and stores in dataframe
     measurement_dataframe['distance'] = sensor.calculate_distance_to_point(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])
 
     # Adds drop flag if distance to point is larger than sensore measurement range
     measurement_dataframe['drop_due_to_distance'] = [sensor.check_sensor_measurement_distance(x) for x in measurement_dataframe['distance']]
-
-    print(measurement_dataframe)
-
-    rows_to_drop_distance = measurement_dataframe[measurement_dataframe['drop_due_to_distance'] == True].index
-
+    
     # Delete these row indexes from dataFrame
+    rows_to_drop_distance = measurement_dataframe[measurement_dataframe['drop_due_to_distance'] == True].index
     measurement_dataframe = measurement_dataframe.drop(rows_to_drop_distance)
 
-    print(measurement_dataframe)
 
-    # # Adds time difference between column and last column TODO: How should this work for a shift different of 1?
-    # measurement_dataframe['timediff'] = measurement_dataframe['time'] - measurement_dataframe.shift(-1)['time']
+    # This while loop executes at least once and checks if timediff between two true positions is larger than the sensor polling rate, if so it marks the line for delete
+    # Repeats itself until no lines are marked for deletion  
+    while True:
 
+        # Adds time difference between row and row - 1 (in miliseconds)
+        measurement_dataframe['timediff'] = (measurement_dataframe['date_time'] - measurement_dataframe.shift(1)['date_time']).dt.microseconds/1000
 
+        # Checks if row should be dropped due to timediff (i.e. if sensor polling is slower than timediff)
+        measurement_dataframe['drop_due_to_time'] = [(sensor.get_sensor_pollingrate() < x) for x in measurement_dataframe['timediff']]
 
-    # # TODO: Add measurement boundary, polling rate and decaying stability (as function of measurement distance)
-    # # PSEUDOCODE HERE
-    # # calculate distance(xyz_measured, sensor_position)
-    # # # Drop all rows that are out of reach for sensor
-    # # for all rows where distance_to_sensor > sensor.get_reach():
-    # #   drop(row)
+        # Delete these row indexes from dataFrame
+        rows_to_drop_time = measurement_dataframe[measurement_dataframe['drop_due_to_time'] == True].index
+        measurement_dataframe = measurement_dataframe.drop(rows_to_drop_time)
 
-    # # # Drop all rows where sensor pollingrate is not quick enough:
-    # # for all rows where (timediff(row[n+1]-row[n]) < sensor.get_pollingrate():
-    # #   drop(row)
-
-    # # # Drop randomized rows as decaying function of distance to sensor, model function so that at sensor.get_reach()+1 the likelihood of measurement reaches 0
-    # # for all rows:
-    # #   calculate decay likelihood as function of distance
-    # #   if random(0,1) > decay likelihood:
-    # #       drop(row)
-
+        # Exit loop if not timedifferences exist that are to be dropped, else recalculate
+        if not(True in measurement_dataframe['drop_due_to_time'].unique()):
+            break
 
     return measurement_dataframe
 
@@ -1033,7 +1030,7 @@ endpoint_path = 'http://localhost:5000'
 
 test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_coord_sys2 = CoordinateSystem(0,-1,1, 2,3,4)
-test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 800)
+test_sensor = Sensor('RFID', test_coord_sys, 30, 20, 800)
 test_sensor3 = Sensor('camera', test_coord_sys, 1, 1, 500)
 test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 10, 4000)
 
