@@ -11,6 +11,8 @@ import random
 import requests
 import json
 
+
+
 class Location(object):
     """This class represents a real world measurement location.
 
@@ -159,6 +161,8 @@ class CoordinateSystem(object):
         """
         return(self.roll_xz_with_respect_to_ref_sys)
 
+
+
 class Sensor(object):
     """This class represents a synthetic sensor that emulates the measurement of datapoints based on the (virtual) sensor's parameters and the true position of the object to measure
  
@@ -179,11 +183,11 @@ class Sensor(object):
     :type sensor_temporal_measurement_unit: String
     :param sensor_identifier: Unique identifier of the sensor, defaults to automatically generated uuid4
     :type sensor_identifier: string
-    :param stability: Function of the stability function of the measurement of the sensor, i.e. how large the signal degradation is based on distance between object to be measured and the sensor, defaults to 0 TODO: NOT YET CONSIDERED
-    :type stability: function
+    :param stability_function_type: Defines type of the stability function of the measurement of the sensor, i.e. how large the signal degradation is based on distance between object to be measured and the sensor. Covered are 'linear' and 'static', default 'linear'
+    :type stability_function_type: string
     """
 
-    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_temporal_measurement_unit = "s", sensor_spatial_measurement_unit='cm', sensor_identifier = "", stability = 0):
+    def __init__(self, sensor_type, coordinate_system, sensor_precision, sensor_pollingrate, measurement_reach, sensor_temporal_measurement_unit = 'ms', sensor_spatial_measurement_unit='cm', sensor_identifier = '', stability_function_type = 'linear'):
         # Type of the sensor
         self.sensor_type = sensor_type
 
@@ -219,8 +223,31 @@ class Sensor(object):
         else:
             self.sensor_identifier = str(sensor_identifier)
 
-        # Stability (with what percentage the sensor randomly drops a measurement)
-        self.stability = stability
+        # Stability_function (with what percentage the sensor randomly drops a measurement)
+        if stability_function_type == 'linear':
+            def linear_degradation(self, distance_to_point):
+                
+                drop_likelihood = distance_to_point/(self.measurement_reach)
+                if drop_likelihood > 1: drop_likelihood = 1
+
+                return(drop_likelihood)       
+            self.stability_function = linear_degradation
+
+        elif stability_function_type == 'static':
+
+            def static_limit(self, distance_to_point):
+                
+                if distance_to_point > self.measurement_reach:
+                    drop_likelihood = 1
+                else:
+                    drop_likelihood = 0
+
+                return(drop_likelihood)
+
+            self.stability_function = static_limit
+        # TODO: implement exponential drop function
+        else: 
+            raise ValueError('Input for stability_function is not valid')
 
     def __str__(self):
         """String representation of the senor
@@ -295,7 +322,14 @@ class Sensor(object):
         return (self.sensor_type)
 
     # TODO: Implement getter sensor stability
-    # TODO: Implement getter sensor pollingrate
+
+    def get_sensor_pollingrate(self):
+        """Getter function for the sensor pollingrate       
+
+        :return: Returns sensor pollingrate in ms
+        :rtype: numerical
+        """
+        return (self.sensor_pollingrate)
 
     def get_sensor_reach(self):
         """Getter function for the sensor reach       
@@ -312,6 +346,16 @@ class Sensor(object):
         :rtype: CoordinateSystem
         """
         return(self.coordinate_system)
+
+    def check_sensor_measurement_distance(self, distance_to_point):
+
+        random_chance = random.randint(0,100)
+        # print(random_chance) 
+        # print(distance_to_point)
+        # print(type(distance_to_point))
+        is_measured = True if random_chance > (self.stability_function(self, distance_to_point)*100) else False
+
+        return(is_measured)
 
     # Function simulates precision loss for measurement relative to true position reference frame
     def generate_random_point_in_sphere(self, point_x, point_y, point_z):
@@ -351,6 +395,14 @@ class Sensor(object):
             random_point_distance_to_sphere_origin = (random_pos_x*random_pos_x + random_pos_y*random_pos_y + random_pos_z*random_pos_z)**0.5
 
         return (random_pos_x + point_x, random_pos_y + point_y, random_pos_z + point_z)
+    
+    def calculate_distance_to_point(self, point_abs_x, point_abs_y, point_abs_z):
+
+        distance = ((self.get_sensor_position()[0]-point_abs_x)**2 + (self.get_sensor_position()[1]-point_abs_y)**2 + (self.get_sensor_position()[2]-point_abs_z)**2)**(1/2)
+
+        return abs(distance)
+
+
 
 def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_system, inverse_transformation = False, output_transformation_matrix = False):
     """Transforms positional coordinates of a point in a specific coordinate system into its frame of reference (f.o.r)
@@ -409,6 +461,8 @@ def transform_cartesian_coordinate_system(point_x, point_y, point_z, coordinate_
 
     else:
         return transformed_x, transformed_y, transformed_z
+
+
 
 def plot_randomized_sphere(sensor, randomization_steps):
     """Plots (in 3D) x randomized measurements and sphere of precision based on sensor parameters around origin, where x = randomization_steps
@@ -501,6 +555,8 @@ def plot_randomized_sphere(sensor, randomization_steps):
     fig.write_html('scripts/synthetic_data_generation/assets/generated_graphs/plot_measure_simulations.html')
     
     return None
+
+
 
 def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_sys, plot_system_indicators = True):
     """Plots two coordinate systems (frame of reference and point coordinate system that contain the same point transformed).
@@ -712,6 +768,8 @@ def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_
 
     return None
 
+
+
 # TODO: only works with standard dataset, potentially extend to other dataset formats
 def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelevant_columns = True, transform_to_3D_data = True, starting_date = '01.06.2019', date_format = '%d.%m.%Y'):
     """Imports the true position dataset of the given format from source: https://www.kaggle.com/claytonmiller/occupancy-presencetrajectory-data-from-a-building/version/1
@@ -747,10 +805,6 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
 
         # Take day id and transform into datetime
         import_file['date'] = datetime.datetime.strptime(starting_date, date_format) + pd.to_timedelta(np.ceil(import_file['day_id']), unit="D")
- 
-        # Take time and transform into datetime
-        #date_time_format = '%d.%m.%Y %H:%M:%S.%f'
-        #time_format = '%H:%M:%S.%f'
 
         # Combine date and time columns and convert to datetime format
         import_file['date_time'] = pd.to_datetime((import_file['date'].astype(str)) + ' ' + (import_file['time']))
@@ -759,6 +813,8 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
         raise ValueError('Case not covered (include irrelevant columns)')
 
     return import_file
+
+
 
 def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     """Simulates measurement of one sensor
@@ -776,7 +832,6 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe = pd.DataFrame()
 
     # Add time and date column to measured data frame
-    # TODO: Should we combine these?
     measurement_dataframe['date'] = [x for x in true_position_dataframe['date']]
     measurement_dataframe['time'] = [x for x in true_position_dataframe['time']]
     measurement_dataframe['date_time'] = [x for x in true_position_dataframe['date_time']]
@@ -801,43 +856,39 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe['y_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, sensor.get_sensor_coordinate_system())[1]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
     measurement_dataframe['z_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, sensor.get_sensor_coordinate_system())[2]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
 
-    ## TODO: Validiation / Testing of this part outstanding
-    def calculate_distance(sensor_abs_x, sensor_abs_y, sensor_abs_z, point_abs_x, point_abs_y, point_abs_z):
+    # Calculates distance between sensor and point and stores in dataframe
+    measurement_dataframe['distance'] = sensor.calculate_distance_to_point(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])
 
-        distance = ((sensor_abs_x-point_abs_x)**2 + (sensor_abs_y-point_abs_y)**2 + (sensor_abs_z-point_abs_z)**2)**(1/2)
-
-        return abs(distance)
-
-    # # Calculates distance between sensor and point and stores in dataframe
-    # measurement_dataframe['distance'] = calculate_distance(sensor.get_sensor_position.to_list()[0],sensor.get_sensor_position.to_list()[1],sensor.get_sensor_position.to_list()[2] ,measurement_dataframe['x_measured_abs_pos'],measurement_dataframe['y_measured_abs_pos'],measurement_dataframe['z_measured_abs_pos'])
-
-    # # Adds drop flag if distance to point is larger than sensore measurement range TODO: check if get_measurement_reach is implemented
-    # measurement_dataframe['drop_due_to_distance'] = [x for x in (measurement_dataframe['distance'] > sensor.get_measurement_reach())]
-
-    # # Adds time difference between column and last column TODO: How should this work for a shift different of 1?
-    # measurement_dataframe['timediff'] = measurement_dataframe['time'] - measurement_dataframe.shift(-1)['time']
+    # Adds drop flag if distance to point is larger than sensore measurement range
+    measurement_dataframe['drop_due_to_distance'] = [sensor.check_sensor_measurement_distance(x) for x in measurement_dataframe['distance']]
+    
+    # Delete these row indexes from dataFrame
+    rows_to_drop_distance = measurement_dataframe[measurement_dataframe['drop_due_to_distance'] == True].index
+    measurement_dataframe = measurement_dataframe.drop(rows_to_drop_distance)
 
 
+    # This while loop executes at least once and checks if timediff between two true positions is larger than the sensor polling rate, if so it marks the line for delete and deletes these marked lines
+    # Repeats itself until no lines are marked for deletion  
+    # TODO: Evaluate if this logic is correct, potentially adopt so that cumulative timediff from last from marked as "non-deleted" is taken into account 
+    while True:
 
-    # # TODO: Add measurement boundary, polling rate and decaying stability (as function of measurement distance)
-    # # PSEUDOCODE HERE
-    # # calculate distance(xyz_measured, sensor_position)
-    # # # Drop all rows that are out of reach for sensor
-    # # for all rows where distance_to_sensor > sensor.get_reach():
-    # #   drop(row)
+        # Adds time difference between row and row - 1 (in miliseconds)
+        measurement_dataframe['timediff'] = (measurement_dataframe['date_time'] - measurement_dataframe.shift(1)['date_time']).dt.microseconds/1000
 
-    # # # Drop all rows where sensor pollingrate is not quick enough:
-    # # for all rows where (timediff(row[n+1]-row[n]) < sensor.get_pollingrate():
-    # #   drop(row)
+        # Checks if row should be dropped due to timediff (i.e. if sensor polling is slower than timediff)
+        measurement_dataframe['drop_due_to_time'] = [(sensor.get_sensor_pollingrate() < x) for x in measurement_dataframe['timediff']]
 
-    # # # Drop randomized rows as decaying function of distance to sensor, model function so that at sensor.get_reach()+1 the likelihood of measurement reaches 0
-    # # for all rows:
-    # #   calculate decay likelihood as function of distance
-    # #   if random(0,1) > decay likelihood:
-    # #       drop(row)
+        # Delete these row indexes from dataFrame
+        rows_to_drop_time = measurement_dataframe[measurement_dataframe['drop_due_to_time'] == True].index
+        measurement_dataframe = measurement_dataframe.drop(rows_to_drop_time)
 
+        # Exit loop if no timedifferences exist that are to be dropped, else loop again (i.e. recalculate timediffs, mark rows to be dropped)
+        if not(True in measurement_dataframe['drop_due_to_time'].unique()):
+            break
 
     return measurement_dataframe
+
+
 
 # TODO: Write documentation
 def function_wrapper_data_ingestion(path, import_rows, measurement_sensor):
@@ -847,6 +898,8 @@ def function_wrapper_data_ingestion(path, import_rows, measurement_sensor):
     simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, measurement_sensor)
 
     return simulation_data_dataframe
+
+
 
 # TODO: Write documentation
 def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, repeated_steps):
@@ -858,6 +911,8 @@ def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, re
     plot_point_in_two_coordinate_systems(point_x, point_y, point_z, example_coord_sys, plot_system_indicators = True)
 
     return None
+
+
 
 # TODO: Write documentation
 def convert_measurement_dataframe_to_api_conform_payload(dataframe, generate_file = False):
@@ -874,9 +929,9 @@ def convert_measurement_dataframe_to_api_conform_payload(dataframe, generate_fil
 
     return(json_data)
 
-# TODO: Write documentation
-def generate_random_mac_address():
 
+
+def generate_random_mac_address():
     """Generation of a random MAC Address
 
     :return: Returns a randomized 12-byte MAC Address divided by semicolons
@@ -890,9 +945,12 @@ def generate_random_mac_address():
     randomized_mac_adress = ":".join(mac_address)
     return randomized_mac_adress
 
+
+
 # TODO: Write documentation
 # TODO: Request not correct, validate with Julius
 def API_post_input_batch_call(API_endpoint_path, payload, location_id):
+    
 
     response = requests.post(API_endpoint_path + '/locations/'+ str(location_id) + '/inputs', json = json.loads(payload))
 
@@ -900,6 +958,8 @@ def API_post_input_batch_call(API_endpoint_path, payload, location_id):
     response = response.json() if response and response.status_code == 202 else None
 
     return (response, response['id'], response['status'], response['location_id'])
+
+
 
 # TODO: Write documentation
 def API_get_input_batch_by_id_call(API_endpoint_path, location_id, input_batch_id):
@@ -910,6 +970,8 @@ def API_get_input_batch_by_id_call(API_endpoint_path, location_id, input_batch_i
 
     return json_data
 
+
+
 # TODO: Write documentation
 def API_get_all_input_batches_call(API_endpoint_path, location_id):
     
@@ -919,6 +981,8 @@ def API_get_all_input_batches_call(API_endpoint_path, location_id):
 
     return json_data
 
+
+
 # TODO: Write documentation
 def API_get_location_by_id_call(API_endpoint_path, location_id):
     
@@ -927,6 +991,8 @@ def API_get_location_by_id_call(API_endpoint_path, location_id):
 
     return json_data
 
+
+
 # TODO: Write documentation
 def API_get_all_locations_call(API_endpoint_path):
     
@@ -934,6 +1000,8 @@ def API_get_all_locations_call(API_endpoint_path):
     json_data = response.json() if response and response.status_code == 200 else None
 
     return json_data
+
+
 
 # TODO: Write documentation
 def API_post_new_location_call(API_endpoint_path, payload):
@@ -945,6 +1013,8 @@ def API_post_new_location_call(API_endpoint_path, payload):
 
     return (response, response['id'], response['name'])
 
+
+
 # TODO: Write documentation
 def API_get_output_batch_call(API_endpoint_path, location_id, batch_id):
 
@@ -953,58 +1023,51 @@ def API_get_output_batch_call(API_endpoint_path, location_id, batch_id):
 
     return json_data
 
+
+
 # Test setup parameters 
 endpoint_path = 'http://localhost:5000'
 
 test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_coord_sys2 = CoordinateSystem(0,-1,1, 2,3,4)
-test_sensor = Sensor('RFID', test_coord_sys, 30, 10, 100)
+test_sensor = Sensor('RFID', test_coord_sys, 30, 20, 800)
 test_sensor3 = Sensor('camera', test_coord_sys, 1, 1, 500)
 test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 10, 4000)
 
-test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
-test_location_payload = test_location.construct_json_payload()
+# test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
+# test_location_payload = test_location.construct_json_payload()
 
 # API request: GET all locations
 #API_get_all_locations_call(endpoint_path)
 
 # API request: POST new location
-post_location_response, test_location_id, test_location_name = (API_post_new_location_call(endpoint_path, test_location_payload))
+#post_location_response, test_location_id, test_location_name = (API_post_new_location_call(endpoint_path, test_location_payload))
 
 # Ingest true position data
 data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv', 200, test_sensor))
 
 # Generate synthetic measurement data payload
-API_payload = convert_measurement_dataframe_to_api_conform_payload(data_ingested)
+#API_payload = convert_measurement_dataframe_to_api_conform_payload(data_ingested)
 
 # API request: POST new input batch
-post_input_batch_response, input_batch_id, input_batch_status, location_id_for_input_batch = API_post_input_batch_call(endpoint_path, API_payload, test_location_id)
+#post_input_batch_response, input_batch_id, input_batch_status, location_id_for_input_batch = API_post_input_batch_call(endpoint_path, API_payload, test_location_id)
 
 # API request: GET input batch status
-print('Get input batch by id')
-print(API_get_input_batch_by_id_call(endpoint_path, location_id_for_input_batch, input_batch_id))
+#print('Get input batch by id')
+#print(API_get_input_batch_by_id_call(endpoint_path, location_id_for_input_batch, input_batch_id))
 
 # API request: GET output batch based on generated id
 # Pause to let API process
-import time
-time.sleep(20)
-print('Get output batch by id')
+# import time
+# time.sleep(20)
+# print('Get output batch by id')
 
-output_batch_response = (API_get_output_batch_call(endpoint_path, location_id_for_input_batch, input_batch_id))
+# output_batch_response = (API_get_output_batch_call(endpoint_path, location_id_for_input_batch, input_batch_id))
 
-print(output_batch_response)
-
-
-
-
-
+# print(output_batch_response)
 
 
 #function_wrapper_example_plots(test_sensor, 1, 1, 1, 100)
-
-
-
-
 
 
 ## TODO Placholder convert function
