@@ -867,8 +867,9 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe = measurement_dataframe.drop(rows_to_drop_distance)
 
 
-    # This while loop executes at least once and checks if timediff between two true positions is larger than the sensor polling rate, if so it marks the line for delete
+    # This while loop executes at least once and checks if timediff between two true positions is larger than the sensor polling rate, if so it marks the line for delete and deletes these marked lines
     # Repeats itself until no lines are marked for deletion  
+    # TODO: Evaluate if this logic is correct, potentially adopt so that cumulative timediff from last from marked as "non-deleted" is taken into account 
     while True:
 
         # Adds time difference between row and row - 1 (in miliseconds)
@@ -881,7 +882,7 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
         rows_to_drop_time = measurement_dataframe[measurement_dataframe['drop_due_to_time'] == True].index
         measurement_dataframe = measurement_dataframe.drop(rows_to_drop_time)
 
-        # Exit loop if not timedifferences exist that are to be dropped, else recalculate
+        # Exit loop if no timedifferences exist that are to be dropped, else loop again (i.e. recalculate timediffs, mark rows to be dropped)
         if not(True in measurement_dataframe['drop_due_to_time'].unique()):
             break
 
@@ -930,9 +931,7 @@ def convert_measurement_dataframe_to_api_conform_payload(dataframe, generate_fil
 
 
 
-# TODO: Write documentation
 def generate_random_mac_address():
-
     """Generation of a random MAC Address
 
     :return: Returns a randomized 12-byte MAC Address divided by semicolons
@@ -951,6 +950,7 @@ def generate_random_mac_address():
 # TODO: Write documentation
 # TODO: Request not correct, validate with Julius
 def API_post_input_batch_call(API_endpoint_path, payload, location_id):
+    
 
     response = requests.post(API_endpoint_path + '/locations/'+ str(location_id) + '/inputs', json = json.loads(payload))
 
@@ -1067,16 +1067,7 @@ data_ingested = (function_wrapper_data_ingestion(str(os.getcwd()) + '/scripts/sy
 # print(output_batch_response)
 
 
-
-
-
-
-
 #function_wrapper_example_plots(test_sensor, 1, 1, 1, 100)
-
-
-
-
 
 
 ## TODO Placholder convert function
