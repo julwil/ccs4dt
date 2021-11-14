@@ -42,21 +42,165 @@ def test_get_outputs(client):
 def get_input_batch_dummy():
     return [
         {
-            "object_identifier": "my-object",
+            "object_identifier": "cam_obj_1",
             "x": 1,
             "y": 0.5,
             "z": 1,
-            "sensor_identifier": "sensor_1",
-            "sensor_type": "rfid",
-            "timestamp": int(time.time())
+            "sensor_identifier": "camera",
+            "sensor_type": "camera",
+            "timestamp": 1636359776808
         },
         {
-            "object_identifier": "my-object",
-            "x": -2.5,
-            "y": 6,
+            "object_identifier": "cam_obj_1",
+            "x": 1,
+            "y": 0.5,
             "z": 1,
-            "sensor_identifier": "sensor_2",
+            "sensor_identifier": "camera",
+            "sensor_type": "camera",
+            "timestamp": 1636359777808
+        },
+        {
+            "object_identifier": "cam_obj_1",
+            "x": 1,
+            "y": 0.5,
+            "z": 1,
+            "sensor_identifier": "camera",
+            "sensor_type": "camera",
+            "timestamp": 1636359780808
+        },
+        {
+            "object_identifier": "cam_obj_2",
+            "x": 5,
+            "y": 7,
+            "z": 1,
+            "sensor_identifier": "camera",
+            "sensor_type": "camera",
+            "timestamp": 1636359776808
+        },
+        {
+            "object_identifier": "cam_obj_2",
+            "x": 5,
+            "y": 7,
+            "z": 1,
+            "sensor_identifier": "camera",
+            "sensor_type": "camera",
+            "timestamp": 1636359777808
+        },
+        {
+            "object_identifier": "cam_obj_2",
+            "x": 5,
+            "y": 7,
+            "z": 1,
+            "sensor_identifier": "camera",
+            "sensor_type": "camera",
+            "timestamp": 1636359780808
+        },
+        {
+            "object_identifier": "cam_obj_3",
+            "x": 9,
+            "y": 3,
+            "z": 1,
+            "sensor_identifier": "camera",
+            "sensor_type": "camera",
+            "timestamp": 1636359776808
+        },
+        {
+            "object_identifier": "cam_obj_3",
+            "x": 9,
+            "y": 3,
+            "z": 1,
+            "sensor_identifier": "camera",
+            "sensor_type": "camera",
+            "timestamp": 1636359777808
+        },
+        {
+            "object_identifier": "cam_obj_3",
+            "x": 9,
+            "y": 3,
+            "z": 1,
+            "sensor_identifier": "camera",
+            "sensor_type": "camera",
+            "timestamp": 1636359780808
+        },
+        {
+            "object_identifier": "rfid_obj_1",
+            "x": 1,
+            "y": 0.5,
+            "z": 1,
+            "sensor_identifier": "rfid",
             "sensor_type": "rfid",
-            "timestamp": int(time.time())
+            "timestamp": 1636359776808
+        },
+        {
+            "object_identifier": "rfid_obj_1",
+            "x": 1,
+            "y": 0.5,
+            "z": 1,
+            "sensor_identifier": "rfid",
+            "sensor_type": "rfid",
+            "timestamp": 1636359777808
+        },
+        {
+            "object_identifier": "rfid_obj_1",
+            "x": 1,
+            "y": 0.5,
+            "z": 1,
+            "sensor_identifier": "rfid",
+            "sensor_type": "rfid",
+            "timestamp": 1636359780808
+        },
+        {
+            "object_identifier": "rfid_obj_2",
+            "x": 5,
+            "y": 7,
+            "z": 1,
+            "sensor_identifier": "rfid",
+            "sensor_type": "rfid",
+            "timestamp": 1636359776808
+        },
+        {
+            "object_identifier": "rfid_obj_2",
+            "x": 5,
+            "y": 7,
+            "z": 1,
+            "sensor_identifier": "rfid",
+            "sensor_type": "rfid",
+            "timestamp": 1636359777808
+        },
+        {
+            "object_identifier": "rfid_obj_2",
+            "x": 5,
+            "y": 7,
+            "z": 1,
+            "sensor_identifier": "rfid",
+            "sensor_type": "rfid",
+            "timestamp": 1636359780808
+        },
+        {
+            "object_identifier": "rfid_obj_3",
+            "x": 9,
+            "y": 3,
+            "z": 1,
+            "sensor_identifier": "rfid",
+            "sensor_type": "rfid",
+            "timestamp": 1636359776808
+        },
+        {
+            "object_identifier": "rfid_obj_3",
+            "x": 9,
+            "y": 3,
+            "z": 1,
+            "sensor_identifier": "rfid",
+            "sensor_type": "rfid",
+            "timestamp": 1636359777808
+        },
+        {
+            "object_identifier": "rfid_obj_3",
+            "x": 9,
+            "y": 3,
+            "z": 1,
+            "sensor_identifier": "rfid",
+            "sensor_type": "rfid",
+            "timestamp": 1636359780808
         }
     ]
