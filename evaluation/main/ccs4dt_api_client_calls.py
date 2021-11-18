@@ -3,7 +3,7 @@ import json
 from scripts.synthetic_data_generation.main.transform_test_data_set import CoordinateSystem, Sensor, Location, simulate_sensor_measurement_for_multiple_sensors
 
 
-class API_client(object):
+class APIClient(object):
 
     def __init__(self) -> None:
         super().__init__()
@@ -88,29 +88,29 @@ class API_client(object):
 
         return(json_data)
 
-    def end_to_end_API_test(location, sensors, api_endpoint_path, measurement_points = 250):
+    def end_to_end_API_test(location, sensors, api_endpoint_path, measurement_points = 5000):
 
         # API request: GET all locations
-        API_client.API_get_all_locations_call(api_endpoint_path)
+        APIClient.API_get_all_locations_call(api_endpoint_path)
 
         # Construct test location payload
         location_payload = location.construct_json_payload()
 
         # API request: POST new location
-        post_location_response, location_id, test_location_name = (API_client.API_post_new_location_call(api_endpoint_path, location_payload))
+        post_location_response, location_id, test_location_name = (APIClient.API_post_new_location_call(api_endpoint_path, location_payload))
 
         # Simulate sensor data measurement
         measurement_data = simulate_sensor_measurement_for_multiple_sensors(sensors, measurement_points)
 
         # Generate synthetic measurement data payload
-        API_payload = API_client.convert_sensor_measurements_to_api_conform_payload(measurement_data, additional_file_generation = True)
+        API_payload = APIClient.convert_sensor_measurements_to_api_conform_payload(measurement_data, additional_file_generation = True)
 
         # API request: POST new input batch
-        post_input_batch_response, input_batch_id, input_batch_status, location_id_for_input_batch = API_client.API_post_input_batch_call(api_endpoint_path, API_payload, location_id)
+        post_input_batch_response, input_batch_id, input_batch_status, location_id_for_input_batch = APIClient.API_post_input_batch_call(api_endpoint_path, API_payload, location_id)
 
         # API request: GET input batch status
         print('Get input batch by id')
-        print(API_client.API_get_input_batch_by_id_call(api_endpoint_path, location_id_for_input_batch, input_batch_id))
+        print(APIClient.API_get_input_batch_by_id_call(api_endpoint_path, location_id_for_input_batch, input_batch_id))
 
         # API request: GET output batch based on generated id
         # Pause to let API process / check status before proceeding
@@ -120,7 +120,7 @@ class API_client(object):
             time.sleep(1)
 
             # Check batch status
-            status = (API_client.API_get_input_batch_by_id_call(api_endpoint_path, location_id_for_input_batch, input_batch_id).get('status'))
+            status = (APIClient.API_get_input_batch_by_id_call(api_endpoint_path, location_id_for_input_batch, input_batch_id).get('status'))
 
         
         # Proceed with end-to-end test if status is set to 'finished'
@@ -128,12 +128,16 @@ class API_client(object):
                 break
 
         print('Get output batch by id')
-        output_batch_response = (API_client.API_get_output_batch_call(api_endpoint_path, location_id_for_input_batch, input_batch_id))
+        output_batch_response = (APIClient.API_get_output_batch_call(api_endpoint_path, location_id_for_input_batch, input_batch_id))
 
         print(output_batch_response)
 
         return None                               
 
+class PredictionEvaluator(object):
+
+    def __init__(self) -> None:
+        pass
 
 
 # Test setup parameters 
@@ -149,4 +153,4 @@ test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 10, 4000)
 test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
 
 
-API_client.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3],endpoint_path)
+APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3],endpoint_path)
