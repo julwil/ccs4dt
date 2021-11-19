@@ -17,15 +17,15 @@ class InputBatchService:
     :type influx_db: InfluxDB
     :param location_service: location service
     :type location_service: LocationService
-    :param object_matching_service: object matching service
-    :type object_matching_service: ObjectMatchingService
+    :param object_identifier_mapping_service: object matching service
+    :type object_identifier_mapping_service: ObjectMatchingService
     """
 
-    def __init__(self, core_db, influx_db, location_service, object_matching_service):
+    def __init__(self, core_db, influx_db, location_service, object_identifier_mapping_service):
         self.__core_db = core_db
         self.__influx_db = influx_db
         self.__location_service = location_service
-        self.__object_matching_service = object_matching_service
+        self.__object_identifier_mapping_service = object_identifier_mapping_service
 
     def create(self, location_id, input_batch):
         """
@@ -46,7 +46,7 @@ class InputBatchService:
         ProcessBatchThread(kwargs={
             'input_batch_service': self,
             'location_service': self.__location_service,
-            'object_matching_service': self.__object_matching_service,
+            'object_identifier_mapping_service': self.__object_identifier_mapping_service,
             'location_id': location_id,
             'input_batch_id': input_batch_id,
             'input_batch': input_batch
@@ -110,7 +110,7 @@ class InputBatchService:
         """
         input_batch = self.get_by_id(input_batch_id)
         object_identifier_mappings = defaultdict(list)
-        for mapping in self.__object_matching_service.get_by_input_batch_id(input_batch_id):
+        for mapping in self.__object_identifier_mapping_service.get_by_input_batch_id(input_batch_id):
             object_identifier_mappings[mapping['object_identifier']].append(mapping['external_object_identifier'])
 
         positions = []

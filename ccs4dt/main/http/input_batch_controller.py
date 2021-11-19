@@ -6,12 +6,12 @@ from flask import request, Response
 from ccs4dt import app
 from ccs4dt.main.modules.data_management.input_batch_service import InputBatchService
 from ccs4dt.main.modules.data_management.location_service import LocationService
-from ccs4dt.main.modules.data_management.object_matching_service import ObjectMatchingService
+from ccs4dt.main.modules.data_management.object_identifier_mapping_service import ObjectIdentifierMappingService
 from ccs4dt.main.shared.database import core_db, influx_db
 
 location_service = LocationService(core_db)
-object_matching_service = ObjectMatchingService(core_db)
-input_batch_service = InputBatchService(core_db, influx_db, location_service, object_matching_service)
+object_identifier_mapping_service = ObjectIdentifierMappingService(core_db)
+input_batch_service = InputBatchService(core_db, influx_db, location_service, object_identifier_mapping_service)
 
 @app.route('/locations/<location_id>/inputs', endpoint='input_batches_get_all', methods=['GET'])
 def get_all(location_id):

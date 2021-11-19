@@ -1,4 +1,4 @@
-class ObjectMatchingService:
+class ObjectIdentifierMappingService:
     """
     Handle mapping between object_identifiers and external_object_identifiers.
     object_identifiers are generated in the object_matching module. external_object_identifiers are
@@ -25,7 +25,7 @@ class ObjectMatchingService:
         """
         connection = self.__core_db.connection()
         query = '''
-        INSERT INTO object_identifier_matches 
+        INSERT INTO object_identifier_mappings 
         (input_batch_id, object_identifier, external_object_identifier)
         VALUES (?, ?, ?)
         '''
@@ -43,7 +43,7 @@ class ObjectMatchingService:
         :rtype: dict
         """
         connection = self.__core_db.connection()
-        query = '''SELECT * FROM object_identifier_matches WHERE id=?'''
+        query = '''SELECT * FROM object_identifier_mappings WHERE id=?'''
         return dict(connection.cursor().execute(query, (id,)).fetchone())
 
 
@@ -56,6 +56,6 @@ class ObjectMatchingService:
         :rtype: list
         """
         connection = self.__core_db.connection()
-        query = '''SELECT * FROM object_identifier_matches WHERE input_batch_id=?'''
+        query = '''SELECT * FROM object_identifier_mappings WHERE input_batch_id=?'''
         ids = [dict(object_matching)['id'] for object_matching in connection.cursor().execute(query, (input_batch_id,)).fetchall()]
         return [self.get_by_id(id) for id in ids]

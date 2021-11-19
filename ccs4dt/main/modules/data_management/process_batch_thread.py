@@ -16,7 +16,7 @@ class ProcessBatchThread(threading.Thread):
     def __init__(self, group=None, target=None, name=None, args=None, kwargs=None, *, daemon=None):
         self.__input_batch_service = kwargs['input_batch_service']
         self.__location_service = kwargs['location_service']
-        self.__object_matching_service = kwargs['object_matching_service']
+        self.__object_identifier_mapping_service = kwargs['object_identifier_mapping_service']
         self.__location_id = kwargs['location_id']
         self.__input_batch_id = kwargs['input_batch_id']
         self.__input_batch_df = pd.DataFrame(kwargs['input_batch'])
@@ -73,8 +73,8 @@ class ProcessBatchThread(threading.Thread):
 
         for object_identifier, cluster in object_matcher.get_clusters().items():
             for external_object_identifier in cluster:
-                self.__object_matching_service.create(self.__input_batch_id, object_identifier,
-                                                      external_object_identifier)
+                self.__object_identifier_mapping_service.create(self.__input_batch_id, object_identifier,
+                                                                external_object_identifier)
 
     def __predict(self):
         pass
