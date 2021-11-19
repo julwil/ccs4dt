@@ -188,7 +188,7 @@
 <span id="ccs4dt-main-modules-data-management-input-batch-service-module"></span><h2>ccs4dt.main.modules.data_management.input_batch_service module<a class="headerlink" href="#module-ccs4dt.main.modules.data_management.input_batch_service" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="ccs4dt.main.modules.data_management.input_batch_service.InputBatchService">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ccs4dt.main.modules.data_management.input_batch_service.</span></span><span class="sig-name descname"><span class="pre">InputBatchService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influx_db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location_service</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.modules.data_management.input_batch_service.InputBatchService" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ccs4dt.main.modules.data_management.input_batch_service.</span></span><span class="sig-name descname"><span class="pre">InputBatchService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">influx_db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location_service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_identifier_mapping_service</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.modules.data_management.input_batch_service.InputBatchService" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>InputBatchService responsible for handling input batches</p>
 <dl class="field-list simple">
@@ -197,6 +197,7 @@
 <li><p><strong>core_db</strong> (<a class="reference internal" href="ccs4dt.main.shared.database.html#ccs4dt.main.shared.database.core_db.CoreDB" title="ccs4dt.main.shared.database.core_db.CoreDB"><em>CoreDB</em></a>) – database connection of core_db</p></li>
 <li><p><strong>influx_db</strong> (<a class="reference internal" href="ccs4dt.main.shared.database.html#ccs4dt.main.shared.database.influx_db.InfluxDB" title="ccs4dt.main.shared.database.influx_db.InfluxDB"><em>InfluxDB</em></a>) – database connection of influx_db</p></li>
 <li><p><strong>location_service</strong> (<a class="reference internal" href="#ccs4dt.main.modules.data_management.location_service.LocationService" title="ccs4dt.main.modules.data_management.location_service.LocationService"><em>LocationService</em></a>) – location service</p></li>
+<li><p><strong>object_identifier_mapping_service</strong> (<em>ObjectMatchingService</em>) – object matching service</p></li>
 </ul>
 </dd>
 </dl>
@@ -355,6 +356,65 @@
 </dd></dl>
 </dd></dl>
 </section>
+<section id="module-ccs4dt.main.modules.data_management.object_identifier_mapping_service">
+<span id="ccs4dt-main-modules-data-management-object-identifier-mapping-service-module"></span><h2>ccs4dt.main.modules.data_management.object_identifier_mapping_service module<a class="headerlink" href="#module-ccs4dt.main.modules.data_management.object_identifier_mapping_service" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ccs4dt.main.modules.data_management.object_identifier_mapping_service.ObjectIdentifierMappingService">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ccs4dt.main.modules.data_management.object_identifier_mapping_service.</span></span><span class="sig-name descname"><span class="pre">ObjectIdentifierMappingService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_db</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.modules.data_management.object_identifier_mapping_service.ObjectIdentifierMappingService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Handle mapping between object_identifiers and external_object_identifiers.
+object_identifiers are generated in the object_matching module. external_object_identifiers are
+the assigned externally by the sensors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>core_db</strong> (<a class="reference internal" href="ccs4dt.main.shared.database.html#ccs4dt.main.shared.database.core_db.CoreDB" title="ccs4dt.main.shared.database.core_db.CoreDB"><em>CoreDB</em></a>) – database connection of core_db</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ccs4dt.main.modules.data_management.object_identifier_mapping_service.ObjectIdentifierMappingService.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_batch_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_object_identifier</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.modules.data_management.object_identifier_mapping_service.ObjectIdentifierMappingService.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store a new relationship.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_batch_id</strong> (<em>int</em>) – id of the input batch</p></li>
+<li><p><strong>object_identifier</strong> (<em>str</em>) – internal identifier</p></li>
+<li><p><strong>external_object_identifier</strong> (<em>str</em>) – external identifier</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ccs4dt.main.modules.data_management.object_identifier_mapping_service.ObjectIdentifierMappingService.get_by_id">
+<span class="sig-name descname"><span class="pre">get_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.modules.data_management.object_identifier_mapping_service.ObjectIdentifierMappingService.get_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get matching by id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – id of the matching</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ccs4dt.main.modules.data_management.object_identifier_mapping_service.ObjectIdentifierMappingService.get_by_input_batch_id">
+<span class="sig-name descname"><span class="pre">get_by_input_batch_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_batch_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ccs4dt.main.modules.data_management.object_identifier_mapping_service.ObjectIdentifierMappingService.get_by_input_batch_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all object_identifier mappings by input_batch_id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input_batch_id</strong> (<em>int</em>) – id of the input batch</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+</section>
 <section id="module-ccs4dt.main.modules.data_management.process_batch_thread">
 <span id="ccs4dt-main-modules-data-management-process-batch-thread-module"></span><h2>ccs4dt.main.modules.data_management.process_batch_thread module<a class="headerlink" href="#module-ccs4dt.main.modules.data_management.process_batch_thread" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
@@ -413,6 +473,7 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-ccs4dt.main.modules.data_management.input_batch_service">ccs4dt.main.modules.data_management.input_batch_service module</a></li>
 <li><a class="reference internal" href="#module-ccs4dt.main.modules.data_management.location_service">ccs4dt.main.modules.data_management.location_service module</a></li>
+<li><a class="reference internal" href="#module-ccs4dt.main.modules.data_management.object_identifier_mapping_service">ccs4dt.main.modules.data_management.object_identifier_mapping_service module</a></li>
 <li><a class="reference internal" href="#module-ccs4dt.main.modules.data_management.process_batch_thread">ccs4dt.main.modules.data_management.process_batch_thread module</a></li>
 <li><a class="reference internal" href="#module-ccs4dt.main.modules.data_management">Module contents</a></li>
 </ul>

@@ -1,11 +1,12 @@
-import numpy as np
-import pandas as pd
 import threading
 
+import numpy as np
+import pandas as pd
+
 from ccs4dt.main.modules.conversion.converter import Converter
-from ccs4dt.main.modules.upsampling.upsampler import Upsampler
 from ccs4dt.main.modules.object_matching.object_matcher import ObjectMatcher
 from ccs4dt.main.modules.smoothing.smoother import Smoother
+from ccs4dt.main.modules.upsampling.upsampler import Upsampler
 from ccs4dt.main.shared.enums.input_batch_status import InputBatchStatus
 
 
@@ -15,6 +16,7 @@ class ProcessBatchThread(threading.Thread):
     def __init__(self, group=None, target=None, name=None, args=None, kwargs=None, *, daemon=None):
         self.__input_batch_service = kwargs['input_batch_service']
         self.__location_service = kwargs['location_service']
+        self.__object_identifier_mapping_service = kwargs['object_identifier_mapping_service']
         self.__location_id = kwargs['location_id']
         self.__input_batch_id = kwargs['input_batch_id']
         self.__input_batch_df = pd.DataFrame(kwargs['input_batch'])
@@ -56,11 +58,9 @@ class ProcessBatchThread(threading.Thread):
 
         self.__input_batch_df = converter.run()
 
-
     def __upsample(self):
         upsampler = Upsampler(self.__input_batch_df)
         self.__input_batch_df = upsampler.run()
-
 
     def __smoothe(self):
         """Apply smoothing to raw sensor data to remove noise"""
@@ -70,6 +70,11 @@ class ProcessBatchThread(threading.Thread):
     def __object_matching(self):
         object_matcher = ObjectMatcher(self.__input_batch_df)
         self.__input_batch_df = object_matcher.run()
+
+        for object_identifier, cluster in object_matcher.get_clusters().items():
+            for external_object_identifier in cluster:
+                self.__object_identifier_mapping_service.create(self.__input_batch_id, object_identifier,
+                                                                external_object_identifier)
 
     def __predict(self):
         pass
