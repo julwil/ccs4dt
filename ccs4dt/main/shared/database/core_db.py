@@ -67,4 +67,15 @@ class CoreDB:
                 roll             REAL NOT NULL,
                 measurement_unit TEXT    NOT NULL
             );
+            
+            CREATE TABLE IF NOT EXISTS object_identifier_matches
+            (
+                id               INTEGER
+                    PRIMARY KEY AUTOINCREMENT,
+                input_batch_id   INTEGER NOT NULL
+                    constraint object_matches_input_batches_id_fk
+                        references input_batches,
+                object_identifier TEXT   NOT NULL,
+                external_object_identifier TEXT NOT NULL
+            );
         ''')
