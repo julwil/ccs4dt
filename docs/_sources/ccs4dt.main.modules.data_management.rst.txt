@@ -20,6 +20,14 @@ ccs4dt.main.modules.data\_management.location\_service module
    :undoc-members:
    :show-inheritance:
 
+ccs4dt.main.modules.data\_management.object\_identifier\_mapping\_service module
+--------------------------------------------------------------------------------
+
+.. automodule:: ccs4dt.main.modules.data_management.object_identifier_mapping_service
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 ccs4dt.main.modules.data\_management.process\_batch\_thread module
 ------------------------------------------------------------------
 
