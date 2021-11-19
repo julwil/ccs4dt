@@ -17,6 +17,7 @@ class ObjectMatcher:
 
     def __init__(self, input_batch_df):
         self.__input_batch_df = input_batch_df
+        self.__clusters = dict()
 
     def run(self):
         """
@@ -25,21 +26,19 @@ class ObjectMatcher:
         :returns: The re-indexed input_batch_df
         :rtype: pd.DataFrame
         """
-
-        for cluster in self.__compute_clusters(self.__input_batch_df):
-            cluster_uuid = str(uuid.uuid4())
-            for object_identifier in cluster:
-                mask = self.__input_batch_df.index.get_level_values('object_identifier') == object_identifier
-                self.__input_batch_df.loc[mask, 'object_identifier'] = cluster_uuid
+        self.__clusters = self.__compute_clusters(self.__input_batch_df)
+        for object_identifier, cluster in self.__clusters.items():
+            for external_object_identifier in cluster:
+                mask = self.__input_batch_df.index.get_level_values('object_identifier') == external_object_identifier
+                self.__input_batch_df.loc[mask, 'object_identifier'] = object_identifier
         return self.__input_batch_df
 
     def __compute_clusters(self, df):
         """
         Compute clusters of object_identifiers.
-        :type df: pd.DataFrame
-        :returns: A list of clusters. Each cluster is a set of related object_identifiers that map to the same
+        :returns: A dict of cluster_uuid --> list of external_object_identifiers. Each cluster is a set of related object_identifiers that map to the same
          physical object
-        :rtype: list
+        :rtype: dict
         """
 
         filtered_df = self.__filter_incomplete_object_identifiers(df)
@@ -57,8 +56,9 @@ class ObjectMatcher:
 
         # A cluster is a combination of object_identifiers (each from a different sensor) that best match together.
         # E.g. clusters = [(obj_1_rfid, obj_3_cam, obj_2_wifi)]
-        clusters = []
+        clusters = dict()
         for i_object_identifier, i_data in iterator_df.iterrows():
+            cluster_uuid = str(uuid.uuid4())
             # New cluster contains iterator object_identifier by default.
             cluster = set([i_object_identifier])
             i = np.array([i_data['x'], i_data['y'], i_data['z']])
@@ -79,7 +79,7 @@ class ObjectMatcher:
                         min_object_identifier = j_object_identifier
 
                 cluster.add(min_object_identifier)
-            clusters.append(cluster)
+            clusters[cluster_uuid] = cluster
         return clusters
 
     def __filter_incomplete_object_identifiers(self, df):
@@ -111,3 +111,6 @@ class ObjectMatcher:
         for sensor_identifier in sensor_identifiers:
             result[sensor_identifier] = df.loc[df['sensor_identifier'] == sensor_identifier]
         return result
+
+    def get_clusters(self):
+        return self.__clusters
