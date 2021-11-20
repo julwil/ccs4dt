@@ -27,6 +27,7 @@ class ProcessBatchThread(threading.Thread):
         try:
             self.__update_status(InputBatchStatus.PROCESSING)
 
+            self.__unique_identifiers()
             self.__convert()
             self.__upsample()
             self.__smoothe()
@@ -88,3 +89,6 @@ class ProcessBatchThread(threading.Thread):
 
     def __update_status(self, new_status):
         self.__input_batch_service.update_status(self.__input_batch_id, new_status)
+
+    def __unique_identifiers(self):
+        self.__input_batch_df['object_identifier'] = self.__input_batch_df['object_identifier'] + self.__input_batch_df['sensor_identifier']
