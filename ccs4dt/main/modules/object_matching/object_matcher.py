@@ -44,7 +44,7 @@ class ObjectMatcher:
         filtered_df = self.__filter_incomplete_object_identifiers(df)
 
         if filtered_df.empty:
-            raise RuntimeException('Not enough data to perform id matching.')
+            raise RuntimeError('Not enough data to perform id matching.')
 
         filtered_df = filtered_df.groupby('object_identifier').first()
         sensor_identifiers = filtered_df['sensor_identifier'].unique().tolist()
