@@ -1,5 +1,8 @@
 import numpy as np
+import pandas as pd
 import uuid
+from collections import defaultdict
+import itertools
 
 
 class ObjectMatcher:
@@ -19,6 +22,55 @@ class ObjectMatcher:
         self.__input_batch_df = input_batch_df
         self.__clusters = dict()
 
+
+    def cumulative_norm(self, tuple, df):
+        cumulative_norm = 0
+
+        if len(tuple) == 1:
+            return cumulative_norm
+
+        object_identifier_combinations = list(itertools.product(*[[i] for i in tuple], repeat=2))[0]
+        for i in range(0, int(len(object_identifier_combinations)/2) + 2, 2):
+            a_mask = df.index.get_level_values('object_identifier') == object_identifier_combinations[i]
+            b_mask = df.index.get_level_values('object_identifier') == object_identifier_combinations[i+1]
+            a = df.loc[a_mask,  ['x', 'y', 'z']].to_numpy().squeeze()
+            b = df.loc[b_mask, ['x', 'y', 'z']].to_numpy().squeeze()
+            cumulative_norm += np.linalg.norm(a-b)
+        return cumulative_norm
+
+    def get_object_identifier_mappings(self, df):
+        mappings = {}
+        object_identifiers_by_sensors = defaultdict(set)
+        sensors_by_object_identifiers = dict()
+        for sensor_identifier in df.sensor_identifier.unique():
+            cluster_object_identifiers = df[df.sensor_identifier == sensor_identifier].index.get_level_values('object_identifier').unique()
+            for object_identifier in cluster_object_identifiers:
+                sensors_by_object_identifiers[object_identifier] = sensor_identifier
+                object_identifiers_by_sensors[sensor_identifier].add(object_identifier)
+
+        while object_identifiers_by_sensors:
+            cartesian_product = itertools.product(*object_identifiers_by_sensors.values())
+            tuples_score = dict()
+            for object_identifier_tuple in cartesian_product:
+                key = '.'.join(list(object_identifier_tuple))
+                tuples_score[key] = self.cumulative_norm(list(object_identifier_tuple), df)
+
+            best_tuple = min(tuples_score, key=tuples_score.get)
+            # Maybe check some condition on the best distance? if it's too high, then maybe different objects?
+            # Now we split the key to retrieve object_identifiers again.
+            cluster_object_identifiers = best_tuple.split('.')
+            cluster_uuid = str(uuid.uuid4())
+            mappings[cluster_uuid] = cluster_object_identifiers
+
+            # Remove this combination from the original set
+            for object_identifier in cluster_object_identifiers:
+                object_identifiers_by_sensors[sensors_by_object_identifiers[object_identifier]].remove(object_identifier)
+                if not object_identifiers_by_sensors[sensors_by_object_identifiers[object_identifier]]:
+                    del object_identifiers_by_sensors[sensors_by_object_identifiers[object_identifier]]
+                del sensors_by_object_identifiers[object_identifier]
+        return mappings
+
+
     def run(self):
         """
         Run object_matching and re-index object_identifiers
@@ -26,91 +78,61 @@ class ObjectMatcher:
         :returns: The re-indexed input_batch_df
         :rtype: pd.DataFrame
         """
-        self.__clusters = self.__compute_clusters(self.__input_batch_df)
-        for object_identifier, cluster in self.__clusters.items():
-            for external_object_identifier in cluster:
+        df = self.__input_batch_df
+        top_timestamps = self.__get_top_timestamps(df)
+        all = set(df.index.get_level_values('object_identifier').unique())
+        seen = set()
+        keep = set()
+        mapping_list = []
+
+        # Iterate over time windows that contain the most unique object_identifiers
+        for timestamp in top_timestamps:
+            mask = df.index.get_level_values('timestamp') == timestamp
+            filtered_df = df.loc[mask, :]
+            mapping = self.get_object_identifier_mappings(filtered_df)
+            mapping_list.append(mapping)
+            seen.update([item for sublist in mapping.values() for item in sublist])
+            if seen == all:
+                break
+
+
+        # Remove duplicate clusters that were captured in multiple time windows
+        final_mapping = {}
+        for mapping in mapping_list:
+            for cluster_uuid, object_identifier_cluster in mapping.items():
+                object_identifier_cluster = set(object_identifier_cluster)
+                if object_identifier_cluster in final_mapping.values():
+                    continue
+                final_mapping[cluster_uuid] = object_identifier_cluster
+
+        # Remove object_identifiers that are part in more than 1 cluster.
+        seen = set()
+        # Sort by length. We consider large clusters more important than small ones.
+        cluster_uuids = sorted(final_mapping, key=lambda k: len(final_mapping[k]), reverse=True)
+        for cluster_uuid in cluster_uuids:
+            object_identifiers = final_mapping[cluster_uuid]
+            object_identifiers = object_identifiers.difference(seen)
+            final_mapping[cluster_uuid] = object_identifiers
+            seen.update(object_identifiers)
+
+        # Filter empty clusters and convert to list.
+        self.__clusters = {k: list(v) for k, v in final_mapping.items() if v}
+
+        # Finally, replace object_identifier with computed cluster_uuid
+        for cluster_uuid, object_identifier_cluster in self.__clusters.items():
+            for external_object_identifier in object_identifier_cluster:
                 mask = self.__input_batch_df.index.get_level_values('object_identifier') == external_object_identifier
-                self.__input_batch_df.loc[mask, 'object_identifier'] = object_identifier
+                self.__input_batch_df.loc[mask, 'object_identifier'] = cluster_uuid
         return self.__input_batch_df
 
-    def __compute_clusters(self, df):
-        """
-        Compute clusters of object_identifiers.
-        :returns: A dict of cluster_uuid --> list of external_object_identifiers. Each cluster is a set of related object_identifiers that map to the same
-         physical object
-        :rtype: dict
-        """
 
-        filtered_df = self.__filter_incomplete_object_identifiers(df)
+    def __get_top_timestamps(self, df):
+        def count_unique_object_identifiers(x):
+            return x.index.get_level_values('object_identifier').unique().size
 
-        if filtered_df.empty:
-            raise RuntimeError('Not enough data to perform id matching.')
-
-        filtered_df = filtered_df.groupby('object_identifier').first()
-        sensor_identifiers = filtered_df['sensor_identifier'].unique().tolist()
-        sensors_dfs = self.__split_df_by_sensor_identifier(filtered_df)
-
-        # iterator_df can be an arbitrary one. Just make sure, they all have the same cardinality.
-        iterator_df_key = sensor_identifiers.pop()
-        iterator_df = sensors_dfs.pop(iterator_df_key)
-
-        # A cluster is a combination of object_identifiers (each from a different sensor) that best match together.
-        # E.g. clusters = [(obj_1_rfid, obj_3_cam, obj_2_wifi)]
-        clusters = dict()
-        for i_object_identifier, i_data in iterator_df.iterrows():
-            cluster_uuid = str(uuid.uuid4())
-            # New cluster contains iterator object_identifier by default.
-            cluster = set([i_object_identifier])
-            i = np.array([i_data['x'], i_data['y'], i_data['z']])
-
-            # For all other sensors with their df
-            for sensor_identifier in sensor_identifiers:
-                min_norm = float('inf')
-                min_object_identifier = None
-
-                # Find the object_identifier that best fits our iterator object_identifier.
-                for j_object_identifier, j_data in sensors_dfs[sensor_identifier].iterrows():
-                    j = np.array([j_data['x'], j_data['y'], j_data['z']])
-
-                    # The closer the distance between coordinates, the more likely it is the same physical object.
-                    norm = np.linalg.norm(i - j)
-                    if norm <= min_norm:
-                        min_norm = norm
-                        min_object_identifier = j_object_identifier
-
-                cluster.add(min_object_identifier)
-            clusters[cluster_uuid] = cluster
-        return clusters
-
-    def __filter_incomplete_object_identifiers(self, df):
-        """
-        Filter df such that it only contains time windows with complete data. This means that for a given time window,
-        e.g. 1s, all object_identifiers are present.
-        :param df: input dataframe
-        :type df: pd.DataFrame
-        :rtype: pd.DataFrame
-        """
-        object_identifiers = df.index.levels[1].unique()
-
-        def should_include(x):
-            return object_identifiers.isin(x.index.get_level_values('object_identifier')).all()
-
-        return df.groupby('timestamp').filter(lambda x: should_include(x))
-
-    def __split_df_by_sensor_identifier(self, df):
-        """
-        Group df by column 'sensor_identifier' and return a dict with grouped dfs.
-        :param df: Input dataframe
-        :type df: pandas.DataFrame
-        :returns: Dict with sensor_identifier as key and dataframe as value
-        :rtype: dict
-        """
-
-        sensor_identifiers = df['sensor_identifier'].unique().tolist()
-        result = {}
-        for sensor_identifier in sensor_identifiers:
-            result[sensor_identifier] = df.loc[df['sensor_identifier'] == sensor_identifier]
-        return result
+        return df.groupby([pd.Grouper(freq='1s', level='timestamp')])\
+            .apply(count_unique_object_identifiers).sort_values(ascending=False)\
+            .index
 
     def get_clusters(self):
         return self.__clusters
