@@ -3,12 +3,13 @@ import requests
 import json
 import pandas as pd
 import openpyxl
+import numpy as np
 
 # Project internal imports
 from requests import api
 from scripts.synthetic_data_generation.main.transform_test_data_set import CoordinateSystem, Sensor, Location, simulate_sensor_measurement_for_multiple_sensors
 
-
+# TODO: Write documentation
 def generate_fake_data():
 
     fake_api_output = {
@@ -235,6 +236,7 @@ def generate_fake_data():
 
     return fake_input_data, fake_api_output
 
+# TODO: Write documentation
 class APIClient(object):
 
     def __init__(self) -> None:
@@ -373,6 +375,7 @@ class APIClient(object):
         else:
             return output_batch_response                               
 
+# TODO: Write documentation
 class PredictionEvaluator(object):
 
 
@@ -380,35 +383,116 @@ class PredictionEvaluator(object):
         
         self.api_output = api_output
         self.measurement_data =  measurement_data
+        self.location_id = self.api_output.pop('location_id')
+        self.input_batch_id = self.api_output.pop('input_batch_id')
+        self.predicted_positions = self.api_output
+
         # Remove object identifier mappings from prediction results and store in seperate attribute
         self.object_identifier_mappings = self.api_output.pop('object_identifier_mappings')
 
+    # TODO: Write documentation
     def get_prediction_results(self):
-        print(self.api_output)
-        return(self.api_output)
+        return(self.predicted_positions)
 
+    # TODO: Write documentation
     def get_object_identifier_mappings(self):
-        for i in self.object_identifier_mappings:
-            print(i)
-            for j in self.object_identifier_mappings[i]:
-                print(j)
-                for k  in self.object_identifier_mappings[i][j]:
-                    print(k)
+        return(self.object_identifier_mappings)
+
+    # TODO: Write documentation
+    def add_object_identifier_mapping_to_measurement_dataframe(self):
+
+        pred_obj_id_list = []
+        sensor_id_list = []
+        pred_initial_obj_id_list = []
+
+        for pred_obj_id in self.object_identifier_mappings:
+            for sensor_id in self.object_identifier_mappings[pred_obj_id]:
+                for initial_obj_id in self.object_identifier_mappings[pred_obj_id][sensor_id]:
+                    pred_obj_id_list.append(pred_obj_id)
+                    sensor_id_list.append(sensor_id)
+                    pred_initial_obj_id_list.append(initial_obj_id)
 
 
-        print(self.object_identifier_mappings)
-
+        object_identifier_dataframe = pd.DataFrame({'sensor_id_from_api_output': sensor_id_list,
+                   'pred_obj_id': pred_obj_id_list,
+                   'pred_initial_obj_id': pred_initial_obj_id_list})
         
+        measurement_df = pd.DataFrame(self.measurement_data)
+
+        merged_identifier_df = pd.merge(measurement_df, object_identifier_dataframe, left_on=['object_identifier','sensor_identifier'], right_on = ['pred_initial_obj_id','sensor_id_from_api_output'])
+
+        return merged_identifier_df
+
+    # TODO: Write documentation
+    def add_prediction_data_to_merged_identifier_dataframe(self):
+
+        merged_identifier_dataframe = self.add_object_identifier_mapping_to_measurement_dataframe()
 
 
-    def combine_data(self):
+        pred_obj_id_list = []
+        pred_timestamp_list = []
+        pred_confidence_list = []
+        pred_x_list = []
+        pred_y_list = []
+        pred_z_list = []
 
-        combined_dataframe = self.measurement_data
 
+        for i in self.predicted_positions['positions']:
+            pred_obj_id_list.append(i['object_identifier'])
+            pred_timestamp_list.append(i['timestamp'])
+            pred_confidence_list.append(i['confidence'])
+            pred_x_list.append(i['x'])
+            pred_y_list.append(i['y'])
+            pred_z_list.append(i['z'])
+        
+        prediction_df = pd.DataFrame({'temp_pred_obj_identifier': pred_obj_id_list,
+                   'prediction_timestamp': pred_timestamp_list,
+                   'prediction_confidence': pred_confidence_list,
+                   'predicted_x': pred_x_list,
+                   'predicted_y': pred_y_list,
+                   'predicted_z': pred_z_list,
+                   })
 
+        merged_prediction_df = pd.merge(merged_identifier_dataframe, prediction_df, how ='left', left_on=['pred_obj_id','timestamp'], right_on = ['temp_pred_obj_identifier','prediction_timestamp']).drop('temp_pred_obj_identifier', axis=1)
 
+        return merged_prediction_df
 
-        return combined_dataframe
+    # TODO: Write documentation
+    def calculate_object_matching_accuracy(self):
+
+        dataframe_with_matched_object_ids = self.add_object_identifier_mapping_to_measurement_dataframe()
+
+        #dataframe_with_matched_object_ids['object_id_matched_correctly'] = [(dataframe_with_matched_object_ids['pred_initial_obj_id'] == dataframe_with_matched_object_ids['object_identifier']) for x in dataframe_with_matched_object_ids['pred_initial_obj_id']]
+
+        dataframe_with_matched_object_ids['object_id_matched_correctly'] = np.where(dataframe_with_matched_object_ids['pred_initial_obj_id'] == dataframe_with_matched_object_ids['pred_initial_obj_id'], 'True', 'False')
+
+        object_matching_accuarcy = (sum(dataframe_with_matched_object_ids['object_id_matched_correctly'] == 'True')) / dataframe_with_matched_object_ids.shape[0]
+        
+        return object_matching_accuarcy
+
+    # TODO: Write documentation
+    # TODO: Test when sufficient change in API was provided
+    def calculate_prediction_accuracy(self, accuracy_estimation_method = 'euclidean-distance'):
+
+        prediction_dataframe = self.add_prediction_data_to_merged_identifier_dataframe()
+        print(prediction_dataframe)
+
+        def calculate_euclidean_distance_between_two_points(true_x, true_y, true_z, pred_x, pred_y, pred_z):
+
+            distance = ((true_x - pred_x)**2 + (true_y - pred_y)**2 + (true_z - pred_z)**2)**(0.5)
+
+            return distance
+
+        if accuracy_estimation_method == 'euclidean-distance':
+            prediction_dataframe['prediction_error'] = [calculate_euclidean_distance_between_two_points(prediction_dataframe['x'], prediction_dataframe['y'], prediction_dataframe['z'], prediction_dataframe['predicted_x'], prediction_dataframe['predicted_y'], prediction_dataframe['predicted_z']) for x in prediction_dataframe]
+        
+        else:
+            raise ValueError('Please select valid accuracy estimation method')
+
+        prediction_accuracy = prediction_dataframe['prediction_error'].sum()
+
+        return prediction_accuracy
+
 
 
 # Test setup parameters 
@@ -424,8 +508,8 @@ test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 3, 4000) # 3ms is aver
 test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
 
 
-#api_output, measurement_data = APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3], \
-#                                                            endpoint_path, measurement_points= 100, print_progress= False)
+# api_output, measurement_data = APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3], \
+#                                                             endpoint_path, measurement_points= 100, print_progress= False)
 
 
 
@@ -434,9 +518,5 @@ f_input, f_output = generate_fake_data()
 
 test = PredictionEvaluator(f_output, f_input)
 
-test.get_object_identifier_mappings()
-
-#test.get_prediction_results()
-
-
+test.calculate_prediction_accuracy()
 
