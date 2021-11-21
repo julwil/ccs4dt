@@ -1,6 +1,8 @@
 import requests
 import json
 from scripts.synthetic_data_generation.main.transform_test_data_set import CoordinateSystem, Sensor, Location, simulate_sensor_measurement_for_multiple_sensors
+import pandas as pd
+import openpyxl
 
 
 class APIClient(object):
@@ -88,7 +90,7 @@ class APIClient(object):
 
         return(json_data)
 
-    def end_to_end_API_test(location, sensors, api_endpoint_path, measurement_points = 5000):
+    def end_to_end_API_test(location, sensors, api_endpoint_path, measurement_points = 250, return_simulation_output = True, print_progress = True):
 
         # API request: GET all locations
         APIClient.API_get_all_locations_call(api_endpoint_path)
@@ -108,9 +110,10 @@ class APIClient(object):
         # API request: POST new input batch
         post_input_batch_response, input_batch_id, input_batch_status, location_id_for_input_batch = APIClient.API_post_input_batch_call(api_endpoint_path, API_payload, location_id)
 
-        # API request: GET input batch status
-        print('Get input batch by id')
-        print(APIClient.API_get_input_batch_by_id_call(api_endpoint_path, location_id_for_input_batch, input_batch_id))
+        if print_progress == True:
+            # API request: GET input batch status
+            print('Get input batch by id')
+            print(APIClient.API_get_input_batch_by_id_call(api_endpoint_path, location_id_for_input_batch, input_batch_id))
 
         # API request: GET output batch based on generated id
         # Pause to let API process / check status before proceeding
@@ -127,30 +130,44 @@ class APIClient(object):
             if status == 'finished':
                 break
 
-        print('Get output batch by id')
+        
+        
         output_batch_response = (APIClient.API_get_output_batch_call(api_endpoint_path, location_id_for_input_batch, input_batch_id))
 
-        print(output_batch_response)
+        if print_progress == True:
+            print('Get output batch by id')
+            print(output_batch_response)
 
-        return None                               
+        if return_simulation_output == True:
+            return output_batch_response, measurement_data
+        else:
+            return output_batch_response                               
 
 class PredictionEvaluator(object):
 
     def __init__(self) -> None:
         pass
 
+    def gather_data():
+
+        combined_dataframe = []
+
+        return combined_dataframe
+
 
 # Test setup parameters 
-endpoint_path = 'http://localhost:5000'
+endpoint_path = 'http://185.147.10.249:5000'
 
 test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_coord_sys2 = CoordinateSystem(0,-1,1, 2,3,4)
-test_sensor = Sensor('RFID', test_coord_sys, 30, 20, 800)
-test_sensor3 = Sensor('camera', test_coord_sys, 1, 1, 500)
-test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 10, 4000)
+test_sensor = Sensor('RFID', test_coord_sys, 40, 20, 1000) # 20ms seems reasonable (https://electronics.stackexchange.com/questions/511278/low-latency-passive-rfid-solution)
+test_sensor3 = Sensor('camera', test_coord_sys, 10, 17, 5000) # 16.666 ms is equal to 60fps
+test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 3, 4000) # 3ms is average wifi latency
 
 # Generate test_location
 test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
 
 
-APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3],endpoint_path)
+api_output, measurement_data = APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3],endpoint_path, measurement_points= 1500)
+
+#b.to_excel('test.xlsx')
