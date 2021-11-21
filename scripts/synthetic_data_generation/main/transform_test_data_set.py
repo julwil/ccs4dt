@@ -816,13 +816,17 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
 
 
 
-def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
+def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, identifier_randomization_method = 'none', identifier_type = 'mac-address'):
     """Simulates measurement of one sensor
 
     :param true_position_dataframe: Dataframe that contains true positions
     :type true_position_dataframe: dataframe
     :param sensor: Sensor for which the measurements should be simulated
     :type sensor: Sensor
+    :param identifier_randomization_type: Specifies the randomization approach for object identifiers, default: 'none'
+    :type identifier_randomization_type: string
+    :param identifier_type: Specifies type of identifier that should be used if randomization takes place, default: mac-address
+    :type identifier_type: string
 
     :return: Returns the simulated measurement output of the sensor as dataframe
     :rtype: dataframe
@@ -840,6 +844,53 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     measurement_dataframe['occupant_id'] = true_position_dataframe['occupant_id'].astype(str)
     measurement_dataframe['sensor_type'] = sensor.get_sensor_type()
     measurement_dataframe['sensor_id'] = sensor.get_sensor_id()
+
+
+    # TODO: Potentially rethink approach of ID randomization, one valid option would be to generate a
+    #       randomization dictionary at the start and use this to look up values afterwards
+    
+    # Identifier assignment option where each object has the same identifier as in the input file 
+    if identifier_randomization_method == 'none':
+        measurement_dataframe['object_id'] = true_position_dataframe['occupant_id'].astype(str)
+
+    # TODO: implement variant
+    # Identifier assignment option where each object has a randomized identifier, regardless of the sensor measuring it 
+    # tl;dr random,constant id per device, regardless of sensor 
+    elif identifier_randomization_method == 'object_based':
+        raise ValueError('Currently not implemented')
+
+    # TODO: implement variant
+    # Identifier assignment option where each object has a randomized identifier, regardless of the sensor measuring it 
+    # tl;dr random,constant id per device, regardless of sensor 
+    elif identifier_randomization_method == 'object_based':
+        raise ValueError('Currently not implemented')
+    
+    # TODO: implement variant
+    # Identifier assignment option where each object has a randomized identifier, specific to the sensor measuring it 
+    # tl;dr random,constant id per device and sensor combination
+    elif identifier_randomization_method == 'sensor_and_object_based':
+        raise ValueError('Currently not implemented')
+
+    # TODO: implement variant
+    # Identifier assignment option where each object has a randomized identifier, specific to the sensor TYPE measuring it 
+    # tl;dr random,constant id per device and sensor type combination
+    elif identifier_randomization_method == 'sensor_and_object_based':
+        raise ValueError('Currently not implemented')
+
+    # TODO: implement variant
+    # Identifier assignment option where each object measurement generates a random identifier that is constant for each sensor
+    # tl;dr random id for every measurement of a specific sensor
+    elif identifier_randomization_method == 'sensor_based':
+        measurement_dataframe['object_id'] = generate_random_object_id(randomization_type = identifier_type)
+
+    # TODO: implement variant
+    # Identifier assignment option where each object measurement generates a random identifier that does not stay constant over time
+    # tl;dr random id for every measurement
+    elif identifier_randomization_method == 'random':
+        measurement_dataframe['object_id'] = [generate_random_object_id(randomization_type = identifier_type) for x in true_position_dataframe['time']]
+
+    else:
+        raise ValueError('Please specify a valid identifier randomization option!')
 
     # Add original coords (can be dropped later, only for verification purposes)
     measurement_dataframe['x_original'] = true_position_dataframe['x']
@@ -889,13 +940,12 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor):
     return measurement_dataframe
 
 
-
 # TODO: Write documentation
-def function_wrapper_data_ingestion(path, import_rows, measurement_sensor):
+def function_wrapper_data_ingestion(path, import_rows, measurement_sensor, identifier_randomization_method = 'none', identifier_type = 'mac-address'):
 
     imported_dataset = import_occupancy_presence_dataset(path, import_rows_count = import_rows)
 
-    simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, measurement_sensor)
+    simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, measurement_sensor, identifier_randomization_method, identifier_type)
 
     return simulation_data_dataframe
 
@@ -915,38 +965,36 @@ def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, re
 
 
 # TODO: Write documentation
-def convert_measurement_dataframe_to_api_conform_payload(dataframe, generate_file = False):
-
-    dataframe = dataframe[['occupant_id','x_measured_rel_pos','y_measured_rel_pos','z_measured_rel_pos','sensor_type','sensor_id','date_time']]
-
-    dataframe = dataframe.rename(columns = {'occupant_id':'object_identifier', 'x_measured_rel_pos':'x', 'y_measured_rel_pos':'y', 'z_measured_rel_pos':'z',
-     'sensor_id':'sensor_identifier', 'sensor_type':'sensor_type', 'date_time':'timestamp'})
-
-    if generate_file == True:
-        json_data = dataframe.to_json(path_or_buf= 'scripts/synthetic_data_generation/assets/generated_files/measurement.json', default_handler=str, orient='records')
-    elif generate_file == False:
-        json_data = dataframe.to_json(default_handler=str, orient='records')
-
-    return(json_data)
+# TODO: Add different variants (e.g. see below)
+# TODO: Write generation class of random RFID UID (with different types) based on https://rfidcard.com/types-of-uid-rfid-card/
+def generate_random_object_id(randomization_type = 'mac-address'):
 
 
+    def generate_random_mac_address():
+        """Generation of a random MAC Address
 
-def generate_random_mac_address():
-    """Generation of a random MAC Address
+        :return: Returns a randomized 12-byte MAC Address divided by semicolons
+        :rtype: string
+        """
 
-    :return: Returns a randomized 12-byte MAC Address divided by semicolons
-    :rtype: string
-    """
+        mac_address = []
+        for i in range(1,7):
+            mac_address_characters = "".join(random.sample("0123456789abcdef",2))
+            mac_address.append(mac_address_characters)
+            i += 1
+        randomized_mac_adress = ":".join(mac_address)
+        return randomized_mac_adress
 
-    mac_address = []
-    for i in range(1,7):
-        mac_address_characters = "".join(random.sample("0123456789abcdef",2))
-        mac_address.append(mac_address_characters)
-    randomized_mac_adress = ":".join(mac_address)
-    return randomized_mac_adress
+    if randomization_type == 'mac-address':
+        return generate_random_mac_address()
+
+    else:
+        raise ValueError('Please request a valid randomization type')
 
 
-def simulate_sensor_measurement_for_multiple_sensors(sensors, number_of_true_positions_to_consider):
+
+
+def simulate_sensor_measurement_for_multiple_sensors(sensors, number_of_true_positions_to_consider, identifier_randomization_method = 'none', identifier_type = 'mac-address'):
 
     filepath = str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv'
 

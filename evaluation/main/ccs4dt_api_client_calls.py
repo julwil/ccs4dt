@@ -77,9 +77,9 @@ class APIClient(object):
     # TODO: Write documentation
     def convert_sensor_measurements_to_api_conform_payload(dataframe, additional_file_generation = False): 
 
-        dataframe = dataframe[['occupant_id','x_measured_rel_pos','y_measured_rel_pos','z_measured_rel_pos','sensor_type','sensor_id','date_time']]
+        dataframe = dataframe[['object_id','x_measured_rel_pos','y_measured_rel_pos','z_measured_rel_pos','sensor_type','sensor_id','date_time']]
 
-        dataframe = dataframe.rename(columns = {'occupant_id':'object_identifier', 'x_measured_rel_pos':'x', 'y_measured_rel_pos':'y', 'z_measured_rel_pos':'z',
+        dataframe = dataframe.rename(columns = {'object_id':'object_identifier', 'x_measured_rel_pos':'x', 'y_measured_rel_pos':'y', 'z_measured_rel_pos':'z',
         'sensor_id':'sensor_identifier', 'sensor_type':'sensor_type', 'date_time':'timestamp'})
 
         if additional_file_generation == True:
@@ -119,6 +119,7 @@ class APIClient(object):
         # Pause to let API process / check status before proceeding
         import time
 
+        # Pause for 1 second before requesting result again
         while True:
             time.sleep(1)
 
@@ -156,7 +157,7 @@ class PredictionEvaluator(object):
 
 
 # Test setup parameters 
-endpoint_path = 'http://185.147.10.249:5000'
+endpoint_path = 'http://localhost:5000'
 
 test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_coord_sys2 = CoordinateSystem(0,-1,1, 2,3,4)
