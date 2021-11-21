@@ -1,5 +1,4 @@
-import hashlib
-import uuid
+from collections import defaultdict
 from datetime import datetime
 from influxdb_client import Point
 from influxdb_client.domain.write_precision import WritePrecision
@@ -18,12 +17,15 @@ class InputBatchService:
     :type influx_db: InfluxDB
     :param location_service: location service
     :type location_service: LocationService
+    :param object_identifier_mapping_service: object matching service
+    :type object_identifier_mapping_service: ObjectMatchingService
     """
 
-    def __init__(self, core_db, influx_db, location_service):
+    def __init__(self, core_db, influx_db, location_service, object_identifier_mapping_service):
         self.__core_db = core_db
         self.__influx_db = influx_db
         self.__location_service = location_service
+        self.__object_identifier_mapping_service = object_identifier_mapping_service
 
     def create(self, location_id, input_batch):
         """
@@ -44,6 +46,7 @@ class InputBatchService:
         ProcessBatchThread(kwargs={
             'input_batch_service': self,
             'location_service': self.__location_service,
+            'object_identifier_mapping_service': self.__object_identifier_mapping_service,
             'location_id': location_id,
             'input_batch_id': input_batch_id,
             'input_batch': input_batch
@@ -106,6 +109,10 @@ class InputBatchService:
         :rtype: dict
         """
         input_batch = self.get_by_id(input_batch_id)
+        object_identifier_mappings = defaultdict(list)
+        for mapping in self.__object_identifier_mapping_service.get_by_input_batch_id(input_batch_id):
+            object_identifier_mappings[mapping['object_identifier']].append(mapping['external_object_identifier'])
+
         positions = []
 
         query = f'''
@@ -126,6 +133,7 @@ class InputBatchService:
         return {
             'input_batch_id': input_batch['id'],
             'location_id': input_batch['location_id'],
+            'object_identifier_mappings': object_identifier_mappings,
             'positions': positions
         }
 
@@ -150,13 +158,13 @@ class InputBatchService:
                 .time(measurement["timestamp"], write_precision=write_precision)
             self.__influx_db.write_api.write("ccs4dt", "ccs4dt", point, write_precision=write_precision)
 
-    def get_all(self):
+    def get_all_by_location_id(self, location_id):
         """
-        Get all input batches
+        Get all input batches of the given location
 
         :rtype: list
         """
         connection = self.__core_db.connection()
-        query = '''SELECT id FROM input_batches WHERE TRUE'''
-        input_batch_ids = [dict(input_batch)['id'] for input_batch in connection.cursor().execute(query).fetchall()]
+        query = '''SELECT id FROM input_batches WHERE location_id=?'''
+        input_batch_ids = [dict(input_batch)['id'] for input_batch in connection.cursor().execute(query, (location_id,)).fetchall()]
         return [self.get_by_id(id) for id in input_batch_ids]

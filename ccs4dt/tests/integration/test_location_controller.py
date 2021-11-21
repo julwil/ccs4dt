@@ -1,6 +1,5 @@
-from http import HTTPStatus
-
 import pytest
+from http import HTTPStatus
 
 from ccs4dt import app
 
@@ -32,26 +31,26 @@ def test_post(client):
 def get_location_dummy():
     return {
         "name": "BIN-2.A.10",
-        "external_identifier": "room_1234",
+        "external_identifier": "bin_2_a_10",
         "sensors": [
             {
-                "identifier": "sensor_1",
-                "type": "rfid",
-                "x_origin": 1,
-                "y_origin": 1.5,
-                "z_origin": 1,
-                "yaw": 90,
+                "identifier": "camera",
+                "type": "camera",
+                "x_origin": 0,
+                "y_origin": 0,
+                "z_origin": 0,
+                "yaw": 0,
                 "pitch": 0,
                 "roll": 0,
                 "measurement_unit": "cm"
             },
             {
-                "identifier": "sensor_2",
+                "identifier": "rfid",
                 "type": "rfid",
-                "x_origin": 8,
-                "y_origin": 4.5,
-                "z_origin": 1,
-                "yaw": 180,
+                "x_origin": 0,
+                "y_origin": 0,
+                "z_origin": 0,
+                "yaw": 0,
                 "pitch": 0,
                 "roll": 0,
                 "measurement_unit": "cm"
