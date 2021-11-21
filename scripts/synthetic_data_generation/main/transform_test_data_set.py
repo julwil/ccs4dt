@@ -848,10 +848,10 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, i
 
     # TODO: Potentially rethink approach of ID randomization, one valid option would be to generate a
     #       randomization dictionary at the start and use this to look up values afterwards
-    
+
     # Identifier assignment option where each object has the same identifier as in the input file 
     if identifier_randomization_method == 'none':
-        measurement_dataframe['object_id'] = true_position_dataframe['occupant_id'].astype(str)
+        measurement_dataframe['object_id'] = [x for x in true_position_dataframe['occupant_id'].astype(str)]
 
     # TODO: implement variant
     # Identifier assignment option where each object has a randomized identifier, regardless of the sensor measuring it 
