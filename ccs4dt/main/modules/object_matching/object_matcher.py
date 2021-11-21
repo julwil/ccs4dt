@@ -26,7 +26,7 @@ class ObjectMatcher:
 
     def __get_vectors_by_object_identifiers(self, object_identifiers, df):
         """
-        Return a list of vectors of x,y,z, based on a list of object_identifiers.
+        Return a list of vectors, each [x,y,z], based on a list of object_identifiers.
 
         :param object_identifiers: list of object_identifiers to retrieve vectors for
         :type object_identifiers: list
@@ -46,7 +46,7 @@ class ObjectMatcher:
         Compute the cumulative norm / euclidean distance between a list (1,2,3,4,...,n) of vectors.
         Calculates and sums up euclidean distance between all possible pairs of vectors in the tuple.
 
-        :param vectors: A tuple of vectors (x,y,z)
+        :param vectors: A tuple of vectors, each [x,y,z]
         :type vectors: list
         :rtype: float
         """
@@ -97,14 +97,14 @@ class ObjectMatcher:
             # Build cartesian product between object_identifiers of all sensors
             object_identifier_combinations = itertools.product(*sensors_object_identifiers.values())
 
-            # Store the a 'score' value for all possible clusters
+            # Store a 'score' value for all possible clusters
             cluster_scores = dict()
             for object_identifier_tuple in object_identifier_combinations:
                 vectors = self.__get_vectors_by_object_identifiers(list(object_identifier_tuple), df)
                 key = '.'.join(list(object_identifier_tuple))
                 cluster_scores[key] = self.__cumulative_norm(vectors)
 
-            # The best combination is the one with the lowest cumulative euclidean distance
+            # The best cluster is the one with the lowest cumulative euclidean distance
             best_cluster = min(cluster_scores, key=cluster_scores.get)
 
             # Split the key to retrieve object_identifiers again.
@@ -132,7 +132,7 @@ class ObjectMatcher:
         """
         df = self.__input_batch_df
         all = set(df.index.get_level_values('object_identifier').unique())
-        seen = set()
+        mapped = set()
         mapping_list = []
 
         # Iterate over time windows that contain the highest number unique object_identifiers counts
@@ -145,13 +145,13 @@ class ObjectMatcher:
             mapping_list.append(mapping)
 
             # Update which object_identifiers were part of the mapping
-            seen.update([item for sublist in mapping.values() for item in sublist])
+            mapped.update([item for sublist in mapping.values() for item in sublist])
 
-            # As soon as we have seen all object_identifiers, terminate the process.
-            if seen == all:
+            # As soon as we have mapped all object_identifiers, terminate the process.
+            if mapped == all:
                 break
 
-        self.__clusters = self.__filter_mappings(mapping_list)
+        self.__clusters = self.__get_final_mappings(mapping_list)
 
         # Finally, replace object_identifier with computed cluster_uuid
         for cluster_uuid, object_identifier_cluster in self.__clusters.items():
@@ -160,9 +160,9 @@ class ObjectMatcher:
                 self.__input_batch_df.loc[mask, 'object_identifier'] = cluster_uuid
         return self.__input_batch_df
 
-    def __filter_mappings(self, mapping_list):
+    def __get_final_mappings(self, mapping_list):
         """
-        Filter generated mappings.
+        Return a dict of object_identifier mappings from a list of mappings.
 
         :param mapping_list: list of mappings
         :type mapping_list: list
