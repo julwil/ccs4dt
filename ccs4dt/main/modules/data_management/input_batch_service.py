@@ -113,8 +113,6 @@ class InputBatchService:
         for mapping in self.__object_identifier_mapping_service.get_by_input_batch_id(input_batch_id):
             object_identifier_mappings[mapping['object_identifier']].append(mapping['external_object_identifier'])
 
-        positions = []
-
         query = f'''
                 from(bucket: "ccs4dt")
                   |> range(start: 1970-01-01T00:00:00Z)
@@ -123,13 +121,23 @@ class InputBatchService:
                   |> filter(fn: (r) => r["input_batch_id"] == "{input_batch_id}")
                   |> group(columns: ["object_identifier"])
                 '''
+        positions = []
+
         for table in self.__influx_db.query_api.query(org='ccs4dt', query=query):
-            position = {}
+            object_positions = defaultdict(dict)
+            object_identifier = ''
             for record in table.records:
-                position['object_identifier'] = record.values.get('object_identifier')
-                position[record.get_field()] = record.get_value()
-                position['timestamp'] = int(record.get_time().timestamp() * 1000)  # Milliseconds
-            positions.append(position)
+                timestamp = int(record.get_time().timestamp() * 1000)
+                object_identifier = record.values.get('object_identifier')
+                object_positions[timestamp][record.get_field()] = record.get_value()
+
+            for timestamp, fields in object_positions.items():
+                positions.append({
+                    'object_identifier': object_identifier,
+                    'timestamp': timestamp,
+                    **fields
+                })
+
         return {
             'input_batch_id': input_batch['id'],
             'location_id': input_batch['location_id'],
