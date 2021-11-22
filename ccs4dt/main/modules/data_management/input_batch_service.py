@@ -147,15 +147,15 @@ class InputBatchService:
         :type: list
         """
         write_precision = WritePrecision.MS  # For now hardcoded to milliseconds
-        for measurement in output_batch:
+        for prediction in output_batch:
             point = Point("object_positions") \
-                .tag("object_identifier", measurement['object_identifier']) \
+                .tag("object_identifier", prediction['object_identifier']) \
                 .tag("input_batch_id", input_batch_id) \
-                .field("x", measurement["x"]) \
-                .field("y", measurement["y"]) \
-                .field("z", measurement["z"]) \
+                .field("x", prediction["x"]) \
+                .field("y", prediction["y"]) \
+                .field("z", prediction["z"]) \
                 .field("confidence", 1.0) \
-                .time(measurement["timestamp"], write_precision=write_precision)
+                .time(prediction["timestamp"], write_precision=write_precision)
             self.__influx_db.write_api.write("ccs4dt", "ccs4dt", point, write_precision=write_precision)
 
     def get_all_by_location_id(self, location_id):
