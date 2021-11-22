@@ -81,7 +81,8 @@ class ProcessBatchThread(threading.Thread):
         pass
 
     def __persist(self):
-        self.__input_batch_df['timestamp'] = self.__input_batch_df.index.get_level_values(0)
+        self.__input_batch_df.drop(['object_identifier'], axis=1, inplace=True)
+        self.__input_batch_df.reset_index(drop=False, inplace=True)
         self.__input_batch_df['timestamp'] = self.__input_batch_df['timestamp'].view(
             np.int64) // 10 ** 6  # Convert back timestamp
         output_batch = self.__input_batch_df.to_dict(orient='records')
