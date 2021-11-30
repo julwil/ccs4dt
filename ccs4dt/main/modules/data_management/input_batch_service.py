@@ -113,8 +113,6 @@ class InputBatchService:
         for mapping in self.__object_identifier_mapping_service.get_by_input_batch_id(input_batch_id):
             object_identifier_mappings[mapping['object_identifier']].append(mapping['external_object_identifier'])
 
-        positions = []
-
         query = f'''
                 from(bucket: "ccs4dt")
                   |> range(start: 1970-01-01T00:00:00Z)
@@ -123,13 +121,23 @@ class InputBatchService:
                   |> filter(fn: (r) => r["input_batch_id"] == "{input_batch_id}")
                   |> group(columns: ["object_identifier"])
                 '''
+        positions = []
+
         for table in self.__influx_db.query_api.query(org='ccs4dt', query=query):
-            position = {}
+            object_positions = defaultdict(dict)
+            object_identifier = ''
             for record in table.records:
-                position['object_identifier'] = record.values.get('object_identifier')
-                position[record.get_field()] = record.get_value()
-                position['timestamp'] = int(record.get_time().timestamp() * 1000)  # Milliseconds
-            positions.append(position)
+                timestamp = int(record.get_time().timestamp() * 1000)
+                object_identifier = record.values.get('object_identifier')
+                object_positions[timestamp][record.get_field()] = record.get_value()
+
+            for timestamp, fields in object_positions.items():
+                positions.append({
+                    'object_identifier': object_identifier,
+                    'timestamp': timestamp,
+                    **fields
+                })
+
         return {
             'input_batch_id': input_batch['id'],
             'location_id': input_batch['location_id'],
@@ -147,15 +155,15 @@ class InputBatchService:
         :type: list
         """
         write_precision = WritePrecision.MS  # For now hardcoded to milliseconds
-        for measurement in output_batch:
+        for prediction in output_batch:
             point = Point("object_positions") \
-                .tag("object_identifier", measurement['object_identifier']) \
+                .tag("object_identifier", prediction['object_identifier']) \
                 .tag("input_batch_id", input_batch_id) \
-                .field("x", measurement["x"]) \
-                .field("y", measurement["y"]) \
-                .field("z", measurement["z"]) \
+                .field("x", prediction["x"]) \
+                .field("y", prediction["y"]) \
+                .field("z", prediction["z"]) \
                 .field("confidence", 1.0) \
-                .time(measurement["timestamp"], write_precision=write_precision)
+                .time(prediction["timestamp"], write_precision=write_precision)
             self.__influx_db.write_api.write("ccs4dt", "ccs4dt", point, write_precision=write_precision)
 
     def get_all_by_location_id(self, location_id):
