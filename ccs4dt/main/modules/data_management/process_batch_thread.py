@@ -92,4 +92,4 @@ class ProcessBatchThread(threading.Thread):
         self.__input_batch_service.update_status(self.__input_batch_id, new_status)
 
     def __unique_identifiers(self):
-        self.__input_batch_df['object_identifier'] = self.__input_batch_df['object_identifier'] + self.__input_batch_df['sensor_identifier']
+        self.__input_batch_df['object_identifier'] = self.__input_batch_df['object_identifier'] + '___' + self.__input_batch_df['sensor_identifier']
