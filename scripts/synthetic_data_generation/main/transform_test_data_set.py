@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 import random
 import requests
 import json
+import time
 
 
 
@@ -350,9 +351,6 @@ class Sensor(object):
     def check_sensor_measurement_distance(self, distance_to_point):
 
         random_chance = random.randint(0,100)
-        # print(random_chance) 
-        # print(distance_to_point)
-        # print(type(distance_to_point))
         is_measured = True if random_chance > (self.stability_function(self, distance_to_point)*100) else False
 
         return(is_measured)
@@ -839,6 +837,9 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, i
     measurement_dataframe['date'] = [x for x in true_position_dataframe['date']]
     measurement_dataframe['time'] = [x for x in true_position_dataframe['time']]
     measurement_dataframe['date_time'] = [x for x in true_position_dataframe['date_time']]
+    measurement_dataframe['timestamp'] = [time.mktime(x.timetuple()) for x in true_position_dataframe['date_time']]
+
+   
 
     # Add sensor id, sensor type and occupant id
     measurement_dataframe['occupant_id'] = true_position_dataframe['occupant_id'].astype(str)

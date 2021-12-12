@@ -10,233 +10,6 @@ from requests import api
 from scripts.synthetic_data_generation.main.transform_test_data_set import CoordinateSystem, Sensor, Location, simulate_sensor_measurement_for_multiple_sensors
 
 # TODO: Write documentation
-def generate_fake_data():
-
-    fake_api_output = {
-        "input_batch_id": 131,
-        "location_id": 93,
-        "object_identifier_mappings": {
-            "61204d02-e2b2-4959-9ae9-e4453120bcf4":  
-            {
-                "ffe7048b-9cae-4845-b561-baed2913eff8": ["39202"],
-                "b1c162be-22e4-419a-ad54-020f165ac7c2": ["39202"],
-                "20affda5-dce1-4d46-ab8b-ba2de6cbdecd": ["39202"]
-            }
-            ,
-            "a76b4b03-5c46-4382-bfd6-b9a8baa13295": 
-            {
-                "ffe7048b-9cae-4845-b561-baed2913eff8": ["39222"],
-                "20affda5-dce1-4d46-ab8b-ba2de6cbdecd": ["37957"]
-            }
-            ,
-
-            "84a10ccd-9c15-4c5a-96b1-3ddf91be9f32": 
-            {
-                "20affda5-dce1-4d46-ab8b-ba2de6cbdecd": ["39222"]
-            }
-            ,
-
-            "2f83cdf2-c5d9-4986-a7d5-d0ad50b96b65": 
-            {
-                "b1c162be-22e4-419a-ad54-020f165ac7c2": ["37957"]
-            }
-            ,
-        },
-        "positions": [
-            {
-                "object_identifier": "2f83cdf2-c5d9-4986-a7d5-d0ad50b96b65",
-                "confidence": 1.0,
-                "timestamp": 1559376006000,
-                "x": 242.92016573379493,
-                "y": 237.7153713751764,
-                "z": 39.07671300353569
-            },
-            {
-                "object_identifier": "61204d02-e2b2-4959-9ae9-e4453120bcf4",
-                "confidence": 1.0,
-                "timestamp": 1559376006000,
-                "x": 384.0217205510169,
-                "y": 99.89764945583775,
-                "z": 24.664297962724383
-            },
-            {
-                "object_identifier": "84a10ccd-9c15-4c5a-96b1-3ddf91be9f32",
-                "confidence": 1.0,
-                "timestamp": 1559376002000,
-                "x": 173.25836702570462,
-                "y": 282.41745763347814,
-                "z": 56.82374895066931
-            },
-            {
-                "object_identifier": "a76b4b03-5c46-4382-bfd6-b9a8baa13295",
-                "confidence": 1.0,
-                "timestamp": 1559376007000,
-                "x": 225.67293764364638,
-                "y": 227.40511153799474,
-                "z": 22.836052331421442
-            }
-        ]
-    }
-
-    fake_input_data = [
-        {
-            "object_identifier": "37957",
-            "x": 243.0,
-            "y": 275.0,
-            "z": 11.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376000000
-        },
-        {
-            "object_identifier": "37957",
-            "x": 271.0,
-            "y": 232.0,
-            "z": -9.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376000495
-        },
-        {
-            "object_identifier": "39202",
-            "x": 348.0,
-            "y": 117.0,
-            "z": 10.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376000691
-        },
-        {
-            "object_identifier": "39202",
-            "x": 336.0,
-            "y": 120.0,
-            "z": -9.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376000992
-        },
-        {
-            "object_identifier": "37957",
-            "x": 218.0,
-            "y": 254.0,
-            "z": -4.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376001002
-        },
-        {
-            "object_identifier": "39222",
-            "x": 169.0,
-            "y": 287.0,
-            "z": 27.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376001892
-        },
-        {
-            "object_identifier": "37957",
-            "x": 243.0,
-            "y": 243.0,
-            "z": -18.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376003496
-        },
-        {
-            "object_identifier": "37957",
-            "x": 234.0,
-            "y": 255.0,
-            "z": 0.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376004000
-        },
-        {
-            "object_identifier": "39202",
-            "x": 353.0,
-            "y": 102.0,
-            "z": -5.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376004992
-        },
-        {
-            "object_identifier": "39202",
-            "x": 339.0,
-            "y": 147.0,
-            "z": 18.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376005197
-        },
-        {
-            "object_identifier": "39202",
-            "x": 387.0,
-            "y": 104.0,
-            "z": 4.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376006490
-        },
-        {
-            "object_identifier": "37957",
-            "x": 242.0,
-            "y": 212.0,
-            "z": -17.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376006499
-        },
-        {
-            "object_identifier": "37957",
-            "x": 210.0,
-            "y": 243.0,
-            "z": 3.0,
-            "sensor_type": "RFID",
-            "sensor_identifier": "20affda5-dce1-4d46-ab8b-ba2de6cbdecd",
-            "timestamp": 1559376007004
-        },
-        {
-            "object_identifier": "39222",
-            "x": 122.3869497573,
-            "y": 269.1892330254,
-            "z": 6.0212434949,
-            "sensor_type": "WiFi 2.4GHz",
-            "sensor_identifier": "ffe7048b-9cae-4845-b561-baed2913eff8",
-            "timestamp": 1559376000992
-        },
-        {
-            "object_identifier": "39202",
-            "x": 350.8086521583,
-            "y": 128.0728320727,
-            "z": -4.8731245164,
-            "sensor_type": "WiFi 2.4GHz",
-            "sensor_identifier": "ffe7048b-9cae-4845-b561-baed2913eff8",
-            "timestamp": 1559376000992
-        },
-        {
-            "object_identifier": "39202",
-            "x": 363.0,
-            "y": 129.0,
-            "z": 3.0,
-            "sensor_type": "camera",
-            "sensor_identifier": "b1c162be-22e4-419a-ad54-020f165ac7c2",
-            "timestamp": 1559376001186
-        },
-        {
-            "object_identifier": "37957",
-            "x": 238.0,
-            "y": 241.0,
-            "z": 10.0,
-            "sensor_type": "camera",
-            "sensor_identifier": "b1c162be-22e4-419a-ad54-020f165ac7c2",
-            "timestamp": 1559376006499
-        }
-    ]
-
-    return fake_input_data, fake_api_output
-
-# TODO: Write documentation
 class APIClient(object):
 
     def __init__(self) -> None:
@@ -321,13 +94,19 @@ class APIClient(object):
 
         return(json_data)
 
-    def end_to_end_API_test(location, sensors, api_endpoint_path, measurement_points = 250, return_simulation_output = True, print_progress = True, store_measurement_data_in_json_file = True):
+    def end_to_end_API_test(location, sensors, api_endpoint_path, measurement_points = 250, return_simulation_output = True, print_progress = True, store_measurement_data_in_json_file = True, debugger_files = False):
 
         # API request: GET all locations
         APIClient.API_get_all_locations_call(api_endpoint_path)
 
         # Construct test location payload
         location_payload = location.construct_json_payload()
+
+        # If debugger attribute is set, store API data in file
+        if(debugger_files):
+            with open('evaluation/assets/generated_files/location_payload.json', 'w') as text_file:
+                text_file.write(location_payload)
+            
 
         # API request: POST new location
         post_location_response, location_id, test_location_name = (APIClient.API_post_new_location_call(api_endpoint_path, location_payload))
@@ -338,13 +117,23 @@ class APIClient(object):
         # Generate synthetic measurement data payload
         API_payload = APIClient.convert_sensor_measurements_to_api_conform_payload(measurement_data, additional_file_generation = store_measurement_data_in_json_file)
 
+        if(debugger_files):
+            with open('evaluation/assets/generated_files/synthetic_measurement_payload.json', 'w') as text_file:
+                text_file.write(API_payload)
+
         # API request: POST new input batch
         post_input_batch_response, input_batch_id, input_batch_status, location_id_for_input_batch = APIClient.API_post_input_batch_call(api_endpoint_path, API_payload, location_id)
 
         if print_progress == True:
             # API request: GET input batch status
             print('Get input batch by id')
+
+            print('\n')
+
             print(APIClient.API_get_input_batch_by_id_call(api_endpoint_path, location_id_for_input_batch, input_batch_id))
+
+            print('\n')
+            print('\n')
 
         # API request: GET output batch based on generated id
         # Pause to let API process / check status before proceeding
@@ -367,8 +156,12 @@ class APIClient(object):
         output_batch_response = (APIClient.API_get_output_batch_call(api_endpoint_path, location_id_for_input_batch, input_batch_id))
 
         if print_progress == True:
+            print('\n')
             print('Get output batch by id')
             print(output_batch_response)
+
+            print('\n')
+            print('\n')
 
         if return_simulation_output == True:
             return output_batch_response, measurement_data
@@ -406,12 +199,11 @@ class PredictionEvaluator(object):
         pred_initial_obj_id_list = []
 
         for pred_obj_id in self.object_identifier_mappings:
-            for sensor_id in self.object_identifier_mappings[pred_obj_id]:
-                for initial_obj_id in self.object_identifier_mappings[pred_obj_id][sensor_id]:
-                    pred_obj_id_list.append(pred_obj_id)
-                    sensor_id_list.append(sensor_id)
-                    pred_initial_obj_id_list.append(initial_obj_id)
-
+            for combined_sensor_id_and_initial_object_id in self.object_identifier_mappings[pred_obj_id]:
+                input_namings_array = combined_sensor_id_and_initial_object_id.split("___", 1)
+                pred_obj_id_list.append(pred_obj_id)
+                sensor_id_list.append(input_namings_array[1])
+                pred_initial_obj_id_list.append(input_namings_array[0])
 
         object_identifier_dataframe = pd.DataFrame({'sensor_id_from_api_output': sensor_id_list,
                    'pred_obj_id': pred_obj_id_list,
@@ -419,15 +211,26 @@ class PredictionEvaluator(object):
         
         measurement_df = pd.DataFrame(self.measurement_data)
 
-        merged_identifier_df = pd.merge(measurement_df, object_identifier_dataframe, left_on=['object_identifier','sensor_identifier'], right_on = ['pred_initial_obj_id','sensor_id_from_api_output'])
+        # Type conversions to ensure that merging works correctly
+        measurement_df['sensor_id'] = measurement_df['sensor_id'].astype(str)
+        measurement_df['object_id'] = measurement_df['object_id'].astype(str)
+        object_identifier_dataframe['sensor_id_from_api_output'] = object_identifier_dataframe['sensor_id_from_api_output'].astype(str)
+        object_identifier_dataframe['pred_initial_obj_id'] = object_identifier_dataframe['pred_initial_obj_id'].astype(str)
+
+        merged_identifier_df = pd.merge(measurement_df, object_identifier_dataframe, left_on = ['sensor_id','object_id'], right_on = ['sensor_id_from_api_output','pred_initial_obj_id'], how= 'left')
+
+        # Error check for correct mapping
+        if(merged_identifier_df.empty):
+            raise ValueError('Mapping dataframe is empty')
 
         return merged_identifier_df
 
     # TODO: Write documentation
-    def add_prediction_data_to_merged_identifier_dataframe(self):
+    def add_prediction_data_to_merged_identifier_dataframe(self, debugger_files = False):
 
         merged_identifier_dataframe = self.add_object_identifier_mapping_to_measurement_dataframe()
 
+        
 
         pred_obj_id_list = []
         pred_timestamp_list = []
@@ -438,13 +241,14 @@ class PredictionEvaluator(object):
 
 
         for i in self.predicted_positions['positions']:
-            pred_obj_id_list.append(i['object_identifier'])
+            pred_obj_id_list.append(i['object_identifier'].split("___", 1)[0])
             pred_timestamp_list.append(i['timestamp'])
             pred_confidence_list.append(i['confidence'])
             pred_x_list.append(i['x'])
             pred_y_list.append(i['y'])
             pred_z_list.append(i['z'])
-        
+
+    
         prediction_df = pd.DataFrame({'temp_pred_obj_identifier': pred_obj_id_list,
                    'prediction_timestamp': pred_timestamp_list,
                    'prediction_confidence': pred_confidence_list,
@@ -453,7 +257,24 @@ class PredictionEvaluator(object):
                    'predicted_z': pred_z_list,
                    })
 
-        merged_prediction_df = pd.merge(merged_identifier_dataframe, prediction_df, how ='left', left_on=['pred_obj_id','timestamp'], right_on = ['temp_pred_obj_identifier','prediction_timestamp']).drop('temp_pred_obj_identifier', axis=1)
+        # Type conversions to ensure merge is working
+        prediction_df['prediction_timestamp'] = prediction_df['prediction_timestamp'].astype(float)
+        prediction_df['temp_pred_obj_identifier'] = prediction_df['temp_pred_obj_identifier'].astype(str)
+        merged_identifier_dataframe['pred_obj_id'] = merged_identifier_dataframe['pred_obj_id'].astype(str)
+
+
+
+        # Sort dataframes
+        merged_identifier_dataframe = merged_identifier_dataframe.sort_values(by='timestamp')
+        prediction_df = prediction_df.sort_values(by='prediction_timestamp')
+    
+
+        if(debugger_files):
+            merged_identifier_dataframe.to_excel('evaluation/assets/generated_files/merged_identifier_dataframe.xlsx')
+            prediction_df.to_excel('evaluation/assets/generated_files/prediction_df.xlsx')
+
+
+        merged_prediction_df = pd.merge_asof(merged_identifier_dataframe, prediction_df, left_on=['timestamp'], right_on = ['prediction_timestamp'], left_by=['object_id'], right_by=['temp_pred_obj_identifier'],direction='nearest')
 
         return merged_prediction_df
 
@@ -464,7 +285,7 @@ class PredictionEvaluator(object):
 
         #dataframe_with_matched_object_ids['object_id_matched_correctly'] = [(dataframe_with_matched_object_ids['pred_initial_obj_id'] == dataframe_with_matched_object_ids['object_identifier']) for x in dataframe_with_matched_object_ids['pred_initial_obj_id']]
 
-        dataframe_with_matched_object_ids['object_id_matched_correctly'] = np.where(dataframe_with_matched_object_ids['pred_initial_obj_id'] == dataframe_with_matched_object_ids['pred_initial_obj_id'], 'True', 'False')
+        dataframe_with_matched_object_ids['object_id_matched_correctly'] = np.where(dataframe_with_matched_object_ids['object_id'] == dataframe_with_matched_object_ids['pred_initial_obj_id'], 'True', 'False')
 
         object_matching_accuarcy = (sum(dataframe_with_matched_object_ids['object_id_matched_correctly'] == 'True')) / dataframe_with_matched_object_ids.shape[0]
         
@@ -472,10 +293,10 @@ class PredictionEvaluator(object):
 
     # TODO: Write documentation
     # TODO: Test when sufficient change in API was provided
-    def calculate_prediction_accuracy(self, accuracy_estimation_method = 'euclidean-distance'):
+    def calculate_prediction_accuracy(self, accuracy_estimation_method = 'euclidean-distance', debugger_files = False):
 
-        prediction_dataframe = self.add_prediction_data_to_merged_identifier_dataframe()
-        print(prediction_dataframe)
+        prediction_dataframe = self.add_prediction_data_to_merged_identifier_dataframe(debugger_files=debugger_files)
+ 
 
         def calculate_euclidean_distance_between_two_points(true_x, true_y, true_z, pred_x, pred_y, pred_z):
 
@@ -483,9 +304,13 @@ class PredictionEvaluator(object):
 
             return distance
 
+
         if accuracy_estimation_method == 'euclidean-distance':
-            prediction_dataframe['prediction_error'] = [calculate_euclidean_distance_between_two_points(prediction_dataframe['x'], prediction_dataframe['y'], prediction_dataframe['z'], prediction_dataframe['predicted_x'], prediction_dataframe['predicted_y'], prediction_dataframe['predicted_z']) for x in prediction_dataframe]
-        
+
+            prediction_dataframe['prediction_error'] = prediction_dataframe.apply(lambda row : calculate_euclidean_distance_between_two_points(row['x_original'], row['y_original'], row['z_original'],
+             row['predicted_x'], row['predicted_y'], row['predicted_z']), axis = 1)
+            
+            
         else:
             raise ValueError('Please select valid accuracy estimation method')
 
@@ -508,15 +333,22 @@ test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 3, 4000) # 3ms is aver
 test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
 
 
-# api_output, measurement_data = APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3], \
-#                                                             endpoint_path, measurement_points= 100, print_progress= False)
+api_output, measurement_data = APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3], \
+                                                             endpoint_path, measurement_points = 100, print_progress = False, debugger_files = True)
+
+
+test = PredictionEvaluator(api_output, measurement_data)
+
+print('---- Object matching accuracy ----')
+print(test.calculate_object_matching_accuracy())
+
+print('---- Position prediction accuracy ----')
+print(test.calculate_prediction_accuracy(debugger_files=True))
 
 
 
-# Generate fake data as long as Bug #13 exists in API
-f_input, f_output = generate_fake_data()
 
-test = PredictionEvaluator(f_output, f_input)
-
-test.calculate_prediction_accuracy()
-
+## TODO: If API crash -> log data and share data with Julius
+## TODO: visualize sensors in location -> Plot
+## TODO: Evaluation plots -> see how performance changes with additional sensors, different sensors, more data points, etc
+## TODO: Performance of API (CPU, RAM load) & Time based on measurement points
