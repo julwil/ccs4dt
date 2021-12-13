@@ -94,7 +94,7 @@ class APIClient(object):
 
         return(json_data)
 
-    def end_to_end_API_test(location, sensors, api_endpoint_path, measurement_points = 250, return_simulation_output = True, print_progress = True, store_measurement_data_in_json_file = True, debugger_files = False):
+    def end_to_end_API_test(location, sensors, api_endpoint_path, measurement_points = 250, return_simulation_output = True, print_progress = True, store_measurement_data_in_json_file = True, debugger_files = False, identifier_randomization_method = 'random', identifier_type = 'mac-address'):
 
         # API request: GET all locations
         APIClient.API_get_all_locations_call(api_endpoint_path)
@@ -112,7 +112,7 @@ class APIClient(object):
         post_location_response, location_id, test_location_name = (APIClient.API_post_new_location_call(api_endpoint_path, location_payload))
 
         # Simulate sensor data measurement
-        measurement_data = simulate_sensor_measurement_for_multiple_sensors(sensors, measurement_points)
+        measurement_data = simulate_sensor_measurement_for_multiple_sensors(sensors, measurement_points, identifier_randomization_method = identifier_randomization_method, identifier_type = identifier_type)
 
         # Generate synthetic measurement data payload
         API_payload = APIClient.convert_sensor_measurements_to_api_conform_payload(measurement_data, additional_file_generation = store_measurement_data_in_json_file)
@@ -288,6 +288,8 @@ class PredictionEvaluator(object):
         dataframe_with_matched_object_ids['object_id_matched_correctly'] = np.where(dataframe_with_matched_object_ids['object_id'] == dataframe_with_matched_object_ids['pred_initial_obj_id'], 'True', 'False')
 
         object_matching_accuarcy = (sum(dataframe_with_matched_object_ids['object_id_matched_correctly'] == 'True')) / dataframe_with_matched_object_ids.shape[0]
+
+        dataframe_with_matched_object_ids.to_excel('evaluation/assets/generated_files/dataframe_with_matched_object_ids.xlsx')
         
         return object_matching_accuarcy
 
@@ -334,7 +336,8 @@ test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, 
 
 
 api_output, measurement_data = APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3], \
-                                                             endpoint_path, measurement_points = 100, print_progress = False, debugger_files = True)
+                                                             endpoint_path, measurement_points = 1000, print_progress = False, debugger_files = True,
+                                                             identifier_randomization_method = 'sensor_and_object_based', identifier_type = 'mac-address')
 
 
 test = PredictionEvaluator(api_output, measurement_data)

@@ -768,7 +768,7 @@ def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_
 
 
 
-# TODO: only works with standard dataset, potentially extend to other dataset formats
+# TODO: only works with standard dataset, potentially extend to other (Livealytics?) dataset formats
 def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelevant_columns = True, transform_to_3D_data = True, starting_date = '01.06.2019', date_format = '%d.%m.%Y'):
     """Imports the true position dataset of the given format from source: https://www.kaggle.com/claytonmiller/occupancy-presencetrajectory-data-from-a-building/version/1
 
@@ -814,7 +814,7 @@ def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelev
 
 
 
-def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, identifier_randomization_method = 'none', identifier_type = 'mac-address'):
+def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, identifier_randomization_method = 'random', identifier_type = 'mac-address'):
     """Simulates measurement of one sensor
 
     :param true_position_dataframe: Dataframe that contains true positions
@@ -860,35 +860,24 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, i
     elif identifier_randomization_method == 'object_based':
         raise ValueError('Currently not implemented')
 
-    # TODO: implement variant
-    # Identifier assignment option where each object has a randomized identifier, regardless of the sensor measuring it 
-    # tl;dr random,constant id per device, regardless of sensor 
-    elif identifier_randomization_method == 'object_based':
-        raise ValueError('Currently not implemented')
-    
-    # TODO: implement variant
-    # Identifier assignment option where each object has a randomized identifier, specific to the sensor measuring it 
-    # tl;dr random,constant id per device and sensor combination
-    elif identifier_randomization_method == 'sensor_and_object_based':
-        raise ValueError('Currently not implemented')
-
-    # TODO: implement variant
     # Identifier assignment option where each object has a randomized identifier, specific to the sensor TYPE measuring it 
     # tl;dr random,constant id per device and sensor type combination
     elif identifier_randomization_method == 'sensor_and_object_based':
-        raise ValueError('Currently not implemented')
+        unique_ids = measurement_dataframe['occupant_id'].unique()
+        mapped_ids = [generate_random_object_id(randomization_type = identifier_type) for i in range(len(unique_ids))]
+        mapping_dictionary = dict(zip(unique_ids, mapped_ids))
+        measurement_dataframe['object_id'] = measurement_dataframe['occupant_id'].map(mapping_dictionary)
 
-    # TODO: implement variant
+
     # Identifier assignment option where each object measurement generates a random identifier that is constant for each sensor
     # tl;dr random id for every measurement of a specific sensor
     elif identifier_randomization_method == 'sensor_based':
         measurement_dataframe['object_id'] = generate_random_object_id(randomization_type = identifier_type)
 
-    # TODO: implement variant
     # Identifier assignment option where each object measurement generates a random identifier that does not stay constant over time
     # tl;dr random id for every measurement
     elif identifier_randomization_method == 'random':
-        measurement_dataframe['object_id'] = [generate_random_object_id(randomization_type = identifier_type) for x in true_position_dataframe['time']]
+        measurement_dataframe['object_id'] = [generate_random_object_id(randomization_type = identifier_type) for x in true_position_dataframe.index]
 
     else:
         raise ValueError('Please specify a valid identifier randomization option!')
@@ -942,11 +931,11 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, i
 
 
 # TODO: Write documentation
-def function_wrapper_data_ingestion(path, import_rows, measurement_sensor, identifier_randomization_method = 'none', identifier_type = 'mac-address'):
+def function_wrapper_data_ingestion(path, import_rows, measurement_sensor, identifier_randomization_method = 'random', identifier_type = 'mac-address'):
 
     imported_dataset = import_occupancy_presence_dataset(path, import_rows_count = import_rows)
 
-    simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, measurement_sensor, identifier_randomization_method, identifier_type)
+    simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, measurement_sensor, identifier_randomization_method = identifier_randomization_method, identifier_type = identifier_type)
 
     return simulation_data_dataframe
 
@@ -995,7 +984,7 @@ def generate_random_object_id(randomization_type = 'mac-address'):
 
 
 
-def simulate_sensor_measurement_for_multiple_sensors(sensors, number_of_true_positions_to_consider, identifier_randomization_method = 'none', identifier_type = 'mac-address'):
+def simulate_sensor_measurement_for_multiple_sensors(sensors, number_of_true_positions_to_consider, identifier_randomization_method = 'random', identifier_type = 'mac-address'):
 
     filepath = str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv'
 
@@ -1003,7 +992,7 @@ def simulate_sensor_measurement_for_multiple_sensors(sensors, number_of_true_pos
 
     # Ingest true position data and simulate measurements for each sensor
     for sensor in sensors:
-        simulated_single_sensor_measurements = function_wrapper_data_ingestion(filepath, number_of_true_positions_to_consider, sensor)
+        simulated_single_sensor_measurements = function_wrapper_data_ingestion(filepath, number_of_true_positions_to_consider, sensor, identifier_randomization_method = identifier_randomization_method, identifier_type = identifier_type)
 
         simulated_sensor_measurement_dataframe = simulated_sensor_measurement_dataframe.append(simulated_single_sensor_measurements)
 
