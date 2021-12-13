@@ -329,7 +329,7 @@ test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_coord_sys2 = CoordinateSystem(0,-1,1, 2,3,4)
 test_sensor = Sensor('RFID', test_coord_sys, 40, 20, 1000) # 20ms seems reasonable (https://electronics.stackexchange.com/questions/511278/low-latency-passive-rfid-solution)
 test_sensor3 = Sensor('camera', test_coord_sys, 10, 17, 5000) # 16.666 ms is equal to 60fps
-test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 3, 4000) # 3ms is average wifi latency
+test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 3, 4000) # 3ms is average wifi latency, source?
 
 # Generate test_location
 test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
@@ -347,7 +347,6 @@ print(test.calculate_object_matching_accuracy())
 
 print('---- Position prediction accuracy ----')
 print(test.calculate_prediction_accuracy(debugger_files=True))
-
 
 
 
