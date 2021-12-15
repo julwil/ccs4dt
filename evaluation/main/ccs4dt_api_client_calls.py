@@ -285,8 +285,6 @@ class PredictionEvaluator(object):
 
         dataframe_with_matched_object_ids = self.add_object_identifier_mapping_to_measurement_dataframe()
 
-        #dataframe_with_matched_object_ids['object_id_matched_correctly'] = [(dataframe_with_matched_object_ids['pred_initial_obj_id'] == dataframe_with_matched_object_ids['object_identifier']) for x in dataframe_with_matched_object_ids['pred_initial_obj_id']]
-
         dataframe_with_matched_object_ids['object_id_matched_correctly'] = np.where(dataframe_with_matched_object_ids['object_id'] == dataframe_with_matched_object_ids['pred_initial_obj_id'], 'True', 'False')
 
         object_matching_accuarcy = (sum(dataframe_with_matched_object_ids['object_id_matched_correctly'] == 'True')) / dataframe_with_matched_object_ids.shape[0]
@@ -298,7 +296,6 @@ class PredictionEvaluator(object):
         return object_matching_accuarcy
 
     # TODO: Write documentation
-    # TODO: Test when sufficient change in API was provided
     def calculate_prediction_accuracy(self, accuracy_estimation_method = 'euclidean-distance', debugger_files = False, output_include_dataframe = False):
 
         prediction_dataframe = self.add_prediction_data_to_merged_identifier_dataframe(debugger_files=debugger_files)
@@ -332,10 +329,6 @@ class PredictionEvaluator(object):
 
         else:
             return prediction_accuracy
-
-
-        ## TODO: Implement average deviation
-        ## TODO: Plot verteilung -> 8
 
 
 # Test setup parameters 
@@ -434,7 +427,6 @@ plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimen
 
 
 
-## TODO: If API crash -> log data and share data with Julius
 ## TODO: visualize sensors in location -> Plot
 ## TODO: Evaluation plots -> see how performance changes with additional sensors, different sensors, more data points, etc
 ## TODO: Performance of API (CPU, RAM load) & Time based on measurement points
