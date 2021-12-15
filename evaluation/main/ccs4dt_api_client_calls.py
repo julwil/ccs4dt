@@ -4,6 +4,8 @@ import json
 import pandas as pd
 import openpyxl
 import numpy as np
+import plotly.express as px
+import plotly.figure_factory as ff
 
 # Project internal imports
 from requests import api
@@ -290,12 +292,14 @@ class PredictionEvaluator(object):
         object_matching_accuarcy = (sum(dataframe_with_matched_object_ids['object_id_matched_correctly'] == 'True')) / dataframe_with_matched_object_ids.shape[0]
 
         dataframe_with_matched_object_ids.to_excel('evaluation/assets/generated_files/dataframe_with_matched_object_ids.xlsx')
+
+        ## TODO: Check count of persons -> was this correctly identified?
         
         return object_matching_accuarcy
 
     # TODO: Write documentation
     # TODO: Test when sufficient change in API was provided
-    def calculate_prediction_accuracy(self, accuracy_estimation_method = 'euclidean-distance', debugger_files = False):
+    def calculate_prediction_accuracy(self, accuracy_estimation_method = 'euclidean-distance', debugger_files = False, output_include_dataframe = False):
 
         prediction_dataframe = self.add_prediction_data_to_merged_identifier_dataframe(debugger_files=debugger_files)
  
@@ -311,15 +315,27 @@ class PredictionEvaluator(object):
 
             prediction_dataframe['prediction_error'] = prediction_dataframe.apply(lambda row : calculate_euclidean_distance_between_two_points(row['x_original'], row['y_original'], row['z_original'],
              row['predicted_x'], row['predicted_y'], row['predicted_z']), axis = 1)
-            
-            
+                  
         else:
             raise ValueError('Please select valid accuracy estimation method')
 
-        prediction_accuracy = prediction_dataframe['prediction_error'].sum()
+        prediction_accuracy_sum = prediction_dataframe['prediction_error'].sum()
+        prediction_accuracy_mean = prediction_dataframe['prediction_error'].mean()
+        prediction_accuracy_min = prediction_dataframe['prediction_error'].min()
+        prediction_accuracy_max = prediction_dataframe['prediction_error'].max()
+        prediction_accuracy_median = prediction_dataframe['prediction_error'].median()
 
-        return prediction_accuracy
+        prediction_accuracy = np.round([prediction_accuracy_sum, prediction_accuracy_mean, prediction_accuracy_min, prediction_accuracy_max, prediction_accuracy_median] ,2)
 
+        if output_include_dataframe:
+            return prediction_accuracy, prediction_dataframe
+
+        else:
+            return prediction_accuracy
+
+
+        ## TODO: Implement average deviation
+        ## TODO: Plot verteilung -> 8
 
 
 # Test setup parameters 
@@ -336,17 +352,85 @@ test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, 
 
 
 api_output, measurement_data = APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3], \
-                                                             endpoint_path, measurement_points = 1000, print_progress = False, debugger_files = True,
+                                                             endpoint_path, measurement_points = 10000, print_progress = False, debugger_files = True,
                                                              identifier_randomization_method = 'sensor_and_object_based', identifier_type = 'mac-address')
 
 
-test = PredictionEvaluator(api_output, measurement_data)
+prediction_outcome = PredictionEvaluator(api_output, measurement_data)
 
 print('---- Object matching accuracy ----')
-print(test.calculate_object_matching_accuracy())
+print(prediction_outcome.calculate_object_matching_accuracy())
 
 print('---- Position prediction accuracy ----')
-print(test.calculate_prediction_accuracy(debugger_files=True))
+position_prediction_accuracy, prediction_outcome_dataframe = prediction_outcome.calculate_prediction_accuracy(debugger_files = True, output_include_dataframe = True)
+print(position_prediction_accuracy)
+
+def plot_position_accuracy_distribution(dataframe, analysis_dimension = 'total', bin_size = 5):
+    
+    if analysis_dimension == 'total':
+        # Group data together
+        hist_data = [dataframe['prediction_error']]
+
+        group_labels = ['prediction_error - whole dataset']
+
+        # Create distplot with custom bin_size
+        fig = ff.create_distplot(hist_data, group_labels, bin_size = bin_size)
+
+        fig.write_html('evaluation/assets/generated_files/position_prediction_accuracy_plot_whole_dataset.html')
+        return None
+
+    elif analysis_dimension == 'sensor':
+        hist_data = []
+       
+        group_labels = []
+
+
+
+        for sensor in dataframe['sensor_id_from_api_output'].unique():
+            temp_sensor_type_label = dataframe[dataframe['sensor_id_from_api_output'] == sensor]['sensor_type'].unique()[0]
+
+            group_labels.append(temp_sensor_type_label + '___' + sensor)
+
+            temp_sensor_df = dataframe[dataframe['sensor_id_from_api_output'] == sensor]
+
+            hist_data.append(temp_sensor_df['prediction_error'])
+
+
+        # Create distplot with custom bin_size
+        fig = ff.create_distplot(hist_data, group_labels, bin_size = bin_size)
+
+        fig.write_html('evaluation/assets/generated_files/position_prediction_accuracy_plot_by_sensor.html')
+
+        return None
+
+    elif analysis_dimension == 'sensor_type':
+
+        hist_data = []
+       
+        group_labels = []
+
+
+        for sensor_type in dataframe['sensor_type'].unique():
+           
+            group_labels.append(sensor_type)
+
+            temp_sensor_df = dataframe[dataframe['sensor_type'] == sensor_type]
+
+            hist_data.append(temp_sensor_df['prediction_error'])
+
+
+        # Create distplot with custom bin_size
+        fig = ff.create_distplot(hist_data, group_labels, bin_size = bin_size)
+
+        fig.write_html('evaluation/assets/generated_files/position_prediction_accuracy_plot_by_sensor_type.html')
+
+        return None
+
+    else:
+        raise ValueError('Please input an available analysis_dimension. Currently supported are total, sensor and sensor_type.')
+
+plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'sensor_type')
+
 
 
 
