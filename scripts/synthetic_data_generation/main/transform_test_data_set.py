@@ -769,7 +769,7 @@ def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_
 
 
 # TODO: only works with standard dataset, potentially extend to other (Livealytics?) dataset formats
-def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelevant_columns = True, transform_to_3D_data = True, starting_date = '01.06.2019', date_format = '%d.%m.%Y'):
+def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelevant_columns = True, transform_to_3D_data = False, starting_date = '01.06.2019', date_format = '%d.%m.%Y'):
     """Imports the true position dataset of the given format from source: https://www.kaggle.com/claytonmiller/occupancy-presencetrajectory-data-from-a-building/version/1
 
     :param filepath: filepath of trueposition dataset
@@ -882,7 +882,7 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, i
     else:
         raise ValueError('Please specify a valid identifier randomization option!')
 
-    # Add original coords (can be dropped later, only for verification purposes)
+    # Add original coords (could be dropped later, only for evaluation purposes)
     measurement_dataframe['x_original'] = true_position_dataframe['x']
     measurement_dataframe['y_original'] = true_position_dataframe['y']
     measurement_dataframe['z_original'] = true_position_dataframe['z']
@@ -890,7 +890,7 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, i
     # Generate measurements (with random precision) in coordinate system of sensor
     measurement_dataframe['xyz_measured'] = ([(sensor.generate_random_point_in_sphere(x, y, z)) for x, y, z in zip(measurement_dataframe['x_original'], measurement_dataframe['y_original'], measurement_dataframe['z_original'])])
     # Unpack those measure coordinates
-    measurement_dataframe[['x_measured_abs_pos', 'y_measured_abs_pos','z_measured_abs_pos']] = pd.DataFrame(measurement_dataframe['xyz_measured'].tolist(), index=measurement_dataframe.index)
+    measurement_dataframe[['x_measured_abs_pos', 'y_measured_abs_pos', 'z_measured_abs_pos']] = pd.DataFrame(measurement_dataframe['xyz_measured'].tolist(), index=measurement_dataframe.index)
 
     # Transform measured coordinates into absolute coordinate system (frame of reference)
     measurement_dataframe['x_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, sensor.get_sensor_coordinate_system())[0]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
@@ -931,9 +931,9 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, i
 
 
 # TODO: Write documentation
-def function_wrapper_data_ingestion(path, import_rows, measurement_sensor, identifier_randomization_method = 'random', identifier_type = 'mac-address'):
+def function_wrapper_data_ingestion(path, import_rows, measurement_sensor, identifier_randomization_method = 'random', identifier_type = 'mac-address', transform_to_3D_data = False):
 
-    imported_dataset = import_occupancy_presence_dataset(path, import_rows_count = import_rows)
+    imported_dataset = import_occupancy_presence_dataset(path, import_rows_count = import_rows, transform_to_3D_data = transform_to_3D_data)
 
     simulation_data_dataframe = simulate_measure_data_from_true_positions(imported_dataset, measurement_sensor, identifier_randomization_method = identifier_randomization_method, identifier_type = identifier_type)
 
@@ -984,7 +984,7 @@ def generate_random_object_id(randomization_type = 'mac-address'):
 
 
 
-def simulate_sensor_measurement_for_multiple_sensors(sensors, number_of_true_positions_to_consider, identifier_randomization_method = 'random', identifier_type = 'mac-address'):
+def simulate_sensor_measurement_for_multiple_sensors(sensors, number_of_true_positions_to_consider, identifier_randomization_method = 'random', identifier_type = 'mac-address', transform_to_3D_data = False):
 
     filepath = str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv'
 
@@ -992,7 +992,8 @@ def simulate_sensor_measurement_for_multiple_sensors(sensors, number_of_true_pos
 
     # Ingest true position data and simulate measurements for each sensor
     for sensor in sensors:
-        simulated_single_sensor_measurements = function_wrapper_data_ingestion(filepath, number_of_true_positions_to_consider, sensor, identifier_randomization_method = identifier_randomization_method, identifier_type = identifier_type)
+        simulated_single_sensor_measurements = function_wrapper_data_ingestion(filepath, number_of_true_positions_to_consider, sensor, identifier_randomization_method = identifier_randomization_method, 
+        identifier_type = identifier_type, transform_to_3D_data = transform_to_3D_data)
 
         simulated_sensor_measurement_dataframe = simulated_sensor_measurement_dataframe.append(simulated_single_sensor_measurements)
 

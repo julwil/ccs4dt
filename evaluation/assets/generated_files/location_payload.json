@@ -3,7 +3,7 @@
     "external_identifier": "test_id_ext",
     "sensors": [
         {
-            "identifier": "7f45f52c-7b15-4a4f-83c2-bf1015fc6769",
+            "identifier": "0e927dbc-b3fc-471d-9015-3ef887f74caa",
             "type": "RFID",
             "x_origin": 6,
             "y_origin": -2,
@@ -14,7 +14,7 @@
             "measurement_unit": "cm"
         },
         {
-            "identifier": "b91ccac4-4c34-4ba7-991e-87696138ebe8",
+            "identifier": "b178b1e2-ef7a-4199-9b6f-340580dcb07c",
             "type": "WiFi 2.4GHz",
             "x_origin": 0,
             "y_origin": -1,
@@ -25,7 +25,7 @@
             "measurement_unit": "cm"
         },
         {
-            "identifier": "26d9f9ec-ff0a-427f-b558-1699d1f8cf64",
+            "identifier": "a9eba294-d065-4028-953e-473442055a00",
             "type": "camera",
             "x_origin": 6,
             "y_origin": -2,
