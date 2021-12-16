@@ -11,3 +11,4 @@ furo
 plotly
 pykalman
 openpyxl
+sklearn
