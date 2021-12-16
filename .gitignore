@@ -1,8 +1,12 @@
 ./.idea/*
 storage/*
 config/influx-configs
+.scripts/synteticDataGeneration/assets/sampledata/occupancy_presence_and_trajectories.csv
+scripts/synteticDataGeneration/assets/sampledata/occupancy_presence_and_trajectories.csv
 .scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv
 scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv
 .cache/*
 .pytest_cache
 **/__pycache__/
+*.pyc
+*/tempCodeRunnerFile.py

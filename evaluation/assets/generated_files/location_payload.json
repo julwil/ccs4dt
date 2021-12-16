@@ -1,0 +1,39 @@
+{
+    "name": "test_name",
+    "external_identifier": "test_id_ext",
+    "sensors": [
+        {
+            "identifier": "0e927dbc-b3fc-471d-9015-3ef887f74caa",
+            "type": "RFID",
+            "x_origin": 6,
+            "y_origin": -2,
+            "z_origin": 4,
+            "yaw": 0,
+            "pitch": -2,
+            "roll": 4,
+            "measurement_unit": "cm"
+        },
+        {
+            "identifier": "b178b1e2-ef7a-4199-9b6f-340580dcb07c",
+            "type": "WiFi 2.4GHz",
+            "x_origin": 0,
+            "y_origin": -1,
+            "z_origin": 1,
+            "yaw": 2,
+            "pitch": -1,
+            "roll": 1,
+            "measurement_unit": "cm"
+        },
+        {
+            "identifier": "a9eba294-d065-4028-953e-473442055a00",
+            "type": "camera",
+            "x_origin": 6,
+            "y_origin": -2,
+            "z_origin": 4,
+            "yaw": 0,
+            "pitch": -2,
+            "roll": 4,
+            "measurement_unit": "cm"
+        }
+    ]
+}

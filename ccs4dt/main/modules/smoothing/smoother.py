@@ -36,6 +36,10 @@ class Smoother:
     def __kalman_filtering(self, df):
         measurements = np.ma.masked_invalid(df[['x', 'y', 'z']])
 
+        # If we only have 1 row, there's nothing we can smooth.
+        if measurements.shape[0] == 1:
+            return df
+
         # [x, x_vel, y, y_vel, z, z_vel]
         initial_state_mean = [measurements[0, 0],
                               0,
