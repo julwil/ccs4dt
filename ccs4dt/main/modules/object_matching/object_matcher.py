@@ -158,6 +158,8 @@ class ObjectMatcher:
             for external_object_identifier in object_identifier_cluster:
                 mask = self.__input_batch_df.index.get_level_values('object_identifier') == external_object_identifier
                 self.__input_batch_df.loc[mask, 'object_identifier'] = cluster_uuid
+                self.__input_batch_df.loc[mask, 'external_object_identifier'] = external_object_identifier
+        self.__input_batch_df.set_index(keys=[self.__input_batch_df.index.get_level_values('timestamp'), 'object_identifier'], drop=True, inplace=True)
         return self.__input_batch_df
 
     def __get_final_mappings(self, mapping_list):
