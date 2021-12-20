@@ -158,6 +158,11 @@ class APIClient(object):
         
         output_batch_response = (APIClient.API_get_output_batch_call(api_endpoint_path, location_id_for_input_batch, input_batch_id))
 
+        # If debugger attribute is set, store API data in file
+        if(debugger_files):
+            with open('evaluation/assets/generated_files/output_batch_response.json', 'w') as text_file:
+                text_file.write(str(output_batch_response))
+
         if print_progress == True:
             print('\n')
             print('Get output batch by id')
@@ -232,9 +237,7 @@ class PredictionEvaluator(object):
     def add_prediction_data_to_merged_identifier_dataframe(self, debugger_files = False):
 
         merged_identifier_dataframe = self.add_object_identifier_mapping_to_measurement_dataframe()
-
-        
-
+  
         pred_obj_id_list = []
         pred_timestamp_list = []
         pred_confidence_list = []
@@ -305,8 +308,6 @@ class PredictionEvaluator(object):
             # Update mapping dictionary with best match key is true id, value is predicted id
             # TODO: Using [0][0] here takes the first highest value, if two values are equal this could result in an 'error' -> think of potential different solution
             identified_mapping_dictionary.update( { unique_true_occupant_id_list[i] : unique_predicted_object_id_list[best_mapping_result[0][0]] } )
-
-
         
         # Inverse dictionary
         inversed_identified_mapping_dictionary = {v: k for k, v in identified_mapping_dictionary.items()}
@@ -377,7 +378,7 @@ class PredictionEvaluator(object):
         prediction_accuracy_max = prediction_dataframe['prediction_error'].max()
         prediction_accuracy_median = prediction_dataframe['prediction_error'].median()
 
-        prediction_accuracy = np.round([prediction_accuracy_sum, prediction_accuracy_mean, prediction_accuracy_min, prediction_accuracy_max, prediction_accuracy_median] ,2)
+        prediction_accuracy = [prediction_accuracy_sum, prediction_accuracy_mean, prediction_accuracy_min, prediction_accuracy_max, prediction_accuracy_median]
 
         if output_include_dataframe:
             return prediction_accuracy, prediction_dataframe
@@ -391,9 +392,9 @@ endpoint_path = 'http://localhost:5000'
 
 test_coord_sys = CoordinateSystem(6,-2,4, 0,0,0)
 test_coord_sys2 = CoordinateSystem(0,-1,1, 2,3,4)
-test_sensor = Sensor('RFID', test_coord_sys, 40, 20, 1000) # 20ms seems reasonable (https://electronics.stackexchange.com/questions/511278/low-latency-passive-rfid-solution)
-test_sensor3 = Sensor('camera', test_coord_sys, 10, 17, 5000) # 16.666 ms is equal to 60fps
-test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 30, 3, 4000) # 3ms is average wifi latency, source?
+test_sensor = Sensor('RFID', test_coord_sys, 0, 0, 1000) # 20ms seems reasonable (https://electronics.stackexchange.com/questions/511278/low-latency-passive-rfid-solution)
+test_sensor3 = Sensor('camera', test_coord_sys, 0, 0, 5000) # 16.666 ms is equal to 60fps
+test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 0, 0, 4000) # 3ms is average wifi latency, source?
 
 # Generate test_location
 test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
@@ -401,7 +402,8 @@ test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, 
 
 api_output, measurement_data = APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3], \
                                                              endpoint_path, measurement_points = 100, print_progress = False, debugger_files = True,
-                                                             identifier_randomization_method = 'sensor_and_object_based', identifier_type = 'mac-address')
+                                                             identifier_randomization_method = 'sensor_and_object_based', identifier_type = 'mac-address',
+                                                             transform_to_3D_data = False)
 
 
 prediction_outcome = PredictionEvaluator(api_output, measurement_data)
