@@ -7,11 +7,11 @@ import numpy as np
 import plotly.express as px
 import plotly.figure_factory as ff
 from collections import defaultdict
+
+from sklearn.metrics.cluster import contingency_matrix
+
 # Clustering evaluation with bcubed metrics
 import bcubed
-
-from sklearn.metrics.cluster import contingency_matrix, adjusted_rand_score, normalized_mutual_info_score, adjusted_mutual_info_score, fowlkes_mallows_score
-
 
 # Project internal imports
 from requests import api
@@ -184,7 +184,6 @@ class APIClient(object):
 # TODO: Write documentation
 class PredictionEvaluator(object):
 
-
     def __init__(self, api_output, measurement_data):
         
         self.api_output = api_output
@@ -252,7 +251,7 @@ class PredictionEvaluator(object):
 
 
         for i in self.predicted_positions['positions']:
-            pred_obj_id_list.append(i['object_identifier'].split("___", 1)[0])
+            pred_obj_id_list.append(i['object_identifier'])
             pred_timestamp_list.append(i['timestamp'])
             pred_confidence_list.append(i['confidence'])
             pred_x_list.append(i['x'])
@@ -260,7 +259,7 @@ class PredictionEvaluator(object):
             pred_z_list.append(i['z'])
 
     
-        prediction_df = pd.DataFrame({'temp_pred_obj_identifier': pred_obj_id_list,
+        prediction_df = pd.DataFrame({'prediction_obj_identifier': pred_obj_id_list,
                    'prediction_timestamp': pred_timestamp_list,
                    'prediction_confidence': pred_confidence_list,
                    'predicted_x': pred_x_list,
@@ -270,25 +269,25 @@ class PredictionEvaluator(object):
 
         # Type conversions to ensure merge is working
         prediction_df['prediction_timestamp'] = prediction_df['prediction_timestamp'].astype(float)
-        prediction_df['temp_pred_obj_identifier'] = prediction_df['temp_pred_obj_identifier'].astype(str)
+        prediction_df['prediction_obj_identifier'] = prediction_df['prediction_obj_identifier'].astype(str)
         merged_identifier_dataframe['pred_obj_id'] = merged_identifier_dataframe['pred_obj_id'].astype(str)
 
         # Sort dataframes
         merged_identifier_dataframe = merged_identifier_dataframe.sort_values(by='timestamp')
         prediction_df = prediction_df.sort_values(by='prediction_timestamp')
-    
+          
+        merged_prediction_df = pd.merge_asof(merged_identifier_dataframe, prediction_df, left_on=['timestamp'], right_on = ['prediction_timestamp'], left_by=['pred_obj_id'], right_by=['prediction_obj_identifier'], direction='nearest')
 
         if(debugger_files):
             merged_identifier_dataframe.to_excel('evaluation/assets/generated_files/merged_identifier_dataframe.xlsx')
+            merged_prediction_df.to_excel('evaluation/assets/generated_files/merged_prediction_dataframe.xlsx')
             prediction_df.to_excel('evaluation/assets/generated_files/prediction_df.xlsx')
-
-
-        merged_prediction_df = pd.merge_asof(merged_identifier_dataframe, prediction_df, left_on=['timestamp'], right_on = ['prediction_timestamp'], left_by=['object_id'], right_by=['temp_pred_obj_identifier'],direction='nearest')
 
         return merged_prediction_df
 
+
     # TODO: Write documentation
-    def calculate_object_matching_accuracy(self, clustering_evaluation_method = 'naive'):
+    def calculate_object_matching_accuracy(self, clustering_evaluation_method = 'bcubed_fscore', debugger_files = True):
 
         dataframe_with_matched_object_ids = self.add_object_identifier_mapping_to_measurement_dataframe()
 
@@ -333,6 +332,7 @@ class PredictionEvaluator(object):
 
             dataframe_with_matched_object_ids['predicition_combined_sensor_object_id'] = dataframe_with_matched_object_ids['sensor_id_from_api_output'] + '___' +  dataframe_with_matched_object_ids['pred_initial_obj_id']
             
+            # TODO: Write documentation
             def generate_ground_truth_mapping_dict(dataframe_with_matched_object_ids):
 
                 # Dropping duplicates here ensures that no duplicates are later added to the sets
@@ -346,6 +346,7 @@ class PredictionEvaluator(object):
 
                 return gt_dict
 
+            # TODO: Write documentation
             def generate_prediction_mapping_dict(dataframe_with_matched_object_ids):
 
                 # Dropping duplicates here ensures that no duplicates are later added to the sets
@@ -391,19 +392,18 @@ class PredictionEvaluator(object):
         else:
             raise ValueError('Please select one of the available clustering evaluation methods')
 
-        dataframe_with_matched_object_ids.to_excel('evaluation/assets/generated_files/dataframe_with_matched_object_ids.xlsx')
+        if(debugger_files):
+            dataframe_with_matched_object_ids.to_excel('evaluation/assets/generated_files/dataframe_with_matched_object_ids.xlsx')
 
         return object_matching_accuracy
 
 
-
-
     # TODO: Write documentation
-    def calculate_prediction_accuracy(self, accuracy_estimation_method = 'euclidean-distance', debugger_files = False, output_include_dataframe = False):
+    def calculate_prediction_accuracy(self, accuracy_estimation_method = 'euclidean-distance', debugger_files = False, output_include_dataframe = False, clear_mot_threshold = 50):
 
         prediction_dataframe = self.add_prediction_data_to_merged_identifier_dataframe(debugger_files=debugger_files)
- 
 
+        # TODO: Write documentation
         def calculate_euclidean_distance_between_two_points(true_x, true_y, true_z, pred_x, pred_y, pred_z):
 
             distance = ((true_x - pred_x)**2 + (true_y - pred_y)**2 + (true_z - pred_z)**2)**(0.5)
@@ -415,17 +415,33 @@ class PredictionEvaluator(object):
 
             prediction_dataframe['prediction_error'] = prediction_dataframe.apply(lambda row : calculate_euclidean_distance_between_two_points(row['x_original'], row['y_original'], row['z_original'],
              row['predicted_x'], row['predicted_y'], row['predicted_z']), axis = 1)
+
+            prediction_accuracy_sum = prediction_dataframe['prediction_error'].sum()
+            prediction_accuracy_mean = prediction_dataframe['prediction_error'].mean()
+            prediction_accuracy_min = prediction_dataframe['prediction_error'].min()
+            prediction_accuracy_max = prediction_dataframe['prediction_error'].max()
+            prediction_accuracy_median = prediction_dataframe['prediction_error'].median()
+
+            prediction_accuracy = [prediction_accuracy_sum, prediction_accuracy_mean, prediction_accuracy_min, prediction_accuracy_max, prediction_accuracy_median]
+
+        # elif accuracy_estimation_method == 'CLEAR-MOT-metrics':
+
+        #     prediction_dataframe['prediction_error'] = prediction_dataframe.apply(lambda row : calculate_euclidean_distance_between_two_points(row['x_original'], row['y_original'], row['z_original'],
+        #                 row['predicted_x'], row['predicted_y'], row['predicted_z']), axis = 1)
+
+        #     prediction_dataframe['correctly_identified_according_to_clear_mot_threshold'] = np.where(prediction_dataframe['prediction_error'] <= clear_mot_threshold, 'True', 'False')
+            
+            
+
+        #     prediction_accuracy = 0
                   
         else:
             raise ValueError('Please select valid accuracy estimation method')
 
-        prediction_accuracy_sum = prediction_dataframe['prediction_error'].sum()
-        prediction_accuracy_mean = prediction_dataframe['prediction_error'].mean()
-        prediction_accuracy_min = prediction_dataframe['prediction_error'].min()
-        prediction_accuracy_max = prediction_dataframe['prediction_error'].max()
-        prediction_accuracy_median = prediction_dataframe['prediction_error'].median()
+        
 
-        prediction_accuracy = [prediction_accuracy_sum, prediction_accuracy_mean, prediction_accuracy_min, prediction_accuracy_max, prediction_accuracy_median]
+        if(debugger_files):
+            prediction_dataframe.to_excel('evaluation/assets/generated_files/full_prediction_dataframe.xlsx')
 
         if output_include_dataframe:
             return prediction_accuracy, prediction_dataframe
@@ -447,7 +463,7 @@ test_sensor2 = Sensor('WiFi 2.4GHz', test_coord_sys2, 0, 0, 4000) # 3ms is avera
 test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, test_sensor3])
 
 
-api_output, measurement_data = APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3], \
+api_output, measurement_data = APIClient.end_to_end_API_test(test_location, [test_sensor, test_sensor2, test_sensor3], \
                                                              endpoint_path, measurement_points = 1000, print_progress = False, debugger_files = True,
                                                              identifier_randomization_method = 'sensor_and_object_based', identifier_type = 'mac-address',
                                                              transform_to_3D_data = False)
@@ -528,9 +544,9 @@ def plot_position_accuracy_distribution(dataframe, analysis_dimension = 'total',
     else:
         raise ValueError('Please input an available analysis_dimension. Currently supported are total, sensor and sensor_type.')
 
-#plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'sensor_type')
-#plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'sensor')
-#plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'total')
+plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'sensor_type')
+plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'sensor')
+plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'total')
 
 
 
