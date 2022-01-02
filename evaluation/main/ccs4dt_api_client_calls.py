@@ -6,7 +6,12 @@ import openpyxl
 import numpy as np
 import plotly.express as px
 import plotly.figure_factory as ff
+from collections import defaultdict
+# Clustering evaluation with bcubed metrics
+import bcubed
+
 from sklearn.metrics.cluster import contingency_matrix, adjusted_rand_score, normalized_mutual_info_score, adjusted_mutual_info_score, fowlkes_mallows_score
+
 
 # Project internal imports
 from requests import api
@@ -287,8 +292,6 @@ class PredictionEvaluator(object):
 
         dataframe_with_matched_object_ids = self.add_object_identifier_mapping_to_measurement_dataframe()
 
-        ## TODO: Check count of persons -> was this correctly identified?
-
         true_occupant_id_list = dataframe_with_matched_object_ids['occupant_id'].values
         predicted_object_id_list = dataframe_with_matched_object_ids['pred_obj_id'].values
 
@@ -298,48 +301,92 @@ class PredictionEvaluator(object):
         contingency_matrix_true_occupant_vs_predicted_object = contingency_matrix(true_occupant_id_list, predicted_object_id_list)
 
         identified_mapping_dictionary = {}
-        
+
+
         # Iterate over contingency matrix
         for i, row in enumerate(contingency_matrix_true_occupant_vs_predicted_object):
 
-            # Find best mapping result for true occupant id <-> predicted object id
+            # Find best mapping result for true occupant id <-> predicted object id, necessary to be able to define mapping found by matching algorithm
             best_mapping_result = np.where(row == np.amax(row))
 
             # Update mapping dictionary with best match key is true id, value is predicted id
             # TODO: Using [0][0] here takes the first highest value, if two values are equal this could result in an 'error' -> think of potential different solution
             identified_mapping_dictionary.update( { unique_true_occupant_id_list[i] : unique_predicted_object_id_list[best_mapping_result[0][0]] } )
-        
-        # Inverse dictionary
-        inversed_identified_mapping_dictionary = {v: k for k, v in identified_mapping_dictionary.items()}
-        # Add mapping logic based on contingency matrix identifed mapping dictionary
-        dataframe_with_matched_object_ids['mapped_true_id_based_on_contingency_matrix'] = dataframe_with_matched_object_ids['pred_obj_id'].map(inversed_identified_mapping_dictionary)
+
+            # Inverse dictionary
+            inversed_identified_mapping_dictionary = {v: k for k, v in identified_mapping_dictionary.items()}
+            # Add mapping logic based on contingency matrix identifed mapping dictionary
+            dataframe_with_matched_object_ids['mapped_true_id_based_on_contingency_matrix'] = dataframe_with_matched_object_ids['pred_obj_id'].map(inversed_identified_mapping_dictionary)
 
         if clustering_evaluation_method == 'naive':
             # Add boolean variable if object was correctly matched or not
-            dataframe_with_matched_object_ids['object_id_matched_correctly'] = np.where(dataframe_with_matched_object_ids['occupant_id'] == dataframe_with_matched_object_ids['mapped_true_id_based_on_contingency_matrix'], 'True', 'False')
-
-            object_matching_accuracy = (sum(dataframe_with_matched_object_ids['object_id_matched_correctly'] == 'True')) / dataframe_with_matched_object_ids.shape[0]
+            dataframe_with_matched_object_ids['object_id_matched_correctly_naive'] = np.where(dataframe_with_matched_object_ids['occupant_id'] == dataframe_with_matched_object_ids['mapped_true_id_based_on_contingency_matrix'], 'True', 'False')
+           
+            object_matching_accuracy = (sum(dataframe_with_matched_object_ids['object_id_matched_correctly_naive'] == 'True')) / dataframe_with_matched_object_ids.shape[0]
         
-        # TODO: Not yet working, need to think about solution for integer cluster mapping (as necessary for adjusted_rand_score method)
-        elif clustering_evaluation_method == 'adjusted_rand_index':
-            # Prerequist for adjusted_rand_score is that the clusters are labeled with integers -> integer mapping of clusters (occupant_ids) needs to be performed beforehand
-            integer_mapping_for_true_occupant_ids = {}
-            integer_mapping_for_predicted_occupant_ids = inversed_identified_mapping_dictionary
-            for i,value in enumerate(unique_true_occupant_id_list):
+       # Check if evaluation method is based on bcubed metrics
+        elif 'bcubed' in clustering_evaluation_method:
 
-                integer_mapping_for_true_occupant_ids.update( { value : i} )
+            # If yes, set up necessary ground_truth and prediction dictionaries
 
-            for i, value in enumerate(unique_predicted_object_id_list):
+            dataframe_with_matched_object_ids['ground_truth_combined_sensor_object_id'] = dataframe_with_matched_object_ids['sensor_id'] + '___' +  dataframe_with_matched_object_ids['object_id']
 
-                integer_mapping_for_predicted_occupant_ids.update( { value : i} )
+            dataframe_with_matched_object_ids['predicition_combined_sensor_object_id'] = dataframe_with_matched_object_ids['sensor_id_from_api_output'] + '___' +  dataframe_with_matched_object_ids['pred_initial_obj_id']
+            
+            def generate_ground_truth_mapping_dict(dataframe_with_matched_object_ids):
 
-            print(integer_mapping_for_predicted_occupant_ids)
-            dataframe_with_matched_object_ids['occupant_id_integer_clustering'] = dataframe_with_matched_object_ids['occupant_id'].map(integer_mapping_for_true_occupant_ids)
-            dataframe_with_matched_object_ids['mapped_true_id_based_on_contingency_matrix_integer_clustering'] = dataframe_with_matched_object_ids['pred_obj_id'].map(integer_mapping_for_predicted_occupant_ids)
+                # Dropping duplicates here ensures that no duplicates are later added to the sets
+                dataframe_for_analysis = dataframe_with_matched_object_ids[['occupant_id', 'ground_truth_combined_sensor_object_id']].drop_duplicates()
 
-            dataframe_with_matched_object_ids.to_excel('evaluation/assets/generated_files/dataframe_with_matched_object_ids.xlsx')
+                gt_dict = defaultdict(set)
+               
+               # Generates ground truth dataset dictonary
+                for idx,row in dataframe_for_analysis.iterrows():
+                    gt_dict[row['occupant_id']].add(row['ground_truth_combined_sensor_object_id'])
 
-            object_matching_accuracy = adjusted_rand_score(dataframe_with_matched_object_ids['occupant_id_integer_clustering'], dataframe_with_matched_object_ids['mapped_true_id_based_on_contingency_matrix_integer_clustering'])
+                return gt_dict
+
+            def generate_prediction_mapping_dict(dataframe_with_matched_object_ids):
+
+                # Dropping duplicates here ensures that no duplicates are later added to the sets
+                dataframe_for_analysis = dataframe_with_matched_object_ids[['mapped_true_id_based_on_contingency_matrix', 'predicition_combined_sensor_object_id']].drop_duplicates()
+
+                gt_dict = defaultdict(set)
+               
+               # Generates ground truth dataset dictonary
+                for idx,row in dataframe_for_analysis.iterrows():
+                    gt_dict[row['mapped_true_id_based_on_contingency_matrix']].add(row['predicition_combined_sensor_object_id'])
+
+                return gt_dict
+
+            ground_truth_mapping_dict = generate_ground_truth_mapping_dict(dataframe_with_matched_object_ids)
+
+            prediction_mapping_dict = generate_prediction_mapping_dict(dataframe_with_matched_object_ids)
+
+            # Check now which exact bcubed metric should be used 
+            # bcubed precision
+            if clustering_evaluation_method == 'bcubed_precision':
+                
+                object_matching_accuracy = bcubed.precision(ground_truth_mapping_dict, prediction_mapping_dict)
+            
+            # bcubed recall
+            elif clustering_evaluation_method == 'bcubed_recall':
+                
+                object_matching_accuracy = bcubed.recall(ground_truth_mapping_dict, prediction_mapping_dict)
+
+            # bcubed fscore
+            elif clustering_evaluation_method == 'bcubed_fscore':
+                
+                bcubed_precision = bcubed.precision(ground_truth_mapping_dict, prediction_mapping_dict)
+
+                bcubed_recall = bcubed.recall(ground_truth_mapping_dict, prediction_mapping_dict)
+
+                object_matching_accuracy = bcubed.fscore(bcubed_precision, bcubed_recall)
+
+            # Catch errors
+            else: 
+                raise ValueError('Please select one of the available clustering evaluation methods')
+            
 
         else:
             raise ValueError('Please select one of the available clustering evaluation methods')
@@ -401,18 +448,19 @@ test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, 
 
 
 api_output, measurement_data = APIClient.end_to_end_API_test(test_location,[test_sensor, test_sensor2, test_sensor3], \
-                                                             endpoint_path, measurement_points = 100, print_progress = False, debugger_files = True,
+                                                             endpoint_path, measurement_points = 1000, print_progress = False, debugger_files = True,
                                                              identifier_randomization_method = 'sensor_and_object_based', identifier_type = 'mac-address',
                                                              transform_to_3D_data = False)
 
 
 prediction_outcome = PredictionEvaluator(api_output, measurement_data)
 
-selected_clustering_evaluation_method = 'naive'
+selected_clustering_evaluation_method = ['bcubed_recall','bcubed_precision','bcubed_fscore']
 
-print('---- Object matching accuracy ----')
-print('Chosen clustering evaluation method: %s'%(selected_clustering_evaluation_method))
-print(prediction_outcome.calculate_object_matching_accuracy(clustering_evaluation_method = selected_clustering_evaluation_method))
+for i in selected_clustering_evaluation_method:
+    print('---- Object matching accuracy ----')
+    print('Chosen clustering evaluation method: %s'%(i))
+    print(prediction_outcome.calculate_object_matching_accuracy(clustering_evaluation_method = i))
 
 print('---- Position prediction accuracy in cm [sum, mean, min, max, median] ----')
 position_prediction_accuracy, prediction_outcome_dataframe = prediction_outcome.calculate_prediction_accuracy(debugger_files = True, output_include_dataframe = True)
@@ -480,9 +528,9 @@ def plot_position_accuracy_distribution(dataframe, analysis_dimension = 'total',
     else:
         raise ValueError('Please input an available analysis_dimension. Currently supported are total, sensor and sensor_type.')
 
-plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'sensor_type')
-plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'sensor')
-plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'total')
+#plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'sensor_type')
+#plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'sensor')
+#plot_position_accuracy_distribution(prediction_outcome_dataframe, analysis_dimension = 'total')
 
 
 
