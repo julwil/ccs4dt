@@ -98,9 +98,9 @@ def visualize_3D_movement_data(dataset):
 
     fig = px.scatter_3d(dataset, x = 'x', y = 'y', z = 'z', animation_frame='timestamp',
            color="object_identifier", hover_name="object_identifier",
-           range_x=[min(dataset['x'])*0.9,max(dataset['x'])*1.1], 
-           range_y=[min(dataset['y'])*0.9,max(dataset['y'])*1.1],
-           range_z=[min(dataset['z'])*0.9,max(dataset['z'])*1.1])
+           range_x=[min(dataset['x'])*0.9,max(dataset['x'])*1.1], ## +/- 10% in every direction
+           range_y=[min(dataset['y'])*0.9,max(dataset['y'])*1.1], ## +/- 10% in every direction
+           range_z=[min(dataset['z'])*0.9,max(dataset['z'])*1.1]) ## +/- 10% in every direction
 
     fig.write_html('scripts/data_visualization/assets/generated_graphs/visualization_3D_movement_data.html')  
 
@@ -109,15 +109,18 @@ def visualize_2D_movement_data(dataset):
 
     fig = px.scatter(dataset, x = 'x', y = 'y', animation_frame='timestamp',
            color="object_identifier", hover_name="object_identifier",
-           range_x=[min(dataset['x'])*0.9,max(dataset['x'])*1.1], 
-           range_y=[min(dataset['y'])*0.9,max(dataset['y'])*1.1])
+           range_x=[min(dataset['x'])*0.9,max(dataset['x'])*1.1], ## +/- 10% in every direction
+           range_y=[min(dataset['y'])*0.9,max(dataset['y'])*1.1]) ## +/- 10% in every direction
 
     fig.update_traces(marker=dict(size=12,
                               line=dict(width=2,
                                         color='DarkSlateGrey')),
                   selector=dict(mode='markers'))
 
-    fig.write_html('scripts/data_visualization/assets/generated_graphs/visualization_2D_movement_data.html')  
+    fig.layout.updatemenus[0].buttons[0].args[1]['frame']['duration'] = 30
+    fig.layout.updatemenus[0].buttons[0].args[1]['transition']['duration'] = 5
+
+    fig.write_html('scripts/data_visualization/assets/generated_graphs/visualization_2D_movement_data_new.html')  
 
 
 
@@ -126,7 +129,7 @@ testfile_path = str(os.getcwd()) + '/scripts/data_visualization/assets/test_data
 API_path = 'http://localhost:5000/locations/20/inputs/17/outputs'
 
 
-visualize_3D_movement_data(source_API_output(testfile_path)[2])
+visualize_2D_movement_data(source_API_output(testfile_path)[2])
 
 
 #deprec_visualize_3D_movement_data('http://localhost:5000/', API_output_df[2], API_output_df[0], API_output_df[1])

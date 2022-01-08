@@ -13,3 +13,4 @@ pykalman
 openpyxl
 sklearn
 bcubed
+motmetrics
