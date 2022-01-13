@@ -418,7 +418,7 @@ class PredictionEvaluator(object):
 
 
     # TODO: Write documentation
-    def calculate_prediction_accuracy(self, accuracy_estimation_method = 'euclidean-distance', debugger_files = False, output_include_dataframe = False, clear_mot_threshold = 1000000, output_precision_euclidean_distance = 2):
+    def calculate_prediction_accuracy(self, accuracy_estimation_method = 'euclidean-distance', debugger_files = False, output_include_dataframe = False, clear_mot_threshold = 1000000, output_precision_euclidean_distance = 2, remove_upsamples = False):
 
         # TODO: Write documentation
         def calculate_euclidean_distance_between_two_points(true_x, true_y, true_z, pred_x, pred_y, pred_z):
@@ -448,8 +448,14 @@ class PredictionEvaluator(object):
             if output_include_dataframe == True:
                 raise ValueError('Not possible to output dataframe with CLEAR MOT metrics')
 
-            prediction_dataframe = self.generate_prediction_dataframe(add_matching_initial_identifiers = True)
             
+
+            if remove_upsamples:
+                prediction_dataframe = self.filter_false_positives_introduced_due_to_upsampling()
+            else:
+                prediction_dataframe = self.generate_prediction_dataframe()
+
+
             ground_truth_dataframe = self.add_object_identifier_mapping_to_measurement_dataframe()
 
             
@@ -590,6 +596,55 @@ class PredictionEvaluator(object):
         else:
             return prediction_accuracy
 
+    def filter_false_positives_introduced_due_to_upsampling(self):
+    
+        prediction_dataframe = self.generate_prediction_dataframe(add_matching_initial_identifiers = True)
+
+        input_dataframe = self.measurement_data
+
+        # def reduce_to_10_digits(input):
+        #     return (int(input/1000))
+
+        # input_dataframe['timestamp'] = input_dataframe['timestamp'].apply(reduce_to_10_digits)
+
+        unique_timestamp_list = list(set(input_dataframe['timestamp']))
+        
+        mapping_dictionary_timestamp_on_sensor_plus_object_identifier = {}
+
+        
+        # Generate filter dictionary for measurement data based on individual timestamps as keys
+        for i in unique_timestamp_list:
+
+            filtered_input_dataframe = input_dataframe[input_dataframe['timestamp'] == i]
+
+            # Type conversion to ensure both are strings for concatenation
+            filtered_input_dataframe['sensor_id'] =  filtered_input_dataframe['sensor_id'].astype(str)
+            filtered_input_dataframe['object_id'] =  filtered_input_dataframe['object_id'].astype(str)
+
+            columns_to_concat = ['object_id', 'sensor_id']
+            filtered_input_dataframe['sensor_plus_object_identifier'] = filtered_input_dataframe[columns_to_concat].apply(lambda row: '___'.join(row.values.astype(str)), axis=1)
+
+          
+            list_of_relevant_objects = list(filtered_input_dataframe['sensor_plus_object_identifier'].unique())
+
+            mapping_dictionary_timestamp_on_sensor_plus_object_identifier[int(i)] = list_of_relevant_objects
+
+        # TODO: Write documentation        
+        def list_compare(list1, list2):
+            # Check if both lists exist
+            if list2 == None:
+                    return False
+            else:
+                for val in list1:
+                    if val in list2:
+                        return True
+                return False
+
+        prediction_dataframe['is upsampled value'] = [list_compare(x, mapping_dictionary_timestamp_on_sensor_plus_object_identifier.get(y)) for x,y in zip(prediction_dataframe['mapping_keys'],prediction_dataframe['prediction_timestamp'])]
+
+        prediction_dataframe_without_upsamples = prediction_dataframe[prediction_dataframe['is upsampled value'] == True]
+
+        return(prediction_dataframe_without_upsamples)
 
 # Test setup parameters 
 endpoint_path = 'http://localhost:5000'
@@ -607,9 +662,10 @@ test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, 
 
 
 api_output, measurement_data = APIClient.end_to_end_API_test(test_location, [test_sensor, test_sensor2, test_sensor3, test_sensor4, test_sensor5], \
-                                                             endpoint_path, measurement_points = 30, print_progress = False, debugger_files = True,
+                                                             endpoint_path, measurement_points = 3000, print_progress = False, debugger_files = True,
                                                              identifier_randomization_method = 'sensor_and_object_based', identifier_type = 'mac-address',
                                                              transform_to_3D_data = False)
+
 
 prediction_outcome = PredictionEvaluator(api_output, measurement_data)
 
@@ -633,12 +689,22 @@ else:
     position_prediction_accuracy = prediction_outcome.calculate_prediction_accuracy(debugger_files = False, output_include_dataframe = output_dataframe_included, accuracy_estimation_method= metrics, clear_mot_threshold = clear_mot_threshold)
 print(position_prediction_accuracy)
 
-print('\n ---- Position prediction accuracy according to CLEAR MOT metrics [in cm² if metric with unit] ----')
+print('\n ---- Position prediction accuracy according to CLEAR MOT metrics [in cm² if metric with unit] WITH UPSAMPLED DATA ----')
 if output_dataframe_included:
     position_prediction_accuracy, prediction_outcome_dataframe = prediction_outcome.calculate_prediction_accuracy(debugger_files = False, output_include_dataframe = output_dataframe_included, accuracy_estimation_method= metrics2, clear_mot_threshold = clear_mot_threshold)
 else:
     position_prediction_accuracy = prediction_outcome.calculate_prediction_accuracy(debugger_files = False, output_include_dataframe = output_dataframe_included, accuracy_estimation_method= metrics2, clear_mot_threshold = clear_mot_threshold)
 print(position_prediction_accuracy)
+
+
+print('\n ---- Position prediction accuracy according to CLEAR MOT metrics [in cm² if metric with unit] WITHOUT UPSAMPLED DATA----')
+if output_dataframe_included:
+    position_prediction_accuracy, prediction_outcome_dataframe = prediction_outcome.calculate_prediction_accuracy(debugger_files = False, output_include_dataframe = output_dataframe_included, accuracy_estimation_method= metrics2, clear_mot_threshold = clear_mot_threshold, remove_upsamples = True)
+else:
+    position_prediction_accuracy = prediction_outcome.calculate_prediction_accuracy(debugger_files = False, output_include_dataframe = output_dataframe_included, accuracy_estimation_method= metrics2, clear_mot_threshold = clear_mot_threshold, remove_upsamples = True)
+print(position_prediction_accuracy)
+
+
 
 def print_CLEAR_MOT_explanation():
     print("Explanation: \n \

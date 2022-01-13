@@ -3,7 +3,7 @@
     "external_identifier": "test_id_ext",
     "sensors": [
         {
-            "identifier": "c0a04223-39fe-4a22-aa90-4d45665d67ee",
+            "identifier": "eef6913f-4226-403f-8f91-a01851ee9776",
             "type": "RFID",
             "x_origin": 6,
             "y_origin": -2,
@@ -14,7 +14,7 @@
             "measurement_unit": "cm"
         },
         {
-            "identifier": "1c273d77-87d1-4062-b493-cb007caba9fe",
+            "identifier": "42a0267f-d0a7-431d-ba90-d5e78a4f0a20",
             "type": "WiFi 2.4GHz",
             "x_origin": 0,
             "y_origin": -1,
@@ -25,7 +25,7 @@
             "measurement_unit": "cm"
         },
         {
-            "identifier": "e5600e3a-7df1-4921-aef0-eee01f477576",
+            "identifier": "22a6b0fe-14f4-409d-b082-c086e181416c",
             "type": "camera",
             "x_origin": 6,
             "y_origin": -2,
@@ -36,7 +36,7 @@
             "measurement_unit": "cm"
         },
         {
-            "identifier": "1bc995bc-e898-4cdb-a32c-bd6d361830a7",
+            "identifier": "789c7774-aeda-4e98-aec1-4f4296f10f1d",
             "type": "RFID",
             "x_origin": 6,
             "y_origin": -2,
@@ -47,7 +47,7 @@
             "measurement_unit": "cm"
         },
         {
-            "identifier": "48df42db-7c53-4a9c-980d-d53a920119b4",
+            "identifier": "88b56f9f-eec4-4c1c-a140-2ac709318a07",
             "type": "RFID",
             "x_origin": 6,
             "y_origin": -2,
