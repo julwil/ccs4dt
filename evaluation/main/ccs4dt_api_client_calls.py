@@ -662,7 +662,7 @@ test_location = Location('test_name', 'test_id_ext', [test_sensor,test_sensor2, 
 
 
 api_output, measurement_data = APIClient.end_to_end_API_test(test_location, [test_sensor, test_sensor2, test_sensor3, test_sensor4, test_sensor5], \
-                                                             endpoint_path, measurement_points = 3000, print_progress = False, debugger_files = True,
+                                                             endpoint_path, measurement_points = 1000, print_progress = False, debugger_files = True,
                                                              identifier_randomization_method = 'sensor_and_object_based', identifier_type = 'mac-address',
                                                              transform_to_3D_data = False)
 
@@ -691,7 +691,7 @@ print(position_prediction_accuracy)
 
 print('\n ---- Position prediction accuracy according to CLEAR MOT metrics [in cm² if metric with unit] WITH UPSAMPLED DATA ----')
 if output_dataframe_included:
-    position_prediction_accuracy, prediction_outcome_dataframe = prediction_outcome.calculate_prediction_accuracy(debugger_files = False, output_include_dataframe = output_dataframe_included, accuracy_estimation_method= metrics2, clear_mot_threshold = clear_mot_threshold)
+    print('Not possible to output dataframe with CLEAR MOT metrics')
 else:
     position_prediction_accuracy = prediction_outcome.calculate_prediction_accuracy(debugger_files = False, output_include_dataframe = output_dataframe_included, accuracy_estimation_method= metrics2, clear_mot_threshold = clear_mot_threshold)
 print(position_prediction_accuracy)
@@ -699,7 +699,7 @@ print(position_prediction_accuracy)
 
 print('\n ---- Position prediction accuracy according to CLEAR MOT metrics [in cm² if metric with unit] WITHOUT UPSAMPLED DATA----')
 if output_dataframe_included:
-    position_prediction_accuracy, prediction_outcome_dataframe = prediction_outcome.calculate_prediction_accuracy(debugger_files = False, output_include_dataframe = output_dataframe_included, accuracy_estimation_method= metrics2, clear_mot_threshold = clear_mot_threshold, remove_upsamples = True)
+    print('Not possible to output dataframe with CLEAR MOT metrics')
 else:
     position_prediction_accuracy = prediction_outcome.calculate_prediction_accuracy(debugger_files = False, output_include_dataframe = output_dataframe_included, accuracy_estimation_method= metrics2, clear_mot_threshold = clear_mot_threshold, remove_upsamples = True)
 print(position_prediction_accuracy)
