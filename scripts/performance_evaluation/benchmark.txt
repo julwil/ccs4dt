@@ -1,0 +1,129 @@
+      BENCHMARK SUMMARY
+===============================
+
+N:           100 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 0.5218721218 s (runtime in seconds)
+RUNTIMES:    [520193773, 521944202, 521984297, 524250789, 517436697, 524230796, 523546722, 521211543, 518650324, 525272075] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           200 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 1.0783897336 s (runtime in seconds)
+RUNTIMES:    [1052067432, 1022759575, 1083701154, 1056419346, 1082932023, 1137226431, 1080884235, 1056315473, 1159039187, 1052552480] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           400 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 1.5952066759 s (runtime in seconds)
+RUNTIMES:    [1599151327, 1690982216, 1697617906, 1571779846, 1531520985, 1537815205, 1682306355, 1555747389, 1533099908, 1552045622] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           800 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 2.642436763 s (runtime in seconds)
+RUNTIMES:    [2631197006, 2720872646, 2688130003, 2624422704, 2603118284, 2622840639, 2624366684, 2641076983, 2633410260, 2634932421] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           1600 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 5.7582682458 s (runtime in seconds)
+RUNTIMES:    [5844222046, 5771919548, 5760565304, 5749024858, 5858473393, 5409557211, 5870732702, 5772747084, 5865657392, 5679782920] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           3200 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 10.06419825 s (runtime in seconds)
+RUNTIMES:    [10083398010, 10138985817, 9982770341, 10024555846, 10126786460, 10126569725, 10043547954, 10021992358, 10100290859, 9993085130] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           6400 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 22.0380563951 s (runtime in seconds)
+RUNTIMES:    [30396443861, 30256101171, 26716969570, 18761118996, 18934935422, 19089096930, 18974246853, 18739835533, 19481617949, 19030197666] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           12800 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 39.7512794671 s (runtime in seconds)
+RUNTIMES:    [39907976185, 39761018149, 39856111738, 39618314824, 39388249954, 39833972445, 38985416029, 39696801361, 40493303555, 39971630431] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           25600 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 84.1681966471 s (runtime in seconds)
+RUNTIMES:    [84227832884, 84169550090, 83953541481, 84095241770, 84084704284, 84284597733, 84051984297, 84002279917, 84440760620, 84371473395] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           51200 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 172.1681 s (runtime in seconds)
+RUNTIMES:    [217868533305, 170437982269, 170617821397, 17071641188, 17007090522, 172435289583, 172970232329, 172970232428, 172970283185, 171967683518] (ns)
+
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           55000 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 187.41210325039998 s (runtime in seconds)
+RUNTIMES:    [199803646594, 186299064473, 186256695667, 188024696870, 185301059999, 186196840006, 185178226972, 185405467998, 185772195923, 185883138002] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           60000 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 202.92174777510002 s (runtime in seconds)
+RUNTIMES:    [201282168369, 202757686628, 203853758490, 202557436654, 202300822435, 202399898822, 201659071190, 207652084639, 201396790711, 203357759813] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           65000 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 224.13364719220002 s (runtime in seconds)
+RUNTIMES:    [223651682172, 222849612053, 221628019569, 224357147812, 223562219648, 223547383574, 227054255825, 223683861144, 226125004445, 224877285680] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           70000 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 236.8327698022 s (runtime in seconds)
+RUNTIMES:    [239745790260, 234534201322, 239260672409, 236846834873, 236082903898, 238330648125, 236580089702, 235358936471, 235077445073, 236510175889] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           75000 (input size)
+ITER:        10 (number of iterations)
+AVG RUNTIME: 254.8327698022 s (runtime in seconds)
+RUNTIMES:    [250987733265, 254430982603, 254362086422, 251527717595, 250978666892, 253101010578, 253101010578, 254813131001, 255813831085, 254964785137] (ns)
+
+      BENCHMARK SUMMARY
+===============================
+
+N:           80000 (input size)
+ITER:        1 (number of iterations)
+AVG RUNTIME: 773.740031914 s (runtime in seconds)
+RUNTIMES:    [773740031914] (ns)
+

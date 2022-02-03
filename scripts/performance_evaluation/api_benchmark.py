@@ -51,7 +51,7 @@ def benchmark(location_id, input_batch, n, max_iter=10):
     log("")
     log("Done")
 
-    with open('benchmark_1.txt', 'a') as file:
+    with open('benchmark.txt', 'a') as file:
         file.write(summary)
         file.write("\n\n")
 
