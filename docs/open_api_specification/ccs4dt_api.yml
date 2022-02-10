@@ -1,0 +1,444 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: ccs4dt API
+    url: https://virtserver.swaggerhub.com/julwil/ccs4dt/1.0.0
+info:
+  description: ccs4dt API
+  version: "1.0.0"
+  title: ccs4dt API
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: Location
+    description: Location or venue where measurements were collected
+  - name: Input Batch
+    description: Batch of input measurement data collected by sensors in a location
+  - name: Output Batch
+    description: Output of processed input data containing location prediction
+paths:
+  /locations:
+    post:
+      tags:
+        - Location
+      summary: Creates a new location
+      description: Creates a new location with the provided configuration
+      responses:
+        '201':
+          description: Location successfully created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Location'
+                  - type: object
+                  - properties:
+                      id:
+                        type: integer
+                        example: 1
+        '400':
+          description: 'Invalid input, object invalid'
+      requestBody:
+        content:
+          application/json:
+              schema:
+                $ref:  '#/components/schemas/Location'
+    get:
+      tags:
+        - Location
+      summary: Get a list of all locations
+      description: Get a list of all locations
+      responses:
+        '200':
+          description: Get a list of all locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/Location'
+                    - type: object
+                    - properties:
+                        id:
+                          type: integer
+                          example: 1
+  /locations/{id}:
+    get:
+      tags:
+        - Location
+      summary: Get a location by id
+      description: Get a location by id
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of the location to get
+      responses:
+        '200':
+          description: Location found
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Location'
+                  - type: object
+                  - properties:
+                      id:
+                        type: integer
+                        example: 1
+        '404':
+          description: 'Resource not found'
+  /locations/{id}/inputs:
+    post:
+      tags:
+        - Input Batch
+      summary: Async Process a batch of measurements
+      description: Processes a batch of measurements async
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of the location
+      responses:
+        '202':
+          description: Input batch accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InputBatch'
+        '400':
+          description: 'Invalid input, object invalid'
+      requestBody:
+        description: Input batch to process
+        content:
+          application/json:
+            schema:
+              type: 'array'
+              items:
+                $ref: '#/components/schemas/Measurement'
+            example:
+              - object_identifier: a1d0c6e83f027327d8461063f4ac58a6
+                x: 55
+                y: 35
+                z: 1
+                sensor_identifier: abc1234
+                sensor_type: camera
+                timestamp: 1635169383810
+              - object_identifier: a1d0c6e83f027327d8461063f4ac58a6
+                x: 57
+                y: 33
+                z: 1
+                sensor_identifier: def5678
+                sensor_type: rfid
+                timestamp: 1635169383810
+              - object_identifier: a1d0c6e83f027327d8461063f4ac58a6
+                x: 65
+                y: 27
+                z: 1
+                sensor_identifier: ghi9012
+                sensor_type: wifi
+                timestamp: 1635169383810
+    get:
+      tags:
+        - Input Batch
+      summary: Get a list of all input batches
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of the location
+      responses:
+        '200':
+          description: Get a list of all input batches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InputBatch'
+                example:
+                  - batch_id: 1
+                    status: 'scheduled'
+                    href: 'http://ccs4dt/api/v1.0.0/measurement-batches/1/predictions'
+                    created_at: '2021-09-30 15:00:00'
+                  - batch_id: 2
+                    status: 'processing'
+                    href: 'http://ccs4dt/api/v1.0.0/measurement-batches/2/predictions'
+                    created_at: '2021-09-30 15:15:00'
+                  - batch_id: 3
+                    status: 'finished'
+                    href: 'http://ccs4dt/api/v1.0.0/measurement-batches/3/predictions'
+                    created_at: '2021-09-30 15:30:00'
+  /locations/{location_id}/inputs/{input_batch_id}:
+    get:
+      tags:
+        - Input Batch
+      summary: Get an input batch by id
+      description: Get an input batch by id
+      parameters:
+        - in: path
+          name: location_id
+          schema:
+            type: integer
+          required: true
+          description: ID of the location
+        - in: path
+          name: input_batch_id
+          schema:
+            type: integer
+          required: true
+          description: ID of the input batch to get
+      responses:
+        '200':
+          description: Input batch found
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/InputBatch'
+        '404':
+          description: 'Resource not found'
+  /locations/{location_id}/inputs/{input_batch_id}/outputs:
+    get:
+      tags:
+        - Output Batch
+      summary: Get an output batch by id
+      description: Get an output batch by id
+      parameters:
+        - in: path
+          name: location_id
+          schema:
+            type: integer
+          required: true
+          description: ID of the location
+        - in: path
+          name: input_batch_id
+          schema:
+            type: integer
+          required: true
+          description: ID of the input batch to get
+      responses:
+        '200':
+          description: Output batch found
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/OutputBatch'
+        '404':
+          description: 'Resource not found'
+
+components:
+  schemas:
+    Location:
+      type: object
+      required:
+        - name
+        - sensors
+      properties:
+        name:
+          type: string
+          example: 'BIN-2.A.10'
+          description: Name of the location or venue
+        external_identifier:
+          type: string
+          example: room_1234
+          description: Code / ID of room in external system
+        sensors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sensor'
+          description: Array of sensor configurations deployed in the location
+    Sensor:
+      type: object
+      required:
+        - identifier
+        - type
+        - x_origin
+        - y_origin
+        - z_origin
+        - yaw
+        - pitch
+        - roll
+        - measurement_unit
+      properties:
+        identifier:
+          type: string
+          example: abc123
+          description: Must be unique
+        type:
+          type: string
+          enum: [rfid, wifi, bluetooth, camera, lidar]
+        x_origin:
+          type: integer
+          description: Origin x coordinate of sensor location (cm)
+          example: 0
+        y_origin:
+          type: integer
+          description: Origin y coordinate of sensor location (cm)
+          example: 10
+        z_origin:
+          type: integer
+          description: Origin z coordinate of sensor location (cm)
+          example: 3
+        yaw:
+          type: integer
+          description: Angle (deg) counterclockwise rotation of the sensor xy-plane in relation to the location xy-plane. E.g. 180 meaning the sensor and location y-axis point in opposite directions. See https://bit.ly/3AZM5iP
+          example: 0
+        pitch:
+          type: integer
+          description: Angle (deg) counterclockwise rotatin of the sensor yz-plane in relation to the location yz-plane. E.g. 0 (default) meaning the sensor and location z axis point in the same direction (vertically to the sky). See https://bit.ly/3AZM5iP
+          example: 0
+
+        roll:
+          type: integer
+          description: Angle (deg) counterlockwise rotation of the sensor xz-plane in relation to the location xz-plane. E.g. 0(default) meaning the sensor and location z axis point in the same direction (vertically to the sky)See https://bit.ly/3AZM5iP
+          example: 0
+        measurement_unit:
+          type: string
+          enum: ['meter', 'millimeter']
+          example: 'meter'
+    Measurement:
+      type: object
+      required:
+        - object_identifier
+        - x
+        - y
+        - z
+        - sensor_identifier
+        - sensor_type
+        - error
+        - timestamp
+      properties:
+        object_identifier:
+          type: string
+          format: uuid
+          example: a1d0c6e83f027327d8461063f4ac58a6
+          description: Unique per trackable object
+        x:
+          type: integer
+          example: 55
+          description: X coordinate
+        y:
+          type: integer
+          example: 35
+          description: Y coordinate
+        z:
+          type: integer
+          example: 1
+          description: Z coordinate
+        sensor_identifier:
+          type: string
+          example: abc1234
+        sensor_type:
+          type: string
+          enum: [camera, wifi, bluetooth, rfid, lidar]
+        confidence:
+          type: number
+          format: float
+          example: 0.7
+          description: Confidence of measurement. Value between 0 and 1
+        timestamp:
+          type: integer
+          format: timestamp
+          example: 1635169383810
+          description: UNIX timestamp in ms when measurement was recorded
+    InputBatch:
+      type: object
+      required:
+        - id
+        - status
+        - created_at
+      properties:
+        id:
+          type: integer
+          description: Id of the input batch
+          example: 1
+        status:
+          type: string
+          enum: [scheduled, processing, finished, failed]
+          description: Process status of the input batch
+        created_at:
+          type: string
+          example: '2021-09-30 15:00:00'
+    OutputBatch:
+      type: object
+      required:
+        - input_batch_id
+        - location_id
+        - object_identifier_mappings
+        - positions
+      properties:
+        input_batch_id:
+          type: integer
+          description: Id of the input batch
+          example: 34
+        location_id:
+          type: integer
+          description: Id of the location
+          example: 1
+        object_identifier_mappings:
+          type: object
+          description: Mappings of object identifiers of the different sensors
+          example: '{
+        "6c7b7f07-53a7-4259-8ef9-71573ad88be1": [
+            "39202___1df21a15-6ca9-4d52-91d0-e389cd7742e3",
+            "39202___caafac72-433d-47ef-a41f-5c39b2ea1495",
+            "39202___bace279a-80b8-4ef7-80ec-13714e5c4e9d"
+        ],
+        "57402ef7-35d4-4d7c-82bd-bb31e8923368": [
+            "39222___caafac72-433d-47ef-a41f-5c39b2ea1495",
+            "39222___1df21a15-6ca9-4d52-91d0-e389cd7742e3"
+        ],
+        "d54ba674-3f35-4cb2-bf59-166453be7edf": [
+            "37957___1df21a15-6ca9-4d52-91d0-e389cd7742e3"
+        ]
+    }'
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+    Position:
+      type: object
+      required:
+        - object_identifier
+        - x
+        - y
+        - z
+        - confidence
+        - timestamp
+      properties:
+        object_identifier:
+          type: string
+          format: uuid
+          example: a1d0c6e83f027327d8461063f4ac58a6
+          description: Unique per trackable object
+        x:
+          type: integer
+          example: 55
+          description: Prediction for x coordinate
+        y:
+          type: integer
+          example: 35
+          description: Prediction for y coordinate
+        z:
+          type: integer
+          example: 1
+          description: Prediction for z coordinate
+        confidence:
+          type: number
+          format: float
+          example: 0.9
+          description: Confidence of prediction. Value between 0 and 1
+        timestamp:
+          type: integer
+          example: 1635169383810
+          description: UNIX timestamp ms
