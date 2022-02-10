@@ -10,3 +10,6 @@ scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_traje
 **/__pycache__/
 *.pyc
 */tempCodeRunnerFile.py
+*.json
+*.xlsx
+*.html
