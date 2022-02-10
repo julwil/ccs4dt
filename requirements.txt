@@ -12,3 +12,5 @@ plotly
 pykalman
 openpyxl
 sklearn
+bcubed
+motmetrics

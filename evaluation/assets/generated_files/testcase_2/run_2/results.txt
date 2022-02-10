@@ -1,0 +1,36 @@
+{'id': 909, 'location_id': 889, 'status': 'scheduled', 'created_at': '2022-02-01 03:33:11.678301'}
+
+ ---- Object matching accuracy ----
+Chosen clustering evaluation method: naive
+1.0
+
+ ---- Object matching accuracy ----
+Chosen clustering evaluation method: bcubed_recall
+1.0
+
+ ---- Object matching accuracy ----
+Chosen clustering evaluation method: bcubed_precision
+1.0
+
+ ---- Object matching accuracy ----
+Chosen clustering evaluation method: bcubed_fscore
+1.0
+
+ ---- Position prediction accuracy according to naive euclidean distance measures in cm [sum, mean, min, max, median] ----      
+[123989.61, 19.3, 0.59, 431.93, 12.13]
+
+ ---- Position prediction accuracy according to CLEAR MOT metrics [in cm² if metric with unit] WITH UPSAMPLED DATA ----
+     num_frames     mota        motp
+acc         473  0.92623  636.497946
+                 IDF1   IDP    IDR   Rcll  Prcn GT MT PT ML FP FN IDs  FM  MOTA    MOTP IDt IDa IDm
+full            96.3% 95.5%  97.0%  97.2% 95.6% 56 38 13  5 54 34   2   2 92.6% 636.498   1   1   0
+first 20 frames 94.4% 89.5% 100.0% 100.0% 89.5%  3  3  0  0  6  0   0   0 88.2% 186.081   0   0   0
+OVERALL         96.2% 95.2%  97.2%  97.3% 95.4% 59 41 13  5 60 34   2   2 92.4% 617.928   1   1   0
+
+ ---- Position prediction accuracy according to CLEAR MOT metrics [in cm² if metric with unit] WITHOUT UPSAMPLED DATA----       
+     num_frames      mota        motp
+acc         473  0.965574  626.918254
+                  IDF1    IDP    IDR   Rcll   Prcn GT MT PT ML FP FN IDs  FM   MOTA    MOTP IDt IDa IDm
+full             98.3%  99.5%  97.0%  97.0%  99.5% 56 37 14  5  6 36   0   1  96.6% 626.918   0   0   0
+first 20 frames 100.0% 100.0% 100.0% 100.0% 100.0%  3  3  0  0  0  0   0   0 100.0% 186.081   0   0   0
+OVERALL          98.3%  99.5%  97.2%  97.2%  99.5% 59 40 14  5  6 36   0   1  96.7% 608.714   0   0   0

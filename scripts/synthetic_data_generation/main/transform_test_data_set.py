@@ -32,18 +32,31 @@ class Location(object):
         self.sensors = sensors
         
 
-    # TODO: define __str__
-
     def get_location_name(self):
+        """Getter function for the location name       
+
+        :return: Returns location name
+        :rtype: string
+        """
 
         return(self.name)
 
     def get_location_external_id(self):
+        """Getter function for the location external id       
+
+        :return: Returns location external id
+        :rtype: string
+        """
 
         return(self.external_identifier)
  
     
     def construct_json_payload(self):
+        """Constructs the json payload of a location  
+
+        :return: Returns constructed json payload for a location
+        :rtype: dict(json)
+        """
 
         sensors_dict = []
 
@@ -312,8 +325,6 @@ class Sensor(object):
         """
         return (self.sensor_precision)
 
-    # TODO: Implement getter sensor precision measurement unit
-
     def get_sensor_type(self):
         """Getter function for the sensor type       
 
@@ -321,8 +332,6 @@ class Sensor(object):
         :rtype: string
         """
         return (self.sensor_type)
-
-    # TODO: Implement getter sensor stability
 
     def get_sensor_pollingrate(self):
         """Getter function for the sensor pollingrate       
@@ -395,7 +404,20 @@ class Sensor(object):
         return (random_pos_x + point_x, random_pos_y + point_y, random_pos_z + point_z)
     
     def calculate_distance_to_point(self, point_abs_x, point_abs_y, point_abs_z):
+        """Calculate distance between sensor and point
 
+        :param self: self
+        :type self: Sensor
+        :param point_abs_x: x coordinate of point
+        :type point_abs_x: integer
+        :param point_abs_y: y coordinate of point
+        :type point_abs_y: integer
+        :param point_abs_z: z coordinate of point
+        :type point_abs_z: integer
+
+        :return: Returns the distance from sensor to point
+        :rtype: integer
+        """
         distance = ((self.get_sensor_position()[0]-point_abs_x)**2 + (self.get_sensor_position()[1]-point_abs_y)**2 + (self.get_sensor_position()[2]-point_abs_z)**2)**(1/2)
 
         return abs(distance)
@@ -768,7 +790,6 @@ def plot_point_in_two_coordinate_systems(point_x, point_y, point_z, point_coord_
 
 
 
-# TODO: only works with standard dataset, potentially extend to other (Livealytics?) dataset formats
 def import_occupancy_presence_dataset (filepath, import_rows_count, drop_irrelevant_columns = True, transform_to_3D_data = False, starting_date = '01.06.2019', date_format = '%d.%m.%Y'):
     """Imports the true position dataset of the given format from source: https://www.kaggle.com/claytonmiller/occupancy-presencetrajectory-data-from-a-building/version/1
 
@@ -837,7 +858,8 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, i
     measurement_dataframe['date'] = [x for x in true_position_dataframe['date']]
     measurement_dataframe['time'] = [x for x in true_position_dataframe['time']]
     measurement_dataframe['date_time'] = [x for x in true_position_dataframe['date_time']]
-    measurement_dataframe['timestamp'] = [time.mktime(x.timetuple()) for x in true_position_dataframe['date_time']]
+    measurement_dataframe['timestamp'] = [time.mktime(x.timetuple()) 
+                                    for x in true_position_dataframe['date_time']]
 
    
 
@@ -898,7 +920,8 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, i
     measurement_dataframe['z_measured_rel_pos'] = ([(transform_cartesian_coordinate_system(x, y, z, sensor.get_sensor_coordinate_system())[2]) for x, y, z in zip(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])])
 
     # Calculates distance between sensor and point and stores in dataframe
-    measurement_dataframe['distance'] = sensor.calculate_distance_to_point(measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])
+    measurement_dataframe['distance'] = sensor.calculate_distance_to_point(
+        measurement_dataframe['x_measured_abs_pos'], measurement_dataframe['y_measured_abs_pos'], measurement_dataframe['z_measured_abs_pos'])
 
     # Adds drop flag if distance to point is larger than sensore measurement range
     measurement_dataframe['drop_due_to_distance'] = [sensor.check_sensor_measurement_distance(x) for x in measurement_dataframe['distance']]
@@ -914,7 +937,8 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, i
     while True:
 
         # Adds time difference between row and row - 1 (in miliseconds)
-        measurement_dataframe['timediff'] = (measurement_dataframe['date_time'] - measurement_dataframe.shift(1)['date_time']).dt.microseconds/1000
+        measurement_dataframe['timediff'] = (measurement_dataframe['date_time'] -
+             measurement_dataframe.shift(1)['date_time']).dt.microseconds/1000
 
         # Checks if row should be dropped due to timediff (i.e. if sensor polling is slower than timediff)
         measurement_dataframe['drop_due_to_time'] = [(sensor.get_sensor_pollingrate() < x) for x in measurement_dataframe['timediff']]
@@ -930,8 +954,25 @@ def simulate_measure_data_from_true_positions(true_position_dataframe, sensor, i
     return measurement_dataframe
 
 
-# TODO: Write documentation
 def function_wrapper_data_ingestion(path, import_rows, measurement_sensor, identifier_randomization_method = 'random', identifier_type = 'mac-address', transform_to_3D_data = False):
+    """Wrapper function to facilitate generation of simulation dataframe
+
+    :param path: File path to movement data file
+    :type path: string
+    :param import_rows: Number of rows that should be sourced
+    :type import_rows: integer
+    :param measurement_sensor: Sensor for which the measurements should be simulated
+    :type measurement_sensor: Sensor
+    :param identifier_randomization_method: randomization method for identifier, default 'random'
+    :type identifier_randomization_method: string
+    :param identifier_type: Identifier type used for object id randomization, default 'mac-address'
+    :type identifier_type: string
+    :param transform_to_3D_data: Flag if data should be 3D (True) or 2D (False), default 'False' 
+    :type transform_to_3D_data: Boolean
+
+    :return: Returns the simulation dataframe containing all simulated measurements
+    :rtype: pandas dataframe
+    """
 
     imported_dataset = import_occupancy_presence_dataset(path, import_rows_count = import_rows, transform_to_3D_data = transform_to_3D_data)
 
@@ -941,8 +982,23 @@ def function_wrapper_data_ingestion(path, import_rows, measurement_sensor, ident
 
 
 
-# TODO: Write documentation
 def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, repeated_steps):
+    """Wrapper function to facilitate generation of rejection sampling and coordinate system plots (frame of reference in sensor frame and vice versa)
+
+    :param example_sensor: Sensor for which measurements and coordinate systems should be simulated
+    :type example_sensor: Sensor
+    :param point_x: x coordinate of center of sphere for rejection sampling
+    :type point_x: integer
+    :param point_y: y coordinate of center of sphere for rejection sampling
+    :type point_y: integer
+    :param point_z: z coordinate of center of sphere for rejection sampling
+    :type point_z: integer
+    :param repeated_steps: Number of measurements that should be generated via rejection sampling
+    :type repeated_steps: integer
+
+    :return: None
+    :rtype: None
+    """
 
     example_coord_sys = example_sensor.get_sensor_coordinate_system()
 
@@ -954,11 +1010,15 @@ def function_wrapper_example_plots(example_sensor, point_x, point_y, point_z, re
 
 
 
-# TODO: Write documentation
-# TODO: Add different variants (e.g. see below)
-# TODO: Write generation class of random RFID UID (with different types) based on https://rfidcard.com/types-of-uid-rfid-card/
 def generate_random_object_id(randomization_type = 'mac-address'):
+    """Function that generates random object id based on randomization type
 
+    :param randomization_type: Type of randomization, default 'mac-address'
+    :type randomization_type: string
+
+    :return: Returns a randomized 12-byte MAC Address divided by semicolons
+    :rtype: string
+    """
 
     def generate_random_mac_address():
         """Generation of a random MAC Address
@@ -985,6 +1045,24 @@ def generate_random_object_id(randomization_type = 'mac-address'):
 
 
 def simulate_sensor_measurement_for_multiple_sensors(sensors, number_of_true_positions_to_consider, identifier_randomization_method = 'random', identifier_type = 'mac-address', transform_to_3D_data = False):
+    """Wrapper that facilitates the simulation for multiple sensors
+
+    :param sensors: List of all sensors for which the measurements should be simulated
+    :type sensors: list of Sensor
+    :param number_of_true_positions_to_consider: Number of rows that should be sourced
+    :type number_of_true_positions_to_consider: integer
+    :param measurement_sensor: Sensor for which the measurements should be simulated
+    :type measurement_sensor: Sensor
+    :param identifier_randomization_method: randomization method for identifier, default 'random'
+    :type identifier_randomization_method: string
+    :param identifier_type: Identifier type used for object id randomization, default 'mac-address'
+    :type identifier_type: string
+    :param transform_to_3D_data: Flag if data should be 3D (True) or 2D (False), default 'False' 
+    :type transform_to_3D_data: Boolean
+
+    :return: Returns the simulation dataframe containing all simulated measurements for all sensors
+    :rtype: pandas dataframe
+    """
 
     filepath = str(os.getcwd()) + '/scripts/synthetic_data_generation/assets/sampledata/occupancy_presence_and_trajectories.csv'
 
@@ -998,39 +1076,6 @@ def simulate_sensor_measurement_for_multiple_sensors(sensors, number_of_true_pos
         simulated_sensor_measurement_dataframe = simulated_sensor_measurement_dataframe.append(simulated_single_sensor_measurements)
 
     return simulated_sensor_measurement_dataframe
-
-#function_wrapper_example_plots(test_sensor, 1, 1, 1, 100)
-
-
-## TODO Placholder convert function
-#  def __convert_units(self, row):
-#         """
-#         Handle conversion of measurement units.
-#         :param row: pd.Series
-#         :return: pd.Series
-#         """
-#         sensor = self.__sensors[row['sensor_identifier']]
-#         factor = 1
-
-#         if sensor['measurement_unit'] == MeasurementUnit.CENTIMETER:
-#             return row
-
-#         if sensor['measurement_unit'] == MeasurementUnit.MILLIMETER:
-#             factor = 0.1
-
-#         if sensor['measurement_unit'] == MeasurementUnit.METER:
-#             factor = 100
-
-#         for axis in ['x', 'y', 'z']:
-#             row[axis] *= factor
-
-#         return row
-
-
-## TODO: Randomize occupant_id for different sensors (e.g. unique MACaddress)
-## TODO: Use pollingrate from livealytics dataset
-
-# TODO: Bash script to run & Bash script with parameter input
 
 
 
