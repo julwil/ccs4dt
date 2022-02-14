@@ -300,15 +300,42 @@ frame of reference, which could be e.g. a location that is analyzed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.Location.construct_json_payload">
 <span class="sig-name descname"><span class="pre">construct_json_payload</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scripts.synthetic_data_generation.main.transform_test_data_set.Location.construct_json_payload" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Constructs the json payload of a location</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns constructed json payload for a location</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict(json)</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.Location.get_location_external_id">
 <span class="sig-name descname"><span class="pre">get_location_external_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scripts.synthetic_data_generation.main.transform_test_data_set.Location.get_location_external_id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Getter function for the location external id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns location external id</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.Location.get_location_name">
 <span class="sig-name descname"><span class="pre">get_location_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scripts.synthetic_data_generation.main.transform_test_data_set.Location.get_location_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Getter function for the location name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns location name</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.Sensor">
@@ -333,7 +360,24 @@ frame of reference, which could be e.g. a location that is analyzed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.Sensor.calculate_distance_to_point">
 <span class="sig-name descname"><span class="pre">calculate_distance_to_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point_abs_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_abs_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_abs_z</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scripts.synthetic_data_generation.main.transform_test_data_set.Sensor.calculate_distance_to_point" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculate distance between sensor and point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<a class="reference internal" href="#scripts.synthetic_data_generation.main.transform_test_data_set.Sensor" title="scripts.synthetic_data_generation.main.transform_test_data_set.Sensor"><em>Sensor</em></a>) – self</p></li>
+<li><p><strong>point_abs_x</strong> (<em>integer</em>) – x coordinate of point</p></li>
+<li><p><strong>point_abs_y</strong> (<em>integer</em>) – y coordinate of point</p></li>
+<li><p><strong>point_abs_z</strong> (<em>integer</em>) – z coordinate of point</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the distance from sensor to point</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>integer</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.Sensor.check_sensor_measurement_distance">
 <span class="sig-name descname"><span class="pre">check_sensor_measurement_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_to_point</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scripts.synthetic_data_generation.main.transform_test_data_set.Sensor.check_sensor_measurement_distance" title="Permalink to this definition">¶</a></dt>
@@ -493,15 +537,64 @@ This is done via rejection sampling (<a class="reference external" href="https:/
 <dl class="py function">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.function_wrapper_data_ingestion">
 <span class="sig-prename descclassname"><span class="pre">scripts.synthetic_data_generation.main.transform_test_data_set.</span></span><span class="sig-name descname"><span class="pre">function_wrapper_data_ingestion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">import_rows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_sensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier_randomization_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'random'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mac-address'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_to_3D_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scripts.synthetic_data_generation.main.transform_test_data_set.function_wrapper_data_ingestion" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Wrapper function to facilitate generation of simulation dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>string</em>) – File path to movement data file</p></li>
+<li><p><strong>import_rows</strong> (<em>integer</em>) – Number of rows that should be sourced</p></li>
+<li><p><strong>measurement_sensor</strong> (<a class="reference internal" href="#scripts.synthetic_data_generation.main.transform_test_data_set.Sensor" title="scripts.synthetic_data_generation.main.transform_test_data_set.Sensor"><em>Sensor</em></a>) – Sensor for which the measurements should be simulated</p></li>
+<li><p><strong>identifier_randomization_method</strong> (<em>string</em>) – randomization method for identifier, default ‘random’</p></li>
+<li><p><strong>identifier_type</strong> (<em>string</em>) – Identifier type used for object id randomization, default ‘mac-address’</p></li>
+<li><p><strong>transform_to_3D_data</strong> (<em>Boolean</em>) – Flag if data should be 3D (True) or 2D (False), default ‘False’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the simulation dataframe containing all simulated measurements</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas dataframe</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.function_wrapper_example_plots">
 <span class="sig-prename descclassname"><span class="pre">scripts.synthetic_data_generation.main.transform_test_data_set.</span></span><span class="sig-name descname"><span class="pre">function_wrapper_example_plots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">example_sensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeated_steps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scripts.synthetic_data_generation.main.transform_test_data_set.function_wrapper_example_plots" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Wrapper function to facilitate generation of rejection sampling and coordinate system plots (frame of reference in sensor frame and vice versa)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>example_sensor</strong> (<a class="reference internal" href="#scripts.synthetic_data_generation.main.transform_test_data_set.Sensor" title="scripts.synthetic_data_generation.main.transform_test_data_set.Sensor"><em>Sensor</em></a>) – Sensor for which measurements and coordinate systems should be simulated</p></li>
+<li><p><strong>point_x</strong> (<em>integer</em>) – x coordinate of center of sphere for rejection sampling</p></li>
+<li><p><strong>point_y</strong> (<em>integer</em>) – y coordinate of center of sphere for rejection sampling</p></li>
+<li><p><strong>point_z</strong> (<em>integer</em>) – z coordinate of center of sphere for rejection sampling</p></li>
+<li><p><strong>repeated_steps</strong> (<em>integer</em>) – Number of measurements that should be generated via rejection sampling</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.generate_random_object_id">
 <span class="sig-prename descclassname"><span class="pre">scripts.synthetic_data_generation.main.transform_test_data_set.</span></span><span class="sig-name descname"><span class="pre">generate_random_object_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">randomization_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mac-address'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scripts.synthetic_data_generation.main.transform_test_data_set.generate_random_object_id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Function that generates random object id based on randomization type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>randomization_type</strong> (<em>string</em>) – Type of randomization, default ‘mac-address’</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns a randomized 12-byte MAC Address divided by semicolons</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.import_occupancy_presence_dataset">
 <span class="sig-prename descclassname"><span class="pre">scripts.synthetic_data_generation.main.transform_test_data_set.</span></span><span class="sig-name descname"><span class="pre">import_occupancy_presence_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">import_rows_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_irrelevant_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_to_3D_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'01.06.2019'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%d.%m.%Y'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scripts.synthetic_data_generation.main.transform_test_data_set.import_occupancy_presence_dataset" title="Permalink to this definition">¶</a></dt>
@@ -594,7 +687,26 @@ Upper plot is in frame of reference, Lower plot in point coordinate system</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.simulate_sensor_measurement_for_multiple_sensors">
 <span class="sig-prename descclassname"><span class="pre">scripts.synthetic_data_generation.main.transform_test_data_set.</span></span><span class="sig-name descname"><span class="pre">simulate_sensor_measurement_for_multiple_sensors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_true_positions_to_consider</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier_randomization_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'random'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mac-address'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_to_3D_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scripts.synthetic_data_generation.main.transform_test_data_set.simulate_sensor_measurement_for_multiple_sensors" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Wrapper that facilitates the simulation for multiple sensors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sensors</strong> (<em>list of Sensor</em>) – List of all sensors for which the measurements should be simulated</p></li>
+<li><p><strong>number_of_true_positions_to_consider</strong> (<em>integer</em>) – Number of rows that should be sourced</p></li>
+<li><p><strong>measurement_sensor</strong> (<a class="reference internal" href="#scripts.synthetic_data_generation.main.transform_test_data_set.Sensor" title="scripts.synthetic_data_generation.main.transform_test_data_set.Sensor"><em>Sensor</em></a>) – Sensor for which the measurements should be simulated</p></li>
+<li><p><strong>identifier_randomization_method</strong> (<em>string</em>) – randomization method for identifier, default ‘random’</p></li>
+<li><p><strong>identifier_type</strong> (<em>string</em>) – Identifier type used for object id randomization, default ‘mac-address’</p></li>
+<li><p><strong>transform_to_3D_data</strong> (<em>Boolean</em>) – Flag if data should be 3D (True) or 2D (False), default ‘False’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the simulation dataframe containing all simulated measurements for all sensors</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas dataframe</p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="scripts.synthetic_data_generation.main.transform_test_data_set.transform_cartesian_coordinate_system">
 <span class="sig-prename descclassname"><span class="pre">scripts.synthetic_data_generation.main.transform_test_data_set.</span></span><span class="sig-name descname"><span class="pre">transform_cartesian_coordinate_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinate_system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_transformation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_transformation_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scripts.synthetic_data_generation.main.transform_test_data_set.transform_cartesian_coordinate_system" title="Permalink to this definition">¶</a></dt>

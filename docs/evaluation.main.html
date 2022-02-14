@@ -184,8 +184,363 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </section>
-<section id="evaluation-main-ccs4dt-api-client-calls-module">
-<h2>evaluation.main.ccs4dt_api_client_calls module<a class="headerlink" href="#evaluation-main-ccs4dt-api-client-calls-module" title="Permalink to this headline">¶</a></h2>
+<section id="module-evaluation.main.ccs4dt_api_client_calls">
+<span id="evaluation-main-ccs4dt-api-client-calls-module"></span><h2>evaluation.main.ccs4dt_api_client_calls module<a class="headerlink" href="#module-evaluation.main.ccs4dt_api_client_calls" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.APIClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evaluation.main.ccs4dt_api_client_calls.</span></span><span class="sig-name descname"><span class="pre">APIClient</span></span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.APIClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class represents the API client to call the CCS4DT API.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.APIClient.API_get_all_input_batches_call">
+<span class="sig-name descname"><span class="pre">API_get_all_input_batches_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.APIClient.API_get_all_input_batches_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>CCS4DT GET API call for all input batches of a specific location</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>API_endpoint_path</strong> (<em>string</em>) – CCS4DT endpoint path (includes port if necessary)</p></li>
+<li><p><strong>location_id</strong> (<em>integer</em>) – location id for which the input batches should be retrieved</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns API response</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict(json)</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.APIClient.API_get_all_locations_call">
+<span class="sig-name descname"><span class="pre">API_get_all_locations_call</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.APIClient.API_get_all_locations_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>CCS4DT GET API call for all locations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>API_endpoint_path</strong> (<em>string</em>) – CCS4DT endpoint path (includes port if necessary)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns API response</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict(json)</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.APIClient.API_get_input_batch_by_id_call">
+<span class="sig-name descname"><span class="pre">API_get_input_batch_by_id_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_batch_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.APIClient.API_get_input_batch_by_id_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>CCS4DT GET API call for input batch by id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>API_endpoint_path</strong> (<em>string</em>) – CCS4DT endpoint path (includes port if necessary)</p></li>
+<li><p><strong>location_id</strong> (<em>integer</em>) – location id for which the input batch was posted</p></li>
+<li><p><strong>input_batch_id</strong> (<em>integer</em>) – input batch id for which the results should be returned</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns API response</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict(json)</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.APIClient.API_get_location_by_id_call">
+<span class="sig-name descname"><span class="pre">API_get_location_by_id_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.APIClient.API_get_location_by_id_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>CCS4DT GET API call for location by id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>API_endpoint_path</strong> (<em>string</em>) – CCS4DT endpoint path (includes port if necessary)</p></li>
+<li><p><strong>location_id</strong> (<em>integer</em>) – location id for which the input batch was posted</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns API response</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict(json)</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.APIClient.API_get_output_batch_call">
+<span class="sig-name descname"><span class="pre">API_get_output_batch_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.APIClient.API_get_output_batch_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>CCS4DT GET API call for all output batch by id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>API_endpoint_path</strong> (<em>string</em>) – CCS4DT endpoint path (includes port if necessary)</p></li>
+<li><p><strong>location_id</strong> (<em>integer</em>) – location id for which the input batch was posted</p></li>
+<li><p><strong>batch_id</strong> (<em>integer</em>) – input batch id for which the results should be returned</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns API response</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict(json)</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.APIClient.API_post_input_batch_call">
+<span class="sig-name descname"><span class="pre">API_post_input_batch_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.APIClient.API_post_input_batch_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>CCS4DT POST API call for input batch</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>API_endpoint_path</strong> (<em>string</em>) – CCS4DT endpoint path (includes port if necessary)</p></li>
+<li><p><strong>payload</strong> (<em>dict</em><em>(</em><em>json</em><em>)</em>) – Sensor measurements json payload</p></li>
+<li><p><strong>location_id</strong> (<em>integer</em>) – location id for which the measurements were taken</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns API response and reponse parameters (id, status, location_id)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict(json), string, string, string</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.APIClient.API_post_new_location_call">
+<span class="sig-name descname"><span class="pre">API_post_new_location_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">payload</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.APIClient.API_post_new_location_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>CCS4DT POST API call for new location</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>API_endpoint_path</strong> (<em>string</em>) – CCS4DT endpoint path (includes port if necessary)</p></li>
+<li><p><strong>payload</strong> (<em>dict</em><em>(</em><em>json</em><em>)</em>) – Location json payload</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns API response and reponse parameters (location id, name)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict(json), string, string</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.APIClient.convert_sensor_measurements_to_api_conform_payload">
+<span class="sig-name descname"><span class="pre">convert_sensor_measurements_to_api_conform_payload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">additional_file_generation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.APIClient.convert_sensor_measurements_to_api_conform_payload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take existing sensor measurement dataframe and convert it to API confirm input batch payload</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataframe</strong> (<em>pandas dataframe</em>) – Dataframe containing the sensor measurements</p></li>
+<li><p><strong>additional_file_generation</strong> (<em>boolean</em>) – Flag that states if the json payload should also be stored as a file in the generated_files directory</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns measurement JSON payload for CCS4DT API</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict(json)</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.APIClient.end_to_end_API_test">
+<span class="sig-name descname"><span class="pre">end_to_end_API_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sensors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_endpoint_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">250</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_simulation_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_measurement_data_in_json_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debugger_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier_randomization_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'random'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mac-address'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_to_3D_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic_data_generation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.APIClient.end_to_end_API_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper function that combines all necessary API calls to run an end to end API test</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>location</strong> (<em>integer</em>) – Location object for which API request should be run</p></li>
+<li><p><strong>sensors</strong> (<em>List of Sensor</em>) – List of sensors that should be simulated / included in the API request</p></li>
+<li><p><strong>API_endpoint_path</strong> (<em>string</em>) – CCS4DT endpoint path (includes port if necessary)</p></li>
+<li><p><strong>measurement_points</strong> (<em>integer</em>) – Amount of measurement points that should be taken into consideration for synthetic data generation</p></li>
+<li><p><strong>return_simulation_output</strong> (<em>boolean</em>) – Flag that indicates if measurement data (i.e. synthetic sensor measurements) should be included in function return, default = True</p></li>
+<li><p><strong>print_progress</strong> (<em>boolean</em>) – Flag that indicates if progress should be printed to terminal, default = True</p></li>
+<li><p><strong>store_measurement_data_in_json_file</strong> (<em>boolean</em>) – Flag that indicates if input_batch should be stored as persistent .json in generated_files folder, default = True</p></li>
+<li><p><strong>debugger_files</strong> (<em>boolean</em>) – Flag that indicates if intermediate results (, output_batch) should be stored as persistent .json in generated_files folder, default = False</p></li>
+<li><p><strong>identifier_randomization_type</strong> (<em>string</em>) – For synthetic data generation: Specifies the randomization approach for object identifiers, default: ‘none’</p></li>
+<li><p><strong>identifier_type</strong> (<em>string</em>) – For synthetic data generation: Specifies type of identifier that should be used if randomization takes place, default: mac-address</p></li>
+<li><p><strong>transform_to_3D_data</strong> (<em>boolean</em>) – For synthetic data generation: Specifies if data should either consider the true position coordinate as 0 (if == False) or set the z-coordinate of the true positions as ‘height’ (if == True), default is True</p></li>
+<li><p><strong>synthetic_data_generation</strong> (<em>boolean</em>) – Flag that identifies if synthetic data needs to be generated (True) or if real-world data file can be taken (False), default = True</p></li>
+<li><p><strong>measurement_file_path</strong> (<em>string</em>) – Filepath to real-world sensor measurement file (only relevant if synthetic_data_generation == False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns output batch (and optionally measurement)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict(json), dict(json)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">evaluation.main.ccs4dt_api_client_calls.</span></span><span class="sig-name descname"><span class="pre">PredictionEvaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class represents the evaluator for a API request / synthetic measurement combination</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_output</strong> (<em>dict</em>) – Output batch of the CCS4DT API</p></li>
+<li><p><strong>measurement_data</strong> (<em>dict</em>) – Synthetic sensor measurement data</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.add_object_identifier_mapping_to_measurement_dataframe">
+<span class="sig-name descname"><span class="pre">add_object_identifier_mapping_to_measurement_dataframe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.add_object_identifier_mapping_to_measurement_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that adds object identifier mapping to measurement data frame</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns dataframe that includes object identifier mapping</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.add_prediction_data_to_merged_identifier_dataframe">
+<span class="sig-name descname"><span class="pre">add_prediction_data_to_merged_identifier_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debugger_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.add_prediction_data_to_merged_identifier_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that adds prediction data (object ids, coordinates) to the original measurement dataframe which was enriched with identifiers of objects, true individuals and predictions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>debugger_files</strong> (<em>boolean</em>) – Flag that indicates if dataframes should be persisted in separate files for debugging purposes, default = False</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns dataframe of true data, sensor measurements and predictions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.calculate_object_matching_accuracy">
+<span class="sig-name descname"><span class="pre">calculate_object_matching_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clustering_evaluation_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bcubed_fscore'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debugger_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.calculate_object_matching_accuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates object matching accuracy score for the requested evaluation method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clustering_evaluation_method</strong> (<em>string</em>) – Clustering evaluation method, default = bcubed_fscore</p></li>
+<li><p><strong>debugger_files</strong> (<em>boolean</em>) – Flag that indicates if results should be persisted in separate files for debugging purposes, default = True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns object matching accuracy score for the evaluation method</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.calculate_prediction_accuracy">
+<span class="sig-name descname"><span class="pre">calculate_prediction_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">accuracy_estimation_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'euclidean-distance'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debugger_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_include_dataframe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clear_mot_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_precision_euclidean_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_upsamples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.calculate_prediction_accuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that calculates position prediction score for the requested evaluation method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>accuracy_estimation_method</strong> (<em>string</em>) – Position rpediction evaluation method, default = euclidean-distance</p></li>
+<li><p><strong>debugger_files</strong> (<em>boolean</em>) – Flag that indicates if results should be persisted in separate files for debugging purposes, default = False</p></li>
+<li><p><strong>output_include_dataframe</strong> (<em>boolean</em>) – Flag that indicates if function should return prediction dataframe too, default = False</p></li>
+<li><p><strong>clear_mot_threshold</strong> (<em>integer</em>) – For CLEAR-MOT metrics: Squared cut-off value until which a point should be considered “correctly identifier”, default = 1000000</p></li>
+<li><p><strong>output_precision_euclidean_distance</strong> (<em>integer</em>) – For naive metric: Precision of metrics (i.e. decimal digits), default = 2</p></li>
+<li><p><strong>remove_upsamples</strong> (<em>boolean</em>) – Relevant for CLEAR-MOT metrics: Flag that indicates if upsampled datapoints from API response should be removed, default = False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns position prediction accuracy (and optionally the dataframe containing the predictions)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float or list of floats, pandas dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.filter_false_positives_introduced_due_to_upsampling">
+<span class="sig-name descname"><span class="pre">filter_false_positives_introduced_due_to_upsampling</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.filter_false_positives_introduced_due_to_upsampling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that removes upsampled results from API response (i.e. predictions for each timestamp where there were no reported sensor measurements)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns dataframe of predictions excluding umsampled values</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.generate_prediction_dataframe">
+<span class="sig-name descname"><span class="pre">generate_prediction_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">add_matching_initial_identifiers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.generate_prediction_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that generates a prediction dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>add_matching_initial_identifiers</strong> (<em>boolean</em>) – Flag that indicates if initial (true) object mappings should be added too, default = False</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns dataframe of predictions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.get_object_identifier_mappings">
+<span class="sig-name descname"><span class="pre">get_object_identifier_mappings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.get_object_identifier_mappings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getter function for object identifer mappings (i.e. mappings between predicted individuals and object ids from sensor measurements) results</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns object identifier mapping</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.get_prediction_results">
+<span class="sig-name descname"><span class="pre">get_prediction_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.PredictionEvaluator.get_prediction_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Getter function for (position) prediction results</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns predicted positions</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.plot_position_accuracy_distribution">
+<span class="sig-prename descclassname"><span class="pre">evaluation.main.ccs4dt_api_client_calls.</span></span><span class="sig-name descname"><span class="pre">plot_position_accuracy_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataframe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analysis_dimension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'total'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.plot_position_accuracy_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that generates plots of error distribution for naive prediction accuracy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataframe</strong> (<em>pandas dataframe</em>) – Dataframe that contains position prediction errors and sensor data</p></li>
+<li><p><strong>analysis_dimension</strong> (<em>string</em>) – dimension in which data should be analyzed (e.g. total, per sensor, per sensor type), default = total</p></li>
+<li><p><strong>bin_size</strong> (<em>integer</em>) – bin size of distribution in cm, default = 5</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None return (but generation of .html plots in generated_files folder)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="evaluation.main.ccs4dt_api_client_calls.print_CLEAR_MOT_explanation">
+<span class="sig-prename descclassname"><span class="pre">evaluation.main.ccs4dt_api_client_calls.</span></span><span class="sig-name descname"><span class="pre">print_CLEAR_MOT_explanation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#evaluation.main.ccs4dt_api_client_calls.print_CLEAR_MOT_explanation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</section>
+<section id="module-evaluation.main.tempCodeRunnerFile">
+<span id="evaluation-main-tempcoderunnerfile-module"></span><h2>evaluation.main.tempCodeRunnerFile module<a class="headerlink" href="#module-evaluation.main.tempCodeRunnerFile" title="Permalink to this headline">¶</a></h2>
 </section>
 <section id="module-evaluation.main">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-evaluation.main" title="Permalink to this headline">¶</a></h2>
@@ -227,7 +582,8 @@
             <ul>
 <li><a class="reference internal" href="#">evaluation.main package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#evaluation-main-ccs4dt-api-client-calls-module">evaluation.main.ccs4dt_api_client_calls module</a></li>
+<li><a class="reference internal" href="#module-evaluation.main.ccs4dt_api_client_calls">evaluation.main.ccs4dt_api_client_calls module</a></li>
+<li><a class="reference internal" href="#module-evaluation.main.tempCodeRunnerFile">evaluation.main.tempCodeRunnerFile module</a></li>
 <li><a class="reference internal" href="#module-evaluation.main">Module contents</a></li>
 </ul>
 </li>
